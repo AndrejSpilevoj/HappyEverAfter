@@ -48,7 +48,30 @@ function updateSelectedDate(event, date) { selectedDateContainer.innerHTML = `<p
 <script src="https://static.elfsight.com/platform/platform.js" data-use-service-core defer></script>
 
 <style>
-/* ... your additional CSS styles ... */
+
+/* Set the body and html to fill the entire viewport */
+  body, html {
+    margin: 0;
+    padding: 0;
+    width: 200%
+    height: 100%;
+  }
+
+  /* Center the widget container horizontally and vertically */
+  .widget-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 200%;
+    height: 100%;
+  }
+
+  /* Remove any margin or padding applied to the widget itself */
+  #ww_9a02ea692019e {
+    margin: 0;
+    padding: 0;
+  }
+    
 </style>
 
 <div class="widget-container">
