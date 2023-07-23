@@ -43,7 +43,7 @@ function updateSelectedDate(event, date) { selectedDateContainer.innerHTML = `<p
 </script>
    <script src="https://static.elfsight.com/platform/platform.js" data-use-service-core defer></script>
 
-    <style>
+   <style>
   /* Set the body and html to fill the entire viewport */
   body, html {
     margin: 0;
@@ -61,11 +61,10 @@ function updateSelectedDate(event, date) { selectedDateContainer.innerHTML = `<p
 
   /* Set the widget div to take up 100% of its parent's height and width */
   .elfsight-app-686fa0b1-7f55-4b46-afa0-c560156b1619 {
-    width: 200%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    max-height: 100%;
   }
 </style>
 
@@ -73,6 +72,7 @@ function updateSelectedDate(event, date) { selectedDateContainer.innerHTML = `<p
   <!-- Widget div -->
   <div class="elfsight-app-686fa0b1-7f55-4b46-afa0-c560156b1619"></div>
 </div>
+
 
 </head>
     
