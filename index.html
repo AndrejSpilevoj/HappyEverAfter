@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,43 +9,130 @@ h2 { text-align: center; margin-top: 30px; }
 table { margin: 0 auto; border-collapse: collapse; }
 th, td { border: 1px solid #333; padding: 10px; text-align: center; }
 th { background-color: #333; color: white; }
-td { background-color: #fff; position: relative; height: 160px; width: 118px; }
+td { background-color: #fff; position: relative; height: 140px; width: 100px; }
 td:hover { background-color: #f0f0f0; cursor: pointer; }
 .date { font-size: 12px; position: absolute; top: 5px; left: 5px; }
 .event { font-size: 14px; font-weight: bold; color: #ff6600; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-#selected-date-container { background-color: #fff; border: 2px solid #333; padding: 20px; font-size: 30px; font-weight: bold; color: #333; text-align: center; margin: 30px auto; width: 600px; }
-.widget-container { display: flex; justify-content: center; align-items: center; height: 100%; }
 </style>
 </head>
 <body>
 <h2>August 2023</h2>
 <table>
 <tr><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>
-<tr><td id='day-24'><span class='date'>24</span><br><span class='event'>Lietuva</span></td><td id='day-25'><span class='date'>25</span><br><span class='event'>Lietuva</span></td><td id='day-26'><span class='date'>26</span><br><span class='event'>Lietuva</span></td><td id='day-27'><span class='date'>27</span><br><span class='event'>Lietuva</span></td><td id='day-28'><span class='date'>28</span><br><span class='event'>Lietuva</span></td><td id='day-29'><span class='date'>29</span><br><span class='event'>Vilnius to Bergamo, Camper to Lakeview</span></td><td id='day-30'><span class='date'>30</span><br><span class='event'>Lakeview to Tasch</span></td></tr>
-<tr><td id='day-31'><span class='date'>31</span><br><span class='event'>Zermatt</span></td><td id='day-1'><span class='date'>1</span><br><span class='event'>Tasch, Montreux, Lausanne, Geneva</span></td><td id='day-2'><span class='date'>2</span><br><span class='event'>Geneva, Bern, Interlaken</span></td><td id='day-3'><span class='date'>3</span><br><span class='event'>Interlaken</span></td><td id='day-4'><span class='date'>4</span><br><span class='event'>Lucerne</span></td><td id='day-5'><span class='date'>5</span><br><span class='event'>Back to Bergamo, Milan by train (Casa Vacanze Macchi)</span></td><td id='day-6'><span class='date'>6</span><br><span class='event'>Milan</span></td></tr>
-<tr><td id='day-7'><span class='date'>7</span><br><span class='event'>Milan to Varenna (Appartamento Contrada Vecchia)</span></td><td id='day-8'><span class='date'>8</span><br><span class='event'>Wedding in Cipressi</span></td><td id='day-9'><span class='date'>9</span><br><span class='event'>Vytautas arrives to Bergamo at 22:50 (FR4715)</span></td><td id='day-10'><span class='date'>10</span><br><span class='event'>Vytautas arrives to Varenna, Wedding in Cipressi</span></td><td id='day-11'><span class='date'>11</span><br><span class='event'>Varenna to Milan (10:35, EJU3809, Paris to Rouen (La colline bleue)</span></td><td id='day-12'><span class='date'>12</span><br><span class='event'>Bayeux (Appartement du Croissant)</span></td><td id='day-13'><span class='date'>13</span><br><span class='event'>Saint-Loup (Chambres d'Hotes La Maison Neuve)</span></td></tr>
-<tr><td id='day-14'><span class='date'>14</span><br><span class='event'>Gréez-sur-Roc (Chez Jean)</span></td><td id='day-15'><span class='date'>15</span><br><span class='event'>Disney Land</span></td><td id='day-16'><span class='date'>16</span><br><span class='event'>Disney Land</span></td><td id='day-17'><span class='date'>17</span><br><span class='event'>Disney Land to Paris (Au Passage des Marais)</span></td><td id='day-18'><span class='date'>18</span><br><span class='event'>Paris</span></td><td id='day-19'><span class='date'>19</span><br><span class='event'>Paris</span></td><td id='day-20'><span class='date'>20</span><br><span class='event'>Paris to Marseille (Appartement tout équipe Vieux Port 4)</span></td></tr>
-<tr><td id='day-21'><span class='date'>21</span><br><span class='event'>Marseille</span></td><td id='day-22'><span class='date'>22</span><br><span class='event'>Marseille to Nice (Une pépite Place Massena)</span></td><td id='day-23'><span class='date'>23</span><br><span class='event'>Nice</span></td><td id='day-24'><span class='date'>24</span><br><span class='event'>Nice</span></td><td id='day-25'><span class='date'>25</span><br><span class='event'>Nice</span></td><td id='day-26'><span class='date'>26</span><br><span class='event'>Nice to Marseille, Marseille  (20:40) - Bergamo (21:50)</span></td><td id='day-27'><span class='date'>27</span><br><span class='event'>Maria arrives from Vilnius (20:10)</span></td></tr>
-<tr><td id='day-28'><span class='date'>28</span><br><span class='event'>Judita to Lithuania (9:30 - 13:00), Bellagio (La Perla del Lario 51)</span></td><td id='day-29'><span class='date'>29</span><br><span class='event'>Wedding in Villa Balbianello</span></td><td id='day-30'><span class='date'>30</span><br><span class='event'>Bergamo (15:00) - Ryga (18:40)</span></td><td>31</td><td></td><td></td><td></td></tr>
+<tr><td></td><td id='day-1' data-info='DOMAINE LA COLOMBIÈRE
+166 Chemin Neuf
+74160 NEYDENS - France'><span class='date'>1</span><br><span class='event'>Tasch, Geneva</span></td><td id='day-2' data-info='Camping MANOR FARM 1
+Seestrasse 201
+3800 Interlaken-Thunersee
+Switzerland'><span class='date'>2</span><br><span class='event'>Geneva, Bern, Interlaken</span></td><td id='day-3' data-info=''><span class='date'>3</span><br><span class='event'>Interlaken</span></td><td id='day-4' data-info=''><span class='date'>4</span><br><span class='event'>Lucerne</span></td><td id='day-5' data-info=''><span class='date'>5</span><br><span class='event'>Back to Bergamo, Milan by train (Casa Vacanze Macchi)</span></td><td id='day-6' data-info='Duomo: https://ticket.duomomilano.it/en/biglietti/'><span class='date'>6</span><br><span class='event'>Milan</span></td></tr>
+<tr><td id='day-7' data-info=''><span class='date'>7</span><br><span class='event'>Milan to Varenna (Appartamento Contrada Vecchia)</span></td><td id='day-8' data-info=''><span class='date'>8</span><br><span class='event'>Wedding in Cipressi</span></td><td id='day-9' data-info=''><span class='date'>9</span><br><span class='event'>Vytautas arrives to Bergamo at 22:50 (FR4715)</span></td><td id='day-10' data-info=''><span class='date'>10</span><br><span class='event'>Vytautas arrives to Varenna, Wedding in Cipressi</span></td><td id='day-11' data-info='Rouen Cathedral (Cathédrale Notre-Dame de Rouen): The Rouen Cathedral is a masterpiece of Gothic architecture and is famous for its stunning facade and intricate details. Take a guided tour or explore the cathedral's interior together, and don't forget to show the kids the beautiful stained glass windows. It's an awe-inspiring sight for visitors of all ages.
+
+Gros-Horloge and Old Town: The Gros-Horloge is a magnificent astronomical clock located in the heart of Rouen. The clock's mechanism is visible from the street, and you can also climb the belfry for a panoramic view of the city. Afterward, wander through Rouen's charming old town with its half-timbered houses, narrow streets, and historic squares. It's a delightful area to explore with kids, and you can find several cozy cafés and restaurants to enjoy a meal or a treat.
+
+Parc Saint-Sever: For some outdoor fun and relaxation, head to Parc Saint-Sever. This public park offers green spaces, playgrounds, and even a small lake with ducks. It's an ideal place to let your kids burn off some energy and enjoy the fresh air. You can have a family picnic or just take a leisurely stroll through the park.'><span class='date'>11</span><br><span class='event'>Varenna to Milan (10:35, EJU3809, Paris to Rouen (La colline bleue)</span></td><td id='day-12' data-info='Bayeux Tapestry: Despite being categorized as a museum, the Bayeux Tapestry is more of a historical attraction and a must-see. It's a unique and captivating embroidered cloth that tells the story of the Norman conquest of England. The kids can enjoy the engaging visuals and learn about this historical event in a visually appealing way.
+
+Bayeux Cathedral (Cathédrale Notre-Dame de Bayeux): The impressive Bayeux Cathedral with its beautiful Gothic architecture and stunning stained glass windows can be fascinating for children. It's a great opportunity to explore the grandeur of a medieval cathedral and admire its intricate details.
+
+Jardin Public: Spend some leisurely time at the Jardin Public, the public garden near the Bayeux Cathedral. It's a pleasant green space where your kids can run around, play, and enjoy a relaxing picnic. It's a perfect spot to take a break between sightseeing.'><span class='date'>12</span><br><span class='event'>Bayeux (Appartement du Croissant)</span></td><td id='day-13' data-info='Mont Saint-Michel Abbey: The most prominent and fascinating attraction on the island is the Mont Saint-Michel Abbey. Take a guided tour or explore the abbey at your own pace, climbing up the narrow and winding streets. The views from the top are breathtaking, and the historical significance of the abbey will captivate both adults and children. It is like stepping back in time!
+
+Ramparts and Walks: After visiting the abbey, take a leisurely stroll along the fortified ramparts of Mont Saint-Michel. The ramparts offer panoramic views of the surrounding bay and countryside. Kids will enjoy walking on the walls and pretending to be knights defending the castle.
+
+Exploring the Village: Wander through the charming village streets of Mont Saint-Michel, filled with shops, restaurants, and houses that date back centuries. The medieval atmosphere is enchanting, and the kids might find it exciting to explore the narrow alleys and discover hidden corners.'><span class='date'>13</span><br><span class='event'>Saint-Loup (Chambres d'Hotes La Maison Neuve)</span></td></tr>
+<tr><td id='day-14' data-info='Le Mans Karting International (Karting Circuit): If your kids enjoy excitement and adventure, head to Le Mans Karting International. They offer go-karting experiences suitable for various age groups. It's a thrilling activity that can be enjoyed by both kids and adults, and it's sure to get their adrenaline pumping.
+
+Visit the Old Town and Play "City Explorers": Explore the charming Old Town of Le Mans and turn it into a fun adventure for the kids. Create a scavenger hunt or a "city explorers" game where the children have to find specific landmarks, statues, or interesting features around the town. It's a creative way to engage them in the history and architecture of the city.
+
+Plan a Picnic and Visit a Local Market: Pack a delicious picnic with French treats and head to one of the public squares in Le Mans. Enjoy a relaxing meal outdoors, and if you happen to be in Le Mans on a Wednesday or Sunday morning, visit the local markets. The Marché des Jacobins, for example, is a lively market where you can find fresh produce, local specialties, and unique artisan products. Let the kids help choose some treats for the picnic and experience the vibrant market atmosphere.
+
+Bonus Activity: Visit the Labyrinthe Végétal (Vegetable Maze) in Guécelard, just a short drive from Le Mans. This maze is made up of plants and provides a fun and challenging activity for the whole family. The kids can navigate through the labyrinth, and it's a great way to spend time together outdoors.'><span class='date'>14</span><br><span class='event'>Gréez-sur-Roc (Chez Jean)</span></td><td id='day-15' data-info=''><span class='date'>15</span><br><span class='event'>Disney Land</span></td><td id='day-16' data-info=''><span class='date'>16</span><br><span class='event'>Disney Land</span></td><td id='day-17' data-info=''><span class='date'>17</span><br><span class='event'>Disney Land to Paris (Au Passage des Marais)</span></td><td id='day-18' data-info='Morning:
+
+Eiffel Tower: Start early and head to the Eiffel Tower. Arriving early in the morning will help you avoid the biggest crowds. You can take the stairs or elevator to the second floor for stunning views of Paris.
+
+Trocadéro Gardens: After visiting the Eiffel Tower, stroll over to the Trocadéro Gardens across the Seine River. It's a beautiful spot for family photos with the Eiffel Tower in the background.
+
+Lunchtime:
+3. Grab a Picnic: Consider grabbing some delicious French pastries and sandwiches from local bakeries or markets and have a picnic at a nearby park. The Champ de Mars park near the Eiffel Tower is a great option.
+
+Afternoon:
+4. Seine River Cruise: Take a relaxing Seine River cruise to see many iconic landmarks, including Notre-Dame Cathedral, Musée d'Orsay, and Louvre Museum. Opt for an open-top boat for the best views.
+
+Louvre Museum (Outside Only): Visit the Louvre in the late afternoon, but consider only exploring the exterior and the courtyard with the glass pyramid. Entering the museum may take a lot of time, so save an in-depth visit for another trip.'><span class='date'>18</span><br><span class='event'>Paris</span></td><td id='day-19' data-info='Morning:
+
+Notre-Dame Cathedral: Start your day with a visit to Notre-Dame Cathedral. As of my last update in 2021, the interior may still be closed for renovation, but the exterior and the surroundings are worth seeing.
+
+Île de la Cité: Explore the picturesque Île de la Cité, where Notre-Dame is located. Enjoy the charming streets and take a walk along the Seine.
+
+Lunchtime:
+3. Latin Quarter: Head to the Latin Quarter for lunch, a vibrant neighborhood with many restaurants and cafés. It's a lively area with a bohemian atmosphere.
+
+Afternoon:
+4. Sainte-Chapelle: Visit Sainte-Chapelle, a stunning Gothic chapel known for its breathtaking stained glass windows. It's a relatively quick visit, and the kids may be fascinated by the colors of the glass.
+
+Montmartre: Take a taxi or public transportation to Montmartre. Wander through the artistic streets, visit the Basilique du Sacré-Cœur for beautiful views of the city, and enjoy street performances.
+Evening:
+6. Bateaux-Mouches Evening Cruise: End your second day with an evening Bateaux-Mouches cruise on the Seine River. It offers a different perspective of the city, as many landmarks are illuminated at night.
+
+By starting early and being mindful of peak hours, you can make the most of your time in Paris and explore the city's top attractions with your family at a comfortable pace. Remember to check for any updated information or changes in operating hours for the attractions, especially in light of any events or developments that may have occurred after my last update in 2021. Enjoy your time in the City of Light!'><span class='date'>19</span><br><span class='event'>Paris</span></td><td id='day-20' data-info='Train ticket: https://www.thetrainline.com/book/results?origin=69b59b70a73b72302eff45627aeef377&destination=1846c9474c93ab658d867aeaabcd4fef&outwardDate=2023-08-20T10%3A00%3A00&outwardDateType=departAfter&journeySearchType=single&passengers%5B%5D=1996-07-25%7C8e34745f-c07e-4424-bb69-2d5d6530c241&passengers%5B%5D=2017-07-25%7C36b015b2-c006-457e-b51e-3879b114fb22&passengers%5B%5D=2012-07-25%7C2bc71fff-9f89-4de0-a3a2-c4f77f22621d&passengers%5B%5D=1996-07-25%7Cc24719b8-cf32-4058-9edf-81aaa254cc98&directSearch=false&selectedOutward=HO28SB0cy9M%3D%3AVI82gd8RYvk%3D%3AStandard'><span class='date'>20</span><br><span class='event'>Paris to Marseille (Appartement tout équipe Vieux Port 4)</span></td></tr>
+<tr><td id='day-21' data-info='Morning:
+
+Vieux-Port (Old Port): Start your day at the Vieux-Port, the historic and bustling old port of Marseille. Take a leisurely stroll along the harbor, and you can see colorful fishing boats, yachts, and enjoy the vibrant atmosphere.
+
+Boat Tour: Embark on a short boat tour from the Old Port, exploring the coastline and getting views of Marseille from the sea. Kids will enjoy being on the water and spotting landmarks from a different perspective.
+
+Lunchtime:
+
+La Panier: Head to the nearby neighborhood of La Panier for lunch. It's one of the oldest and most charming areas of Marseille, with narrow streets and colorful buildings. There are plenty of restaurants and cafes to choose from, offering delicious local cuisine.
+Afternoon:
+
+Le Petit Train de Marseille: After lunch, take the Petit Train de Marseille, a small tourist train, for a guided tour around the city. It's a fun way to see various highlights of Marseille, and the kids may find it exciting and informative.
+
+MuCEM (Museum of European and Mediterranean Civilizations) and Fort Saint-Jean: While we're trying to avoid museums, the MuCEM itself is more of a cultural center with outdoor spaces that your family can explore. The building's unique architecture and the adjoining Fort Saint-Jean offer great opportunities for a walk and some open-air exploration.
+
+Plage des Catalans (Catalans Beach): If the weather is nice, head to Plage des Catalans, a family-friendly beach near the Old Port. Let the kids play in the sand and swim while you relax and enjoy the Mediterranean atmosphere.
+
+Evening:
+
+Basilique Notre-Dame de la Garde: End your day with a visit to the iconic Basilique Notre-Dame de la Garde, located on the highest point in Marseille. Take a taxi or public transportation to the basilica, and enjoy the breathtaking panoramic views of the city and the sea. The kids will likely be impressed by the grandeur of the basilica and the scenery.'><span class='date'>21</span><br><span class='event'>Marseille</span></td><td id='day-22' data-info=''><span class='date'>22</span><br><span class='event'>Marseille to Nice (Une pépite Place Massena)</span></td><td id='day-23' data-info='Blue Beach: Spend some time at the family-friendly Blue Beach, where kids can play in the sand and enjoy the shallow waters. You can rent beach loungers and umbrellas for a relaxing day by the sea.
+
+Albert 1st Gardens: Visit the Albert 1st Gardens, a beautiful park with fountains, playgrounds, and a carousel. It's a great place for a leisurely walk and some playtime for the kids.
+
+Place Masséna: Return to Place Masséna in the evening to see the illuminated fountains and sculptures, creating a magical atmosphere for an after-dinner walk.'><span class='date'>23</span><br><span class='event'>Nice</span></td><td id='day-24' data-info='Phoenix Park (Parc Phoenix): Explore Phoenix Park, a botanical garden and zoo located near Nice Airport. The park features tropical greenhouses, a playground, and a wide variety of plants and animals.
+
+Terra Amata Archaeological Site: If your family enjoys history, visit the Terra Amata Archaeological Site, which showcases prehistoric remains and offers a fascinating glimpse into early human habitation in the area.
+
+The Green Flow (Promenade du Paillon Extension): Discover "The Green Flow," an extension of the Promenade du Paillon, with interactive water features and play areas that kids will love.'><span class='date'>24</span><br><span class='event'>Nice</span></td><td id='day-25' data-info='Cap Ferrat Day Trip: Take a day trip to Cap Ferrat, a picturesque peninsula near Nice, known for its beautiful coastal views and lovely walking paths. You can explore Villa Ephrussi de Rothschild and its stunning gardens.
+
+Le Château de la Napoule: Another great day trip option is Le Château de la Napoule, a medieval castle located in Mandelieu-la-Napoule. The castle hosts family-friendly events and has a lovely garden overlooking the sea.
+
+Marineland Antibes: If your kids love marine life, visit Marineland Antibes, a popular marine park with shows featuring dolphins, killer whales, and sea lions.
+
+The Old Town's Gelato Shops: Treat the family to some delicious gelato from the numerous gelaterias in the Old Town, each offering a variety of flavors to choose from.'><span class='date'>25</span><br><span class='event'>Nice</span></td><td id='day-26' data-info=''><span class='date'>26</span><br><span class='event'>Nice to Marseille, Marseille  (20:40) - Bergamo (21:50)</span></td><td id='day-27' data-info=''><span class='date'>27</span><br><span class='event'>Maria arrives from Vilnius (20:10)</span></td></tr>
+<tr><td id='day-28' data-info=''><span class='date'>28</span><br><span class='event'>Judita to Lithuania (9:30 - 13:00), Bellagio (La Perla del Lario 51)</span></td><td id='day-29' data-info=''><span class='date'>29</span><br><span class='event'>Wedding in Villa Balbianello</span></td><td id='day-30' data-info=''><span class='date'>30</span><br><span class='event'>Bergamo (15:00) - Ryga (18:40)</span></td><td>31</td><td></td><td></td><td></td></tr>
 </table>
 <div id='selected-date-container'></div>
+<div id='information-container'></div>
 <style>
-/* ... your additional CSS styles ... */
+#selected-date-container {    background-color: #fff;    border: 2px solid #333;    padding: 20px;    font-size: 30px;    font-weight: bold;    color: #333;    text-align: center;    margin: 30px auto;    width: 600px;}
+#information-container {    background-color: #f0f0f0;    border: 2px solid #333;    padding: 20px;    font-size: 16px;    color: #333;    text-align: center;    margin: 30px auto;    width: 600px;}
 </style>
-
 <script>
-// ... your first script ...
 var selectedDateContainer = document.getElementById('selected-date-container');
+var informationContainer = document.getElementById('information-container');
 document.addEventListener('click', function(event) {
     var target = event.target;
     if (target && target.tagName === 'TD') {
         var day = target.querySelector('.date').innerText;
         var eventText = target.querySelector('.event').innerText;
-        updateSelectedDate(eventText, day);
+        var information = target.getAttribute('data-info');
+        updateSelectedDate(eventText, day, information);
     }
 });
-function updateSelectedDate(event, date) { selectedDateContainer.innerHTML = `<p>Date: ${date}</p><p> ${event}</p>`; }
+function updateSelectedDate(event, date, info) {
+    selectedDateContainer.innerHTML = `<p>Date: ${date}</p><p>Event: ${event}</p>`;
+    informationContainer.innerHTML = `<p>Information: ${info}</p>`;
+}
 </script>
+
 
 <script src="https://static.elfsight.com/platform/platform.js" data-use-service-core defer></script>
 
