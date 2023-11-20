@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Radio Stream Alarm</title>
+</head>
+<body>
+    <h2 style="text-align: center;">Your Radio Stream Alarm</h2>
+
+    <p style="text-align: center;">
+        <label for="alarmTime">Set Alarm Time:</label>
+        <input type="time" id="alarmTime">
+        <button onclick="setAlarmWithReminder()">Set Alarm</button>
+    </p>
+
+    <p style="text-align: center;">
+        <button onclick="setCustomStream()">Set Custom Stream</button>
+    </p>
+
+    <p style="text-align: center;">
+        <audio id="audioPlayer" controls>
+            <source src="https://kisskiss.fluidstream.eu/KKItalia.aac" type="audio/aac">
+            Your browser does not support the audio element.
+        </audio>
+    </p>
+
+    <script>
+        function setAlarmWithReminder() {
+            var alarmTimeInput = document.getElementById("alarmTime");
+            var alarmTime = alarmTimeInput.value;
+            var reminder = prompt("Enter a reminder for the alarm (optional):");
+            var now = new Date();
+            var alarmDateTime = new Date(now.toDateString() + " " + alarmTime);
+
+            var currentTime = new Date();
+
+            if (alarmDateTime <= currentTime) {
+                alert("Please select a future time for the alarm.");
+                return;
+            }
+
+            var confirmation = confirm("Alarm is set for " + alarmTime + ". Do you want to proceed?");
+            
+            if (confirmation) {
+                setAlarm(alarmDateTime, reminder);
+            }
+        }
+
+        function setCustomStream() {
+            var customStreamURL = prompt("Enter the streaming radio URL or click 'Search for your radio stream URL here' to open a new page. \n\n(Searching for stream URLs will open a new tab/window.)", "https://streamurl.link/");
+
+            if (customStreamURL !== null && customStreamURL !== "") {
+                if (customStreamURL === "https://streamurl.link/") {
+                    window.open(customStreamURL, "_blank");
+                } else {
+                    setRadioStream(customStreamURL);
+                }
+            }
+        }
+
+        function setAlarm(alarmDateTime, reminder) {
+            var currentTime = new Date();
+            var timeToAlarm = alarmDateTime - currentTime;
+
+            setTimeout(function() {
+                playRadioStream();
+                if (reminder) {
+                    alert("Reminder: " + reminder);
+                }
+            }, timeToAlarm);
+        }
+
+        function setRadioStream(streamURL) {
+            var audioPlayer = document.getElementById("audioPlayer");
+            audioPlayer.src = streamURL;
+            audioPlayer.load();
+        }
+
+        function playRadioStream() {
+            var audioPlayer = document.getElementById("audioPlayer");
+            audioPlayer.play();
+        }
+    </script>
+</body>
+</html>
