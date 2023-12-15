@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grynojo pelno skaičiuoklė</title>
+    <meta charset="UTF-8">
+
+    <script>
+        function calculateSalary() {
+            var price = parseFloat(document.getElementById('price').value);
+            var hours = parseFloat(document.getElementById('hours').value);
+            var expenses = parseFloat(document.getElementById('expenses').value);
+
+            var hourlySalary = hours * 20;
+            var officeExpenses = hours * 8;
+            var totalSalary = price - hourlySalary - expenses - officeExpenses;
+
+            document.getElementById('hourlySalary').innerHTML = "Atlyginimas: " + hourlySalary + " Euro";
+            document.getElementById('officeExpenses').innerHTML = "Ofiso išlaidos: " + officeExpenses + " Euro";
+            document.getElementById('totalSalary').innerHTML = "Grynasis pelnas: " + totalSalary + " Euro";
+        }
+    </script>
+</head>
+<body>
+
+    <h2>Grynojo pelno skaičiuoklė</h2>
+
+    <form>
+        <label for="price">Kaina:</label>
+        <input type="number" id="price" required><br>
+
+        <label for="hours">Darbo valandos:</label>
+        <input type="number" id="hours" required><br>
+
+        <label for="expenses">Išlaidos:</label>
+        <input type="number" id="expenses" required><br>
+
+        <input type="button" value="Calculate" onclick="calculateSalary()">
+    </form>
+
+    <div id="hourlySalary"></div>
+    <div id="officeExpenses"></div>
+    <div id="totalSalary"></div>
+
+</body>
+</html>
