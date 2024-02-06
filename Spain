@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_57bce9bbc80d02fecd93a6f8c3b6e24d {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_57bce9bbc80d02fecd93a6f8c3b6e24d" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_57bce9bbc80d02fecd93a6f8c3b6e24d = L.map(
+                "map_57bce9bbc80d02fecd93a6f8c3b6e24d",
+                {
+                    center: [36.4833, -4.9833],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 10,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_887c44cf01e6920ee96cf9b2ea6ac775 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+        
+    
+            tile_layer_887c44cf01e6920ee96cf9b2ea6ac775.addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+    
+            var marker_0dc9e243fc17c7579db0da9caa3fcb6e = L.marker(
+                [36.6771, -4.4917],
+                {}
+            ).addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+    
+            var div_icon_1e36e61e66142a99154be7f421c496c0 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eMalaga airport\u003c/strong\u003e\u003cbr\u003eKovo 4, MALAGA: Airport -\u003e Benalm\u00e1dena\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_0dc9e243fc17c7579db0da9caa3fcb6e.setIcon(div_icon_1e36e61e66142a99154be7f421c496c0);
+        
+    
+            var marker_f9c9133360a155b4e3acb010a3e6f786 = L.marker(
+                [36.5988, -4.5168],
+                {}
+            ).addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+    
+            var div_icon_9c91abad65a8eed20c487f4ab64b719f = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eBenalm\u00e1dena\u003c/strong\u003e\u003cbr\u003eKovo 4 - 5, Benalm\u00e1dena -\u003e Gibraltar\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_f9c9133360a155b4e3acb010a3e6f786.setIcon(div_icon_9c91abad65a8eed20c487f4ab64b719f);
+        
+    
+            var marker_a89fdd9338e5947fd5558b4568bcca11 = L.marker(
+                [36.4833, -4.9833],
+                {}
+            ).addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+    
+            var div_icon_8f709c80cc6d3605d59e0325838b5a59 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003e1 hr 34 min\u003c/strong\u003e\u003cbr\u003e\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_a89fdd9338e5947fd5558b4568bcca11.setIcon(div_icon_8f709c80cc6d3605d59e0325838b5a59);
+        
+    
+            var marker_f5154762ae3da426aee25e2a463362ba = L.marker(
+                [36.1408, -5.3536],
+                {}
+            ).addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+    
+            var div_icon_1e27109d7e5d977e45c6540f2567e1d6 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eGibraltar\u003c/strong\u003e\u003cbr\u003eKovo 5 - 6, Gibraltar -\u003e Ronda\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_f5154762ae3da426aee25e2a463362ba.setIcon(div_icon_1e27109d7e5d977e45c6540f2567e1d6);
+        
+    
+            var marker_38e283f9bd17dc09651219ff9f8bc7cb = L.marker(
+                [36.5396, -5.3871],
+                {}
+            ).addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+    
+            var div_icon_0f46be33efdd07db041981ad7d560133 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003e1 hr 58 min\u003c/strong\u003e\u003cbr\u003e\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_38e283f9bd17dc09651219ff9f8bc7cb.setIcon(div_icon_0f46be33efdd07db041981ad7d560133);
+        
+    
+            var marker_0cd542192fe2d7c38b3dc06758bdcc7a = L.marker(
+                [36.7462, -5.1612],
+                {}
+            ).addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+    
+            var div_icon_1b46381a2552cb8b36290e542cfa3d38 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eRonda\u003c/strong\u003e\u003cbr\u003eKovo 6 - 7, Ronda -\u003e Malaga\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_0cd542192fe2d7c38b3dc06758bdcc7a.setIcon(div_icon_1b46381a2552cb8b36290e542cfa3d38);
+        
+    
+            var marker_01b9d2151905f1e59f359b0e32f1fb1f = L.marker(
+                [36.7213, -4.4213],
+                {}
+            ).addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+    
+            var div_icon_e73952c65691bd88fbf761001a0d02b3 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eMalaga airport\u003c/strong\u003e\u003cbr\u003eKovo 7 - 9, MALAGA, Caminito del Rey\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_01b9d2151905f1e59f359b0e32f1fb1f.setIcon(div_icon_e73952c65691bd88fbf761001a0d02b3);
+        
+    
+            var poly_line_1c756b59fe28c88eb8f70f11e9c5d53b = L.polyline(
+                [[36.6771, -4.4917], [36.5988, -4.5168], [36.4833, -4.9833], [36.1408, -5.3536], [36.5396, -5.3871], [36.7462, -5.1612], [36.7213, -4.4213]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(map_57bce9bbc80d02fecd93a6f8c3b6e24d);
+        
+</script>
+</html>
