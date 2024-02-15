@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pizza Calculator</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url("C:/Users/Andrej.Spilevoj/Desktop/pizza_back.jpg");
+            background-size: cover;
+            background-position: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        h2 {
+            color: white;
+            font-size: 24px; /* Adjust the font size as needed */
+        }
+
+        form {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 400px; /* Adjust the width as needed */
+            text-align: left;
+        }
+
+        label {
+            font-weight: bold;
+            color: white;
+            font-size: 18px; /* Adjust the font size as needed */
+            text-align: right;
+            margin-right: 10px;
+            flex: 1;
+            min-width: 220px;
+        }
+
+        input {
+            flex: 1;
+            margin-left: 10px;
+            margin-bottom: 10px; /* Added margin bottom to create space between input boxes */
+        }
+
+        #result {
+            display: none;
+            margin-top: 10px; /* Added margin top to create space between result and form */
+        }
+
+        button {
+            margin-top: 10px; /* Added margin top to create space between form and button */
+        }
+
+        .form-group {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            flex: 1;
+        }
+
+        .form-group input {
+            flex: 1;
+            margin-left: 10px;
+        }
+    </style>
+    <script>
+        function calculate() {
+            // Get input values
+            var smallDiameter = parseFloat(document.getElementById('small_diameter').value);
+            var smallPrice = parseFloat(document.getElementById('small_price').value);
+
+            var largeDiameter = parseFloat(document.getElementById('large_diameter').value);
+            var largePrice = parseFloat(document.getElementById('large_price').value);
+
+            // Calculate values
+            var smallRadius = smallDiameter / 2 - 1;
+            var largeRadius = largeDiameter / 2 - 1;
+            var smallArea = 3.14 * (smallRadius)*(smallRadius);
+            var largeArea = 3.14 * (largeRadius)*(largeRadius);
+
+            var smallValue = (smallArea / smallPrice).toFixed(2);
+            var largeValue = (largeArea / largePrice).toFixed(2);
+
+            // Display calculated values in a pop-up
+            alert("For each 1 euro for Small Pizza you get " + smallValue + " squared cm of cheese covered pizza.\nFor each 1 euro for Large Pizza you get " + largeValue + " squared cm of cheese covered pizza.");
+        }
+    </script>
+</head>
+<body>
+    <h2>Pizza Value Calculator</h2>
+    <form>
+        <div class="form-group">
+            <label for="small_diameter">Small Pizza Diameter (cm):</label>
+            <input type="number" id="small_diameter" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="small_price">Small Pizza Price:</label>
+            <input type="number" id="small_price" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="large_diameter">Large Pizza Diameter (cm):</label>
+            <input type="number" id="large_diameter" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="large_price">Large Pizza Price:</label>
+            <input type="number" id="large_price" step="0.01" required>
+        </div>
+        <button type="button" onclick="calculate()">Calculate</button>
+    </form>
+
+    <div id="result"></div>
+</body>
+</html>
