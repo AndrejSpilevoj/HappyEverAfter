@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_275519226453cdc91c048b5b02244e7f {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_275519226453cdc91c048b5b02244e7f" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_275519226453cdc91c048b5b02244e7f = L.map(
+                "map_275519226453cdc91c048b5b02244e7f",
+                {
+                    center: [48.2082, 16.3719],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 5,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_2d1a54d87532a87ef650a814a85b76b9 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detectRetina": false, "maxNativeZoom": 19, "maxZoom": 19, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+        
+    
+            tile_layer_2d1a54d87532a87ef650a814a85b76b9.addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_25ca0ce60a5fc8f2eddbcce9227f6c2d = L.marker(
+                [55.725397370885766, 24.360976585782957],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_71275b57866d85be769d381687aea6f0 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eVilties progimnazija\u003c/strong\u003e\u003cbr\u003ePIANO: QUALITY 60%, ACCESS: 100%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_25ca0ce60a5fc8f2eddbcce9227f6c2d.setIcon(div_icon_71275b57866d85be769d381687aea6f0);
+        
+    
+            var circle_marker_fb811dabe6029a02f28d65b33f822dba = L.circleMarker(
+                [55.725397370885766, 24.360976585782957],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_cedf9ed8686759c2f7eb6da9c8a9ce47 = L.marker(
+                [55.72894566881697, 24.364142473704334],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_fd1418e8e16b293d575f22bb2a03f621 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eJuozo Miltinio dramos teatras\u003c/strong\u003e\u003cbr\u003eGRAND PIANO: QUALITY 90%, ACCESS: 50%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_cedf9ed8686759c2f7eb6da9c8a9ce47.setIcon(div_icon_fd1418e8e16b293d575f22bb2a03f621);
+        
+    
+            var circle_marker_3fcb8d0b72d1ad45f1d12c0c2115b70b = L.circleMarker(
+                [55.72894566881697, 24.364142473704334],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_de80f6b5d771216e11ecd13c57060b47 = L.marker(
+                [55.72741038380194, 24.36285352674769],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_3cb9610adfbe4adccad81472a974936a = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eKavin\u0117 \"Kavos d\u0117\u017eut\u0117\"\u003c/strong\u003e\u003cbr\u003ePIANO: QUALITY 60%, ACCESS: 100%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_de80f6b5d771216e11ecd13c57060b47.setIcon(div_icon_3cb9610adfbe4adccad81472a974936a);
+        
+    
+            var circle_marker_2f91451aadd86ed5ee91cb2da83c2b7b = L.circleMarker(
+                [55.72741038380194, 24.36285352674769],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_6fc982258a4c47b9c60a58ae5ba304c2 = L.marker(
+                [55.728488749007276, 24.36027991166608],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_00c9f2541054cd6ba122f69fbb33ca33 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eGabriel\u0117s Petkevi\u010dait\u0117s-Bit\u0117s Library\u003c/strong\u003e\u003cbr\u003eGRAND PIANO: QUALITY 100%, ACCESS: 50%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_6fc982258a4c47b9c60a58ae5ba304c2.setIcon(div_icon_00c9f2541054cd6ba122f69fbb33ca33);
+        
+    
+            var circle_marker_bca84ae725afd581bde2d50ed3a56b5e = L.circleMarker(
+                [55.728488749007276, 24.36027991166608],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_b5cda806e828dc47cf48a2b396146c79 = L.marker(
+                [55.72590588419925, 24.360825409222727],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_7fad46f7dc5463e6dc1edc8f59c98954 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003ePanev\u0117\u017eio music school\u003c/strong\u003e\u003cbr\u003e3 GRAND PIANOS: QUALITY 100%, ACCESS: 50%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_b5cda806e828dc47cf48a2b396146c79.setIcon(div_icon_7fad46f7dc5463e6dc1edc8f59c98954);
+        
+    
+            var circle_marker_9aa9fa36f3af9de6dbfb1231c979b196 = L.circleMarker(
+                [55.72590588419925, 24.360825409222727],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_c2caaf043e632adc229d244c4a95d015 = L.marker(
+                [55.9419506, 23.2996111],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_2eabf3e1b6fdf92089a79fdb9778ff30 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003e\u0160iauliai Lung Diseases Clinic\u003c/strong\u003e\u003cbr\u003ePIANO: QUALITY 70%, ACCESS: 100%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_c2caaf043e632adc229d244c4a95d015.setIcon(div_icon_2eabf3e1b6fdf92089a79fdb9778ff30);
+        
+    
+            var circle_marker_6d148a136ca19b98e64984852772e343 = L.circleMarker(
+                [55.9419506, 23.2996111],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_b4d3619b04626a333d22c0a9f63b7583 = L.marker(
+                [54.92011690100797, 23.984246731446284],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_2935e409497e5c7745c26d785cc9cee0 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eKaunas College\u003c/strong\u003e\u003cbr\u003ePIANO: QUALITY 90%, ACCESS: 100%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_b4d3619b04626a333d22c0a9f63b7583.setIcon(div_icon_2935e409497e5c7745c26d785cc9cee0);
+        
+    
+            var circle_marker_70ee5d03b244273d6c535103f2ce842d = L.circleMarker(
+                [54.92011690100797, 23.984246731446284],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_c57e61d82e870e560dbcc6921e7067cf = L.marker(
+                [45.6709296, 9.6987556],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_35af4d0ce54a5e0b9bc7022addd1a3e4 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eBergamo Orio al Serio Airport\u003c/strong\u003e\u003cbr\u003eGRAND PIANO: QUALITY 100%, ACCESS: 100%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_c57e61d82e870e560dbcc6921e7067cf.setIcon(div_icon_35af4d0ce54a5e0b9bc7022addd1a3e4);
+        
+    
+            var circle_marker_5cf0f338cfa8427dced541b4f54ad93d = L.circleMarker(
+                [45.6709296, 9.6987556],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_8460dc92322b4ef5ca46513441bdc875 = L.marker(
+                [51.4429623, 5.4795265],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_bc5466c87a1cfe6b9fae0a314e99c2d0 = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eEindhoven Centraal\u003c/strong\u003e\u003cbr\u003ePIANO: QUALITY 90%, ACCESS: 100%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_8460dc92322b4ef5ca46513441bdc875.setIcon(div_icon_bc5466c87a1cfe6b9fae0a314e99c2d0);
+        
+    
+            var circle_marker_2068020c7144a457e421fa0df9017214 = L.circleMarker(
+                [51.4429623, 5.4795265],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var marker_380aaaff40b06abdf7a002d071db1793 = L.marker(
+                [52.365606, 4.8915478],
+                {}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+    
+            var div_icon_3540826cf50052f05421b0a5cf6ebc2f = L.divIcon({"className": "empty", "html": "\u003cdiv style=\"background-color:white;border:1px solid black;padding:5px;border-radius:5px;\"\u003e\n                        \u003cstrong\u003eCats Museum\u003c/strong\u003e\u003cbr\u003eGRAND PIANO: QUALITY 90%, ACCESS: 100%\n                    \u003c/div\u003e", "iconAnchor": [0, 0], "iconSize": [150, 36]});
+            marker_380aaaff40b06abdf7a002d071db1793.setIcon(div_icon_3540826cf50052f05421b0a5cf6ebc2f);
+        
+    
+            var circle_marker_4af127954ed0e9eabdef9512e12f5be2 = L.circleMarker(
+                [52.365606, 4.8915478],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 8, "stroke": true, "weight": 3}
+            ).addTo(map_275519226453cdc91c048b5b02244e7f);
+        
+</script>
+</html>
