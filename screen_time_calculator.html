@@ -72,7 +72,7 @@
             let skaiciai2 = [2, 3, 4, 5, 6, 7, 8, 9];
             let skaiciai3 = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 30, 40, 50, 60, 70, 80, 90, 100];
 
-            let resultText = "O, kietai! Per metus telefone praleidžiate " + metinis_laikas_dienos;
+            let resultText = "Sveikiname! Per metus telefone praleidžiate " + metinis_laikas_dienos;
 
             if (skaiciai.includes(metinis_laikas_dienos)) {
                 resultText += " dieną!";
@@ -107,8 +107,7 @@
         <input type="number" id="expectedYears" name="expectedYears" placeholder="Įveskite metus"><br><br>
 
         <button onclick="calculateScreenTime()">Apskaičiuoti</button>
-
-        <h2>Rezultatas:</h2>
+        
         <p id="result"></p>
         <p id="finalResult"></p>
     </div>
