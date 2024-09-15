@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaikų IT raštingumo pamoka</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f4f8;
+            margin: 0;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #1e1e1e;
+            margin-bottom: 40px; /* Increased space below the title */
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #1e1e1e;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            font-size: 18px;
+            padding: 12px;
+            border: 1px solid #d0d0d5;
+            border-radius: 12px;
+            margin: 10px;
+            width: 300px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 4px 8px rgba(0, 122, 255, 0.2);
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 18px;
+            border: none;
+            border-radius: 12px;
+            background-color: #007aff;
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #0051a8;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .small-button {
+            padding: 8px 16px;
+            font-size: 14px;
+            background-color: #f0f4f8;
+            color: #007aff;
+            border: 1px solid #007aff;
+            margin: 30px 10px 0 10px; /* Adjust margin to place lower */
+        }
+
+        .small-button:hover {
+            background-color: #e0e4e8;
+        }
+
+        .small-button:active {
+            transform: scale(0.98);
+        }
+
+        p {
+            font-size: 20px;
+            margin: 10px 0;
+        }
+
+        .timer {
+            font-size: 18px;
+            margin: 5px;
+            color: #333;
+        }
+
+        .message {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .retry {
+            color: #dc3545;
+        }
+    </style>
+    <script>
+        let parentPhrase = "";
+        let parentStartTime, parentInterval, parentSpeed;
+        let childStartTime, childInterval, childSpeed;
+        let parentTimerStarted = false;
+        let childTimerStarted = false;
+
+        // Sounds (you need to download and reference local files)
+        const successSound = new Audio('success_sound.mp3');  // Replace with actual file path
+        const retrySound = new Audio('retry_sound.mp3');  // Replace with actual file path
+
+        // Start parent typing and timer
+        function startParentTyping() {
+            document.getElementById('parent-input').value = "";
+            document.getElementById('child-input').value = "";
+            document.getElementById('child-input').disabled = true;
+            document.getElementById('message').innerText = "";
+            document.getElementById('parent-time').innerText = "Tėvų laikas: 0s";
+            parentTimerStarted = false;
+            parentSpeed = 0;
+
+            // Reset parent timer if needed
+            clearInterval(parentInterval);
+        }
+
+        function trackParentTyping() {
+            if (!parentTimerStarted) {
+                parentStartTime = new Date().getTime();
+                parentTimerStarted = true;
+                parentInterval = setInterval(() => {
+                    let currentTime = new Date().getTime();
+                    let timeElapsed = Math.round((currentTime - parentStartTime) / 1000);
+                    document.getElementById('parent-time').innerText = "Tėvų laikas: " + timeElapsed + "s";
+                }, 100); // Update every 100ms
+            }
+        }
+
+        function stopParentTyping() {
+            if (parentTimerStarted) {
+                clearInterval(parentInterval);
+                let currentTime = new Date().getTime();
+                parentSpeed = Math.round((currentTime - parentStartTime) / 1000); // Round to nearest second
+                document.getElementById('parent-time').innerText = "Tėvų laikas: " + parentSpeed + "s";
+                parentPhrase = document.getElementById('parent-input').value;
+                if (parentPhrase.trim() === "") {
+                    alert("Prašome įvesti frazę.");
+                    return;
+                }
+                document.getElementById('child-input').disabled = false;
+                document.getElementById('child-input').focus();
+            }
+        }
+
+        // Start child timer
+        function startChildTyping() {
+            document.getElementById('child-time').innerText = "Vaikų laikas: 0s";
+            childTimerStarted = false;
+
+            // Reset child timer if needed
+            clearInterval(childInterval);
+        }
+
+        function trackChildTyping() {
+            if (!childTimerStarted) {
+                childStartTime = new Date().getTime();
+                childTimerStarted = true;
+                childInterval = setInterval(() => {
+                    let currentTime = new Date().getTime();
+                    let timeElapsed = Math.round((currentTime - childStartTime) / 1000);
+                    document.getElementById('child-time').innerText = "Vaikų laikas: " + timeElapsed + "s";
+                }, 100); // Update every 100ms
+            }
+        }
+
+        function stopChildTyping() {
+            if (childTimerStarted) {
+                clearInterval(childInterval);
+                let currentTime = new Date().getTime();
+                childSpeed = Math.round((currentTime - childStartTime) / 1000); // Round to nearest second
+                document.getElementById('child-time').innerText = "Vaikų laikas: " + childSpeed + "s";
+                let childPhrase = document.getElementById('child-input').value;
+
+                // If child wants to stop
+                if (childPhrase === "stop") {
+                    document.getElementById('message').innerText = "Žaidimas baigtas.";
+                    return;
+                }
+
+                // Check if the child typed the phrase correctly and within the parent's time
+                if (childPhrase === parentPhrase && childSpeed <= parentSpeed) {
+                    document.getElementById('message').innerText = "Šaunuolis!";
+                    document.getElementById('message').classList.remove("retry");
+                    document.getElementById('message').classList.add("success");
+                    successSound.play();  // Play success sound
+                } else {
+                    // Reset the child input and timer to let them try again
+                    document.getElementById('message').innerText = "Bandyk dar kartą!";
+                    document.getElementById('message').classList.remove("success");
+                    document.getElementById('message').classList.add("retry");
+                    retrySound.play();  // Play retry sound
+                    document.getElementById('child-input').value = "";
+                    startChildTyping(); // Reset the child timer
+                    document.getElementById('child-input').focus();
+                }
+            }
+        }
+
+        // Add event listener to handle "Enter" keypress for stopping timers
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                if (!document.getElementById('child-input').disabled) {
+                    stopChildTyping();
+                } else {
+                    stopParentTyping();
+                }
+            }
+        });
+
+        // Global refresh button to restart the process
+        function refreshGame() {
+            document.getElementById('parent-input').value = "";
+            document.getElementById('child-input').value = "";
+            document.getElementById('parent-time').innerText = "Tėvų laikas: 0s";
+            document.getElementById('child-time').innerText = "Vaikų laikas: 0s";
+            document.getElementById('message').innerText = "";
+            document.getElementById('child-input').disabled = true;
+            parentTimerStarted = false;
+            childTimerStarted = false;
+            clearInterval(parentInterval);
+            clearInterval(childInterval);
+        }
+    </script>
+</head>
+<body>
+    <h1>Vaikų IT raštingumo pamoka</h1>
+
+    <h2>Įveskite frazę (tėvai):</h2>
+    <input type="text" id="parent-input" onfocus="startParentTyping()" oninput="trackParentTyping()">
+    <p class="timer" id="parent-time">Tėvų laikas: 0s</p>
+    <button onclick="stopParentTyping()">Atlikta!</button>
+
+    <h2>Prašome perrašyti frazę (vaikas):</h2>
+    <p id="message" class="message"></p> <!-- Message above child input box -->
+    <input type="text" id="child-input" disabled onfocus="startChildTyping()" oninput="trackChildTyping()">
+    <p class="timer" id="child-time">Vaikų laikas: 0s</p>
+    <button onclick="stopChildTyping()">Atlikta!</button>
+
+    <!-- Global refresh button with adjusted style -->
+    <button class="small-button" onclick="refreshGame()">Nauja frazė</button>
+</body>
+</html>
