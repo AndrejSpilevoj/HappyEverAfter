@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="lt">
 <head>
@@ -10,13 +11,26 @@
         body {
             font-family: 'Roboto', sans-serif;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f4f8;
             margin: 0;
             color: #333;
+            background: url('racing.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         h1 {
@@ -30,6 +44,7 @@
             font-size: 24px;
             color: #1e1e1e;
             margin-bottom: 10px;
+            text-align: center;
         }
 
         input[type="text"] {
@@ -38,7 +53,8 @@
             border: 1px solid #d0d0d5;
             border-radius: 12px;
             margin: 10px;
-            width: 300px;
+            width: 100%;
+            max-width: 300px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: border-color 0.3s, box-shadow 0.3s;
         }
@@ -89,6 +105,7 @@
         p {
             font-size: 20px;
             margin: 10px 0;
+            text-align: center;
         }
 
         .timer {
@@ -134,8 +151,17 @@
         .modal-content button {
             margin-top: 20px;
         }
+
+        /* Center container on mobile devices */
+        @media (max-width: 600px) {
+            .container {
+                width: 100%;
+                max-width: none;
+            }
+        }
     </style>
     <script>
+        // JavaScript code remains unchanged
         let parentPhrase = "";
         let parentStartTime, parentInterval, parentSpeed;
         let childStartTime, childInterval, childSpeed;
@@ -295,28 +321,31 @@
     </script>
 </head>
 <body>
-    <h1>ŠEIMOS LENKTYNĖS</h1>
+    <div class="container">
+        <h1>ŠEIMOS LENKTYNĖS</h1>
 
-    <h2>Įveskite frazę (tėvai):</h2>
-    <input type="text" id="parent-input" onfocus="startParentTyping()" oninput="trackParentTyping()">
-    <p class="timer" id="parent-time">Tėvų laikas: 0s</p>
-    <button onclick="stopParentTyping()">Atlikta!</button>
+        <h2>Įveskite frazę (tėvai):</h2>
+        <input type="text" id="parent-input" onfocus="startParentTyping()" oninput="trackParentTyping()">
+        <p class="timer" id="parent-time">Tėvų laikas: 0s</p>
+        <button onclick="stopParentTyping()">Atlikta!</button>
 
-    <h2>Prašome perrašyti frazę (vaikas):</h2>
-    <p id="message" class="message"></p> <!-- Message above child input box -->
-    <input type="text" id="child-input" disabled onfocus="startChildTyping()" oninput="trackChildTyping()">
-    <p class="timer" id="child-time">Vaikų laikas: 0s</p>
-    <button onclick="stopChildTyping()">Atlikta!</button>
+        <h2>Prašome perrašyti frazę (vaikas):</h2>
+        <p id="message" class="message"></p> <!-- Message above child input box -->
+        <input type="text" id="child-input" disabled onfocus="startChildTyping()" oninput="trackChildTyping()">
+        <p class="timer" id="child-time">Vaikų laikas: 0s</p>
+        <button onclick="stopChildTyping()">Atlikta!</button>
 
-    <!-- Global refresh button with adjusted style -->
-    <button class="small-button" onclick="refreshGame()">Nauja frazė</button>
+        <!-- Global refresh button with adjusted style -->
+        <button class="small-button" onclick="refreshGame()">Nauja frazė</button>
 
-    <!-- Popup modal -->
-    <div id="popup" class="modal">
-        <div class="modal-content">
-            <p id="popup-message"></p>
-            <button onclick="closePopup()">PRADĖKIME!</button>
+        <!-- Popup modal -->
+        <div id="popup" class="modal">
+            <div class="modal-content">
+                <p id="popup-message"></p>
+                <button onclick="closePopup()">PRADĖKIME!</button>
+            </div>
         </div>
     </div>
 </body>
 </html>
+
