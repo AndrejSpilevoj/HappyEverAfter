@@ -216,7 +216,7 @@
 
         // Start child timer
         function startChildTyping() {
-            document.getElementById('child-time').innerText = "Vaikų laikas: 0s";
+            document.getElementById('child-time').innerText = "Vaiko laikas: 0s";
             childTimerStarted = false;
 
             // Reset child timer if needed
@@ -230,7 +230,7 @@
                 childInterval = setInterval(() => {
                     let currentTime = new Date().getTime();
                     let timeElapsed = Math.round((currentTime - childStartTime) / 1000);
-                    document.getElementById('child-time').innerText = "Vaikų laikas: " + timeElapsed + "s";
+                    document.getElementById('child-time').innerText = "Vaiko laikas: " + timeElapsed + "s";
                 }, 100); // Update every 100ms
             }
         }
@@ -240,7 +240,7 @@
                 clearInterval(childInterval);
                 let currentTime = new Date().getTime();
                 childSpeed = Math.round((currentTime - childStartTime) / 1000); // Round to nearest second
-                document.getElementById('child-time').innerText = "Vaikų laikas: " + childSpeed + "s";
+                document.getElementById('child-time').innerText = "Vaiko laikas: " + childSpeed + "s";
                 let childPhrase = document.getElementById('child-input').value;
 
                 // If child wants to stop
@@ -284,7 +284,7 @@
             document.getElementById('parent-input').value = "";
             document.getElementById('child-input').value = "";
             document.getElementById('parent-time').innerText = "Tėvų laikas: 0s";
-            document.getElementById('child-time').innerText = "Vaikų laikas: 0s";
+            document.getElementById('child-time').innerText = "Vaiko laikas: 0s";
             document.getElementById('message').innerText = "";
             document.getElementById('child-input').disabled = true;
             parentTimerStarted = false;
@@ -332,7 +332,7 @@
         <h2>Prašome perrašyti frazę (vaikas):</h2>
         <p id="message" class="message"></p> <!-- Message above child input box -->
         <input type="text" id="child-input" disabled onfocus="startChildTyping()" oninput="trackChildTyping()">
-        <p class="timer" id="child-time">Vaikų laikas: 0s</p>
+        <p class="timer" id="child-time">Vaiko laikas: 0s</p>
         <button onclick="stopChildTyping()">Atlikta!</button>
 
         <!-- Global refresh button with adjusted style -->
