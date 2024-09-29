@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ORWELL CODE</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #ffffff; 
+            background-image: url('enigma_background_image.jpg'); /* Replace with your image file name */
+            background-size: cover; /* Ensures the image covers the entire background */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-position: center; /* Centers the image */
+            background-attachment: fixed; /* Keeps the background fixed during scroll */
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+        }
+
+        .container { 
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+            max-width: 500px; 
+            width: 100%; 
+            
+        }
+        h1 { 
+            text-align: center; 
+            color: #333333; 
+            margin-bottom: 30px; 
+        }
+        textarea { 
+            width: 100%; 
+            height: 120px; 
+            padding: 12px; 
+            margin-bottom: 20px; 
+            border: 1px solid #dddddd; 
+            border-radius: 8px; 
+            resize: vertical; 
+            font-size: 16px; 
+            box-sizing: border-box;
+        }
+        .pincode-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .pincode-container input {
+            width: 20%;
+            padding: 12px;
+            font-size: 18px;
+            text-align: center;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        button { 
+            width: 48%; 
+            padding: 12px; 
+            font-size: 16px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: background-color 0.3s ease; 
+            color: #ffffff;
+        }
+        .encode { 
+            background-color: #007aff; 
+        }
+        .encode:hover { 
+            background-color: #005bb5; 
+        }
+        .decode { 
+            background-color: #34c759; 
+        }
+        .decode:hover { 
+            background-color: #28a745; 
+        }
+        .output { 
+            margin-top: 30px; 
+            padding: 20px; 
+            border: 1px solid #dddddd; 
+            border-radius: 8px; 
+            background-color: #f9f9f9; 
+            word-wrap: break-word;
+            font-size: 16px;
+            color: #333333;
+        }
+        .error { 
+            color: #ff3b30; 
+            margin-top: 10px; 
+            text-align: center; 
+            font-weight: bold;
+        }
+        .created-by {
+            text-align: center;
+            font-size: 12px;
+            color: #777777; /* Light gray color */
+            margin-top: -20px; /* Adjust the space above */
+            margin-bottom: 30px; /* Space below the text */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ORWELL'S CODE</h1>
+        <p class="created-by">Created by Andrej Spilevoj</p> <!-- Moved inside the container -->
+        <form id="encoder-decoder-form">
+            <label for="text">Enter Text:</label><br><br>
+            <textarea id="text" name="text" maxlength="4000" required></textarea><br>
+
+            <label for="pincode">Enter Pincode:</label><br><br>
+            <div class="pincode-container">
+                <input type="text" id="pincode1" maxlength="1" pattern="\d" required>
+                <input type="text" id="pincode2" maxlength="1" pattern="\d" required>
+                <input type="text" id="pincode3" maxlength="1" pattern="\d" required>
+                <input type="text" id="pincode4" maxlength="1" pattern="\d" required>
+            </div>
+
+            <div style="display: flex; justify-content: space-between;">
+                <button type="button" id="encode-btn" class="encode">ENCODE</button>
+                <button type="button" id="decode-btn" class="decode">DECODE</button>
+            </div>
+        </form>
+
+        <div id="result-container"></div>
+    </div>
+
+    <script>
+        const encodeBtn = document.getElementById('encode-btn');
+        const decodeBtn = document.getElementById('decode-btn');
+        const resultContainer = document.getElementById('result-container');
+        const pincodeInputs = document.querySelectorAll('.pincode-container input');
+        const form = document.getElementById('encoder-decoder-form');
+
+        // Function to retrieve pincode digits, treating '0' as '10'
+        function getPincodeDigits() {
+            let pincodeDigits = [];
+            pincodeInputs.forEach(input => {
+                const val = input.value;
+                if (val === '0') {
+                    pincodeDigits.push(10);
+                } else {
+                    pincodeDigits.push(parseInt(val));
+                }
+            });
+            return pincodeDigits;
+        }
+
+        // Function to map character to number
+        function charToNumber(char) {
+            if (char === ' ') return 0;
+            if (/[A-Z]/.test(char)) {
+                return char.charCodeAt(0) - 64; // A=1, B=2, ..., Z=26
+            }
+            if (/[a-z]/.test(char)) {
+                return char.charCodeAt(0) - 96; // a=1, b=2, ..., z=26
+            }
+            return char.charCodeAt(0); // Other characters as ASCII
+        }
+
+        // Function to map number to character
+        function numberToChar(number) {
+            if (number === 0) return ' ';
+            if (number >=1 && number <=26) {
+                return String.fromCharCode(number + 64); // 1=A, 2=B, ..., 26=Z
+            }
+            return String.fromCharCode(number); // Other characters as ASCII
+        }
+
+        // Function to apply sentence case
+        function applySentenceCase(text) {
+            return text.replace(/(?:^|[.!?]\s*)([a-z])/g, function(match, p1) {
+                return match.replace(p1, p1.toUpperCase());
+            });
+        }
+
+        // Encoding function
+        function encodeText(text, pincodeDigits) {
+            const product = pincodeDigits.reduce((acc, val) => acc * val, 1);
+            let encoded = [];
+            for (let char of text) {
+                if (char === char.toUpperCase() && /[A-Z]/.test(char)) {
+                    // Insert '!' before encoding capital letters
+                    encoded.push('!');
+                }
+                let num = charToNumber(char);
+                let encodedNum = num * product;
+                encoded.push(encodedNum.toString());
+            }
+            return encoded.join('-');
+        }
+
+        // Decoding function
+        function decodeText(encodedStr, pincodeDigits) {
+            const product = pincodeDigits.reduce((acc, val) => acc * val, 1);
+            const segments = encodedStr.split('-');
+            let decoded = '';
+            let capitalizeNext = false;
+            for (let i = 0; i < segments.length; i++) {
+                let segment = segments[i];
+                if (segment === '!') {
+                    capitalizeNext = true;
+                    continue;
+                }
+                let num = parseInt(segment);
+                if (isNaN(num)) {
+                    return `Decoding error: '${segment}' is not a valid number.`;
+                }
+                if (product === 0) {
+                    return `Decoding error: Pincode product is zero, cannot divide by zero.`;
+                }
+                if (num % product !== 0) {
+                    return `Decoding error: ${num} is not divisible by pincode product ${product}.`;
+                }
+                let originalNum = num / product;
+                let char = numberToChar(originalNum);
+                if (capitalizeNext) {
+                    char = char.toUpperCase();
+                    capitalizeNext = false;
+                } else {
+                    char = char.toLowerCase();
+                }
+                decoded += char;
+            }
+            return applySentenceCase(decoded);
+        }
+
+        // Function to handle encoding
+        function handleEncode() {
+            const text = document.getElementById('text').value;
+            const pincodeDigits = getPincodeDigits();
+            if (pincodeDigits.length !==4 || pincodeDigits.some(d => isNaN(d))) {
+                displayError("Pincode must contain exactly 4 digits (0-9).");
+                return;
+            }
+            const product = pincodeDigits.reduce((acc, val) => acc * val, 1);
+            if (product === 0) {
+                displayError("Pincode product is zero. At least one pincode digit must be non-zero.");
+                return;
+            }
+            const encoded = encodeText(text, pincodeDigits);
+            displayResult(encoded);
+        }
+
+        // Function to handle decoding
+        function handleDecode() {
+            const encodedText = document.getElementById('text').value;
+            const pincodeDigits = getPincodeDigits();
+            if (pincodeDigits.length !==4 || pincodeDigits.some(d => isNaN(d))) {
+                displayError("Pincode must contain exactly 4 digits (0-9).");
+                return;
+            }
+            const product = pincodeDigits.reduce((acc, val) => acc * val, 1);
+            if (product === 0) {
+                displayError("Pincode product is zero. At least one pincode digit must be non-zero.");
+                return;
+            }
+            const decoded = decodeText(encodedText, pincodeDigits);
+            if (decoded.startsWith("Decoding error") || decoded.startsWith("Invalid") || decoded.startsWith("Pincode")) {
+                displayError(decoded);
+            } else {
+                displayResult(decoded);
+            }
+        }
+
+        // Function to display result
+        function displayResult(text) {
+            resultContainer.innerHTML = `
+                <div class="output">
+                    <p>${text}</p>
+                </div>
+            `;
+        }
+
+        // Function to display error
+        function displayError(message) {
+            resultContainer.innerHTML = `
+                <div class="error">
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        // Event listeners for buttons
+        encodeBtn.addEventListener('click', handleEncode);
+        decodeBtn.addEventListener('click', handleDecode);
+
+        // Auto-jump and navigation for pincode inputs
+        pincodeInputs.forEach((input, index) => {
+            input.addEventListener('input', () => {
+                if (input.value.length ===1 && index < pincodeInputs.length -1) {
+                    pincodeInputs[index +1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && input.value.length ===0 && index >0) {
+                    pincodeInputs[index -1].focus();
+                }
+            });
+
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = e.clipboardData.getData('text').trim();
+                if (/^\d{4}$/.test(pasteData)) {
+                    pincodeInputs[0].value = pasteData[0];
+                    pincodeInputs[1].value = pasteData[1];
+                    pincodeInputs[2].value = pasteData[2];
+                    pincodeInputs[3].value = pasteData[3];
+                    pincodeInputs[3].focus();
+                }
+            });
+        });
+
+        // Focus textarea on page load
+        window.onload = () => {
+            document.getElementById('text').focus();
+        };
+    </script>
+</body>
+</html>
