@@ -1,0 +1,119 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Math Time</title>
+        <script type="text/javascript" async
+                src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+        </script>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                background-color: black;
+                margin: 0;
+                font-family: Arial, sans-serif;
+                color: white;
+                text-align: center;
+                cursor: pointer;
+            }
+            table {
+                
+                border-collapse: collapse;
+                width: 800px; /* Fixed table width to keep alignment */
+                height: 200px; /* Fixed height for consistent location */
+                table-layout: fixed;
+            }
+            td {
+                padding: 0;
+                font-size: 5rem;
+                text-align: center;
+                vertical-align: middle;
+                color: white;
+            }
+            .fade {
+                opacity: 0;
+                transition: opacity 0.5s ease-in-out; /* Smooth transition */
+            }
+            .fade.show {
+                opacity: 1;
+            }
+        </style>
+        <script>
+            let isNumberView = false; // Track which view is active
+
+            function updateTime() {
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const formulas = {"0": ["0 * 5", "\\sqrt{0}", "(3 - 3) : 1"], "1": ["5 : 5", "0 + 1", "39 - 38"], "2": ["\\sqrt{4}", "8 : 4", "11 - 9"], "3": ["\\sqrt{9}", "6 : 2", "2^{2} - 1"], "4": ["4^{1}", "3 + 3 * 1", "2^{3} : 2"], "5": ["12 + (-7)", "\\sqrt{25}", "60 : 12"], "6": ["\\sqrt{36} : 1", "4^{1} + 2", "12 : 2"], "7": ["21 : 3", "4 + 3", "5 * 2 - 3"], "8": ["2 * 6 + 2", "13 - 5", "2^{3}"], "9": ["3^{2}", "18 - 9", "4 + 5"], "10": ["4^{2} - 6", "\\sqrt{100}", "12 + (-2)"], "11": ["\\sqrt{121}", "22 : 2", "12 : 12 + 11"], "12": ["2^{3} + 4", "4 * 3", "\\sqrt{4} * 6"], "13": ["22 - 9", "2^{3} + 5", "6 + 7"], "14": ["2^{3} + 6", "22 - 8", "11 + 3"], "15": ["10 + \\sqrt{25}", "3 * \\sqrt{25}", "3 * \\sqrt{25}"], "16": ["13 + 3", "6 + \\sqrt{100}", "4 * 3 + 4"], "17": ["20  - 3", "5 * 3 + 2", "34 : 2"], "18": ["5 * 3 + 3", "22 + (-4)", "6 * 3"], "19": ["15 + 4", "30 - 11", "10 + \\sqrt{4}"], "20": ["2 * \\sqrt{100}", "5 * 4", "-10 + 5 * 6"], "21": ["7 * 3", "30 - 9", "4 * 5 + 1"], "22": ["11 * 2", "25 + (-3)", "4 * 5 + 2"], "23": ["17 + 6", "4 * 5 + 3", "3 + 20"], "24": ["8 * 3", "12 * 2", "6 * 4"], "25": ["5^{2}", "5 * 5", "100 : 4"], "26": ["5^{2} + 1", "19 + 7", "5 * 4 + 6"], "27": ["33 + (-6)", "9 * 3", "23 + 4"], "28": ["30 - 2^{1}", "14 + 14", "20 + 2^{3}"], "29": ["5^{2} + 4", "39 + (-10)", "3 * 10 - 1"], "30": ["24 + 6", "6^{2} - 6", "3 * \\sqrt{100}"], "31": ["28+3", "28+3", "28+3"], "32": ["29+3", "29+3", "29+3"], "33": ["3 * 10 + 3", "11 * 3", "36 - 3"], "34": ["31+3", "31+3", "31+3"], "35": ["32+3", "32+3", "32+3"], "36": ["33+3", "33+3", "33+3"], "37": ["4 * \\sqrt{100} - 3", "54 - 17", "34 + 3"], "38": ["42 - 4^{1}", "33 + 5", "2^{3} + 30"], "39": ["11 * 3 + 6", "4 * 10 - 1", "30 + 3^{2}"], "40": ["5 * 8", "4 * \\sqrt{100}", "20 * 2"], "41": ["38+3", "38+3", "38+3"], "42": ["39+3", "39+3", "39+3"], "43": ["40+3", "40+3", "40+3"], "44": ["4 + 20 * \\sqrt{4}", "41 + 3", "11 * 4"], "45": ["42+3", "20 + 5^{2}", "42+3"], "46": ["10 * 4 + 6", "6 + 4 * \\sqrt{100}", "49 + (-3)"], "47": ["44+3", "44+3", "44+3"], "48": ["30 + 6 * 3", "40 + 2^{3}", "45+3"], "49": ["46+3", "46+3", "46+3"], "50": ["5 * \\sqrt{100}", "30 + 20", "5 * 10"], "51": ["48+3", "48+3", "48+3"], "52": ["49+3", "49+3", "49+3"], "53": ["50+3", "50+3", "50+3"], "54": ["51+3", "51+3", "51+3"], "55": ["11 * 5", "10 * 5 + 5", "11 * \\sqrt{25}"], "56": ["53+3", "53+3", "53+3"], "57": ["54+3", "54+3", "54+3"], "58": ["50 + 2^{3}", "55+3", "55+3"], "59": ["5 * 10 - 1", "56+3", "56+3"]};
+                const numbers = {"0": "0", "1": "1", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "10": "10", "11": "11", "12": "12", "13": "13", "14": "14", "15": "15", "16": "16", "17": "17", "18": "18", "19": "19", "20": "20", "21": "21", "22": "22", "23": "23", "24": "24", "25": "25", "26": "26", "27": "27", "28": "28", "29": "29", "30": "30", "31": "31", "32": "32", "33": "33", "34": "34", "35": "35", "36": "36", "37": "37", "38": "38", "39": "39", "40": "40", "41": "41", "42": "42", "43": "43", "44": "44", "45": "45", "46": "46", "47": "47", "48": "48", "49": "49", "50": "50", "51": "51", "52": "52", "53": "53", "54": "54", "55": "55", "56": "56", "57": "57", "58": "58", "59": "59"};
+
+                let hourDisplay, minuteDisplay;
+
+                if (isNumberView) {
+                    // Use the actual numbers
+                    hourDisplay = numbers[hours % 24];
+                    minuteDisplay = numbers[minutes];
+                } else {
+                    // Use formulas for display
+                    const randomHourFormula = formulas[hours % 24][Math.floor(Math.random() * formulas[hours % 24].length)];
+                    const randomMinuteFormula = formulas[minutes][Math.floor(Math.random() * formulas[minutes].length)];
+
+                    hourDisplay = '<span class="formula">$$' + randomHourFormula + '$$</span>';
+                    minuteDisplay = '<span class="formula">$$' + randomMinuteFormula + '$$</span>';
+                }
+
+                const hoursElem = document.getElementById("hours");
+                const minutesElem = document.getElementById("minutes");
+                const valElem = document.getElementById("val");
+                const minElem = document.getElementById("min");
+
+                // Start fade-out
+                [hoursElem, minutesElem, valElem, minElem].forEach(elem => elem.classList.remove('show'));
+
+                setTimeout(() => {
+                    // Update the content after fade-out
+                    hoursElem.innerHTML = hourDisplay;
+                    minutesElem.innerHTML = minuteDisplay;
+
+                    // Render MathJax formulas if needed
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+
+                    // Start fade-in
+                    [hoursElem, minutesElem, valElem, minElem].forEach(elem => elem.classList.add('show'));
+                }, 500); // Match the transition duration
+            }
+
+            // Toggle between number view and formula view on click
+            function toggleView() {
+                isNumberView = !isNumberView;
+                updateTime();
+            }
+
+            setInterval(updateTime, 60000);
+            window.onload = () => {
+                const elems = document.querySelectorAll('.fade');
+                elems.forEach(elem => elem.classList.add('show'));
+                updateTime();
+            };
+        </script>
+    </head>
+    <body onclick="toggleView()">
+        <table>
+            <tr>
+                <td id="hours" class="fade"></td>
+                <td id="val" class="fade">val.</td>
+            </tr>
+            <tr>
+                <td id="minutes" class="fade"></td>
+                <td id="min" class="fade">min.</td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    
