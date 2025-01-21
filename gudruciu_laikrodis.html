@@ -1,19 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Time</title>
-    <script type="text/javascript" async
-            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
-    </script>
-    <script type="text/javascript">
-        MathJax.Hub.Config({
-            showMathMenu: false,  // Disable the context menu
-            showMathMenuMSIE: false,  // Disable the context menu for IE users
-            messageStyle: "none"  // Prevent any messages from being displayed
-        });
-    </script>
     <style>
         body {
             display: flex;
@@ -63,19 +54,12 @@
             font-size: 4rem;
             display: block;
             margin: 5px 0;
+            font-family: ''Comic Sans MS', 'Arial', sans-serif;
         }
 
         .val, .min {
             font-size: 2rem;
             color: #ffcc00;
-        }
-
-        /* Hide the MathJax loading message */
-        .MathJax_Message {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-            pointer-events: none !important;
         }
     </style>
     <script>
@@ -168,11 +152,11 @@
                 hourDisplay = numbers[hours % 24];
                 minuteDisplay = numbers[minutes];
             } else {
-                const randomHourFormula = formulas[hours % 24][Math.floor(Math.random() * formulas[hours % 24].length)];
-                const randomMinuteFormula = formulas[minutes][Math.floor(Math.random() * formulas[minutes].length)];
+                const randomHourFormula = formulas[hours % 24]?.[Math.floor(Math.random() * formulas[hours % 24].length)] || hours;
+                const randomMinuteFormula = formulas[minutes]?.[Math.floor(Math.random() * formulas[minutes].length)] || minutes;
 
-                hourDisplay = '<span class="formula">$$' + randomHourFormula + '$$</span>';
-                minuteDisplay = '<span class="formula">$$' + randomMinuteFormula + '$$</span>';
+                hourDisplay = `<span class="formula">${randomHourFormula}</span>`;
+                minuteDisplay = `<span class="formula">${randomMinuteFormula}</span>`;
             }
 
             const hoursElem = document.getElementById("hours");
@@ -188,9 +172,6 @@
                 hoursElem.innerHTML = hourDisplay;
                 minutesElem.innerHTML = minuteDisplay;
 
-                // Render MathJax formulas if needed
-                MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-
                 // Start fade-in
                 [hoursElem, minutesElem, valElem, minElem].forEach(elem => elem.classList.add('show'));
             }, 500); // Match the transition duration
@@ -204,16 +185,9 @@
 
         setInterval(updateTime, 60000);
         window.onload = () => {
-            // Ensure MathJax Message is hidden after page load
-            setTimeout(() => {
-                const mathJaxMessage = document.querySelector('.MathJax_Message');
-                if (mathJaxMessage) {
-                    mathJaxMessage.style.display = 'none';  // Ensure the message is hidden
-                }
-    }, 500);  // Adjust the delay if necessary
-    const elems = document.querySelectorAll('.fade');
-    elems.forEach(elem => elem.classList.add('show'));
-    updateTime();
+            const elems = document.querySelectorAll('.fade');
+            elems.forEach(elem => elem.classList.add('show'));
+            updateTime();
         };
     </script>
 </head>
