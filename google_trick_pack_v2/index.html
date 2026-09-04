@@ -69,12 +69,12 @@
     triggered = true;
     setTimeout(function () {
       document.getElementById('before').classList.add('hidden');
-    }, 5000);
+    }, 3000);
   }
 
   document.addEventListener('touchend', function (e) {
     var now = Date.now();
-    if (now - lastTap < 150) {
+    if (now - lastTap < 350) {
       e.preventDefault();
       fireReveal();
     }
