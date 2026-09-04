@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Google</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  /* Stage sits below the real device status bar (notch/Dynamic Island area),
+     so the phone's own status bar shows through instead of a baked-in fake one. */
+  #stage {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: env(safe-area-inset-top, 0px);
+    overflow: hidden;
+  }
+  #stage img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+  #before {
+    z-index: 2;
+    opacity: 1;
+    transition: opacity 0.6s ease;
+  }
+  #reveal {
+    z-index: 1;
+    opacity: 1;
+  }
+  #before.hidden {
+    opacity: 0;
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="reveal" src="reveal.jpg" alt="">
+  <img id="before" src="before.png" alt="">
+</div>
+
+<script>
+  var triggered = false;
+  var lastTap = 0;
+
+  function fireReveal() {
+    if (triggered) return;
+    triggered = true;
+    setTimeout(function () {
+      document.getElementById('before').classList.add('hidden');
+    }, 5000);
+  }
+
+  document.addEventListener('touchend', function (e) {
+    var now = Date.now();
+    if (now - lastTap < 350) {
+      e.preventDefault();
+      fireReveal();
+    }
+    lastTap = now;
+  }, { passive: false });
+
+  // Fallback for trackpad/mouse testing (e.g. previewing on a laptop)
+  document.addEventListener('dblclick', function (e) {
+    e.preventDefault();
+    fireReveal();
+  });
+</script>
+</body>
+</html>
