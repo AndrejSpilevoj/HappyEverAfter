@@ -74,7 +74,7 @@
 
   document.addEventListener('touchend', function (e) {
     var now = Date.now();
-    if (now - lastTap < 350) {
+    if (now - lastTap < 150) {
       e.preventDefault();
       fireReveal();
     }
