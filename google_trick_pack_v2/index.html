@@ -60,12 +60,26 @@
 <script>
   var lastTap = 0;
   var lastToggle = 0;
+  var pendingReveal = false;
 
   function toggleReveal() {
     var now = Date.now();
-    if (now - lastToggle < 400) return; // ignore duplicate trigger from touch+dblclick
+    if (now - lastToggle < 400 || pendingReveal) return;
     lastToggle = now;
-    document.getElementById('before').classList.toggle('hidden');
+
+    var before = document.getElementById('before');
+
+    if (!before.classList.contains('hidden')) {
+      // currently showing photo 1 -> reveal photo 2 after 3s delay
+      pendingReveal = true;
+      setTimeout(function () {
+        before.classList.add('hidden');
+        pendingReveal = false;
+      }, 3000);
+    } else {
+      // currently showing photo 2 -> flip back to photo 1 instantly
+      before.classList.remove('hidden');
+    }
   }
 
   document.addEventListener('touchend', function (e) {
