@@ -19,8 +19,6 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  /* Stage sits below the real device status bar (notch/Dynamic Island area),
-     so the phone's own status bar shows through instead of a baked-in fake one. */
   #stage {
     position: fixed;
     left: 0;
@@ -43,7 +41,6 @@
   #before {
     z-index: 2;
     opacity: 1;
-    transition: none;
   }
   #reveal {
     z-index: 1;
@@ -61,30 +58,24 @@
 </div>
 
 <script>
-  var triggered = false;
   var lastTap = 0;
 
-  function fireReveal() {
-    if (triggered) return;
-    triggered = true;
-    setTimeout(function () {
-      document.getElementById('before').classList.add('hidden');
-    }, 3000);
+  function toggleReveal() {
+    document.getElementById('before').classList.toggle('hidden');
   }
 
   document.addEventListener('touchend', function (e) {
     var now = Date.now();
     if (now - lastTap < 350) {
       e.preventDefault();
-      fireReveal();
+      toggleReveal();
     }
     lastTap = now;
   }, { passive: false });
 
-  // Fallback for trackpad/mouse testing (e.g. previewing on a laptop)
   document.addEventListener('dblclick', function (e) {
     e.preventDefault();
-    fireReveal();
+    toggleReveal();
   });
 </script>
 </body>
