@@ -59,8 +59,12 @@
 
 <script>
   var lastTap = 0;
+  var lastToggle = 0;
 
   function toggleReveal() {
+    var now = Date.now();
+    if (now - lastToggle < 400) return; // ignore duplicate trigger from touch+dblclick
+    lastToggle = now;
     document.getElementById('before').classList.toggle('hidden');
   }
 
