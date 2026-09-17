@@ -70,14 +70,16 @@
     var before = document.getElementById('before');
 
     if (!before.classList.contains('hidden')) {
-      // currently showing photo 1 -> reveal photo 2 after 3s delay
+      // showing photo 1 -> reveal photo 2 after 3s delay, instantly
       pendingReveal = true;
       setTimeout(function () {
+        before.style.transition = 'none';
         before.classList.add('hidden');
         pendingReveal = false;
       }, 3000);
     } else {
-      // currently showing photo 2 -> flip back to photo 1 instantly
+      // showing photo 2 -> dissolve back to photo 1 over 4s
+      before.style.transition = 'opacity 4s ease';
       before.classList.remove('hidden');
     }
   }
@@ -96,5 +98,6 @@
     toggleReveal();
   });
 </script>
+  
 </body>
 </html>
