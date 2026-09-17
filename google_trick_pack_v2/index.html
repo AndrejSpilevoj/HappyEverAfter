@@ -58,15 +58,27 @@
 </div>
 
 <script>
-  var lastTap = 0;
-  var lastToggle = 0;
+  var holdTimer = null;
   var pendingReveal = false;
+  var HOLD_DURATION = 1200; // ms to hold before triggering
+
+  function startHold(e) {
+    e.preventDefault();
+    if (holdTimer || pendingReveal) return;
+    holdTimer = setTimeout(function () {
+      holdTimer = null;
+      toggleReveal();
+    }, HOLD_DURATION);
+  }
+
+  function cancelHold(e) {
+    if (holdTimer) {
+      clearTimeout(holdTimer);
+      holdTimer = null;
+    }
+  }
 
   function toggleReveal() {
-    var now = Date.now();
-    if (now - lastToggle < 400 || pendingReveal) return;
-    lastToggle = now;
-
     var before = document.getElementById('before');
 
     if (!before.classList.contains('hidden')) {
@@ -78,25 +90,21 @@
         pendingReveal = false;
       }, 3000);
     } else {
-      // showing photo 2 -> dissolve back to photo 1 over 4s
-      before.style.transition = 'opacity 4s ease';
+      // showing photo 2 -> dissolve back to photo 1 over 2.5s
+      before.style.transition = 'opacity 2.5s ease';
       before.classList.remove('hidden');
     }
   }
 
-  document.addEventListener('touchend', function (e) {
-    var now = Date.now();
-    if (now - lastTap < 350) {
-      e.preventDefault();
-      toggleReveal();
-    }
-    lastTap = now;
-  }, { passive: false });
+  document.addEventListener('touchstart', startHold, { passive: false });
+  document.addEventListener('touchend', cancelHold, { passive: false });
+  document.addEventListener('touchmove', cancelHold, { passive: false });
+  document.addEventListener('touchcancel', cancelHold, { passive: false });
 
-  document.addEventListener('dblclick', function (e) {
-    e.preventDefault();
-    toggleReveal();
-  });
+  // Fallback for mouse (laptop preview)
+  document.addEventListener('mousedown', startHold);
+  document.addEventListener('mouseup', cancelHold);
+  document.addEventListener('mouseleave', cancelHold);
 </script>
   
 </body>
