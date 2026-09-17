@@ -61,6 +61,14 @@
   var lastTap = 0;
   var lastToggle = 0;
   var pendingReveal = false;
+  var autoFadeTimer = null;
+
+  function fadeBack() {
+    var before = document.getElementById('before');
+    if (autoFadeTimer) { clearTimeout(autoFadeTimer); autoFadeTimer = null; }
+    before.style.transition = 'opacity 4s ease';
+    before.classList.remove('hidden');
+  }
 
   function toggleReveal() {
     var now = Date.now();
@@ -76,11 +84,12 @@
         before.style.transition = 'none';
         before.classList.add('hidden');
         pendingReveal = false;
+        // start 5s auto-fade timer
+        autoFadeTimer = setTimeout(fadeBack, 5000);
       }, 3000);
     } else {
-      // showing photo 2 -> fade back to photo 1 over 4s
-      before.style.transition = 'opacity 4s ease';
-      before.classList.remove('hidden');
+      // showing photo 2 -> fade back to photo 1 early (manual double tap)
+      fadeBack();
     }
   }
 
