@@ -59,10 +59,14 @@
 
 <script>
   var lastTap = 0;
+  var lastToggle = 0;
   var pendingReveal = false;
 
   function toggleReveal() {
-    if (pendingReveal) return;
+    var now = Date.now();
+    if (now - lastToggle < 500 || pendingReveal) return;
+    lastToggle = now;
+
     var before = document.getElementById('before');
 
     if (!before.classList.contains('hidden')) {
