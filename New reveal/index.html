@@ -53,12 +53,12 @@
       width: 80%; 
       height: auto;
       z-index: 2;
-      pointer-events: auto; /* Enabled for direct touch/pull interactions */
+      pointer-events: auto;
       will-change: transform;
-      opacity: 0; /* Hidden initially */
+      opacity: 0;
       transition: opacity 0.2s ease;
       filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
-      touch-action: none; /* Prevents default browser scrolling when dragging the card */
+      touch-action: none;
     }
   </style>
 </head>
@@ -79,7 +79,7 @@
     let posX = 0, posY = 0;
     let velX = 0, velY = 0;
     let tiltX = 0, tiltY = 0;
-    let neutralY = 90; // Recalibrated at activation time to match device
+    let neutralY = 90;
     let isActivated = false;
     let isWaitingForDelay = false;
     let delayTimer = null;
@@ -94,25 +94,22 @@
     let lastTouchX = 0, lastTouchY = 0;
     let lastTouchTime = 0;
 
-    // --- Card Touch Events (Push/Pull directly with finger) ---
+    // Card Touch Events
     card.addEventListener('touchstart', (e) => {
       if (!isActivated) return;
       
       isDragging = true;
       const touch = e.touches[0];
       
-      // Save initial touch relative positions
       dragStartX = touch.clientX;
       dragStartY = touch.clientY;
       initialCardX = posX;
       initialCardY = posY;
       
-      // Tracking for flick velocity
       lastTouchX = touch.clientX;
       lastTouchY = touch.clientY;
       lastTouchTime = performance.now();
       
-      // Pause inertia while user holds card
       velX = 0;
       velY = 0;
     }, { passive: true });
@@ -124,17 +121,16 @@
       const deltaX = touch.clientX - dragStartX;
       const deltaY = touch.clientY - dragStartY;
       
-      // Direct position update to follow finger
       posX = initialCardX + deltaX;
       posY = initialCardY + deltaY;
       
-      // Constrain inside stage bounds while dragging
+      // Allow dragging off the top, but bound sides and bottom
       const maxX = stage.clientWidth - card.clientWidth;
       const maxY = stage.clientHeight - card.clientHeight;
+      
       posX = Math.max(0, Math.min(posX, maxX));
-      posY = Math.max(0, Math.min(posY, maxY));
+      posY = Math.min(posY, maxY); // Note: No Math.max(0, ...) so it can go off top!
 
-      // Calculate throwing velocity based on swipe speed
       const now = performance.now();
       const dt = (now - lastTouchTime) || 16;
       velX = ((touch.clientX - lastTouchX) / dt) * 12; 
@@ -151,9 +147,8 @@
       }
     });
 
-    // Detect Double Tap anywhere on screen
+    // Double Tap Listener to Reveal Card
     window.addEventListener('touchend', (e) => {
-      // Ignore double-tap check if ending a touch drag action
       if (isDragging) return;
 
       const currentTime = new Date().getTime();
@@ -178,7 +173,6 @@
           }
         }).catch(console.error);
       } else {
-        // Non-iOS-13+ device
         permissionGranted = true;
         attachOrientationListener();
       }
@@ -195,10 +189,7 @@
 
     function handleDoubleTap() {
       if (isActivated || isWaitingForDelay) {
-        clearTimeout(delayTimer);
-        isWaitingForDelay = false;
-        isActivated = false;
-        card.style.opacity = '0';
+        dismissCard();
         return;
       }
 
@@ -209,10 +200,15 @@
       startDelayTimer();
     }
 
+    function dismissCard() {
+      clearTimeout(delayTimer);
+      isWaitingForDelay = false;
+      isActivated = false;
+      card.style.opacity = '0';
+    }
+
     function startDelayTimer() {
       isWaitingForDelay = true;
-
-      // 4-second delay before card reveals
       delayTimer = setTimeout(() => {
         isWaitingForDelay = false;
         calibrateThenStart();
@@ -221,7 +217,7 @@
 
     function calibrateThenStart() {
       const samples = [];
-      const sampleDuration = 400; // ms
+      const sampleDuration = 400;
       const startTime = performance.now();
 
       function collect() {
@@ -239,7 +235,6 @@
     }
 
     function startMotion() {
-      // Force card to exact screen center upon appearance
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
       velX = 0;
@@ -270,38 +265,39 @@
     function updateCardPosition() {
       if (!isActivated) return;
 
-      // Only apply gravity tilt forces when user is NOT dragging the card
       if (!isDragging) {
         let forceY = verticalForce(tiltY);
         let forceX = 0;
 
-        // Horizontal Gravity Logic
         if (Math.abs(tiltX) > 3) {
           forceX = tiltX * 0.12;
         }
 
-        // Apply motion forces
         velX += forceX;
         velY += forceY;
 
-        // Air hockey friction
         velX *= 0.90;
         velY *= 0.90;
 
         posX += velX;
         posY += velY;
 
-        // Screen edge boundaries with elastic bounce
         const maxX = stage.clientWidth - card.clientWidth;
         const maxY = stage.clientHeight - card.clientHeight;
 
+        // Side and Bottom edge boundaries with bounce
         if (posX < 0) { posX = 0; velX *= -0.3; }
         if (posX > maxX) { posX = maxX; velX *= -0.3; }
-        if (posY < 0) { posY = 0; velY *= -0.3; }
         if (posY > maxY) { posY = maxY; velY *= -0.3; }
+
+        // --- DISMISS CHECK ---
+        // If card flies completely above the top edge, reset it automatically
+        if (posY < -card.clientHeight) {
+          dismissCard();
+          return;
+        }
       }
 
-      // Render transformation on screen
       card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.4}deg)`;
 
       requestAnimationFrame(updateCardPosition);
