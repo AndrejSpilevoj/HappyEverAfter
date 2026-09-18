@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   
-  <!-- iOS Standalone Web App Setup (Eliminates permission prompts once saved to Home Screen) -->
+  <!-- iOS Standalone Web App Setup -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Google">
@@ -54,11 +53,12 @@
       width: 80%; 
       height: auto;
       z-index: 2;
-      pointer-events: none;
+      pointer-events: auto; /* Enabled for direct touch/pull interactions */
       will-change: transform;
       opacity: 0; /* Hidden initially */
       transition: opacity 0.2s ease;
       filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
+      touch-action: none; /* Prevents default browser scrolling when dragging the card */
     }
   </style>
 </head>
@@ -79,7 +79,7 @@
     let posX = 0, posY = 0;
     let velX = 0, velY = 0;
     let tiltX = 0, tiltY = 0;
-    let neutralY = 90; // recalibrated at activation time to match this device
+    let neutralY = 90; // Recalibrated at activation time to match device
     let isActivated = false;
     let isWaitingForDelay = false;
     let delayTimer = null;
@@ -87,16 +87,81 @@
     let permissionGranted = false;
     let listenerAttached = false;
 
+    // --- Touch Dragging Variables ---
+    let isDragging = false;
+    let dragStartX = 0, dragStartY = 0;
+    let initialCardX = 0, initialCardY = 0;
+    let lastTouchX = 0, lastTouchY = 0;
+    let lastTouchTime = 0;
+
+    // --- Card Touch Events (Push/Pull directly with finger) ---
+    card.addEventListener('touchstart', (e) => {
+      if (!isActivated) return;
+      
+      isDragging = true;
+      const touch = e.touches[0];
+      
+      // Save initial touch relative positions
+      dragStartX = touch.clientX;
+      dragStartY = touch.clientY;
+      initialCardX = posX;
+      initialCardY = posY;
+      
+      // Tracking for flick velocity
+      lastTouchX = touch.clientX;
+      lastTouchY = touch.clientY;
+      lastTouchTime = performance.now();
+      
+      // Pause inertia while user holds card
+      velX = 0;
+      velY = 0;
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging || !isActivated) return;
+      
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartX;
+      const deltaY = touch.clientY - dragStartY;
+      
+      // Direct position update to follow finger
+      posX = initialCardX + deltaX;
+      posY = initialCardY + deltaY;
+      
+      // Constrain inside stage bounds while dragging
+      const maxX = stage.clientWidth - card.clientWidth;
+      const maxY = stage.clientHeight - card.clientHeight;
+      posX = Math.max(0, Math.min(posX, maxX));
+      posY = Math.max(0, Math.min(posY, maxY));
+
+      // Calculate throwing velocity based on swipe speed
+      const now = performance.now();
+      const dt = (now - lastTouchTime) || 16;
+      velX = ((touch.clientX - lastTouchX) / dt) * 12; 
+      velY = ((touch.clientY - lastTouchY) / dt) * 12;
+
+      lastTouchX = touch.clientX;
+      lastTouchY = touch.clientY;
+      lastTouchTime = now;
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+      if (isDragging) {
+        isDragging = false;
+      }
+    });
+
     // Detect Double Tap anywhere on screen
     window.addEventListener('touchend', (e) => {
+      // Ignore double-tap check if ending a touch drag action
+      if (isDragging) return;
+
       const currentTime = new Date().getTime();
       const tapLength = currentTime - lastTap;
       
       if (tapLength < 300 && tapLength > 0) {
         handleDoubleTap();
       } else {
-        // A single tap (or the first tap of what may become a double tap):
-        // just get the permission prompt out of the way, do nothing else.
         maybeRequestPermission();
       }
       lastTap = currentTime;
@@ -113,7 +178,7 @@
           }
         }).catch(console.error);
       } else {
-        // Non-iOS-13+ device: no explicit permission needed.
+        // Non-iOS-13+ device
         permissionGranted = true;
         attachOrientationListener();
       }
@@ -129,7 +194,6 @@
     }
 
     function handleDoubleTap() {
-      // Toggle off if double-tapped while active or during 4s delay
       if (isActivated || isWaitingForDelay) {
         clearTimeout(delayTimer);
         isWaitingForDelay = false;
@@ -139,7 +203,6 @@
       }
 
       if (!permissionGranted) {
-        // Fallback: permission wasn't requested ahead of time, ask now.
         maybeRequestPermission();
       }
 
@@ -156,8 +219,6 @@
       }, 4000);
     }
 
-    // Sample tiltY for a short window before starting motion, so we never
-    // lock in a stale/zero first reading as the "neutral" holding angle.
     function calibrateThenStart() {
       const samples = [];
       const sampleDuration = 400; // ms
@@ -190,19 +251,17 @@
       requestAnimationFrame(updateCardPosition);
     }
 
-    // --- Improved vertical gravity: single smooth curve, dead zone centered
-    // on the calibrated holding angle (neutralY) instead of a fixed number ---
     function verticalForce(beta) {
-      const NEUTRAL_DEADZONE = 8;   // no pull within +/-8 deg of calibrated angle
+      const NEUTRAL_DEADZONE = 8;
       const MAX_FORCE = 6;
-      const RAMP_RANGE = 45;        // deviation needed to reach max force
+      const RAMP_RANGE = 45;
 
       const delta = beta - neutralY;
       const absDelta = Math.abs(delta);
       if (absDelta <= NEUTRAL_DEADZONE) return 0;
 
       const t = Math.min((absDelta - NEUTRAL_DEADZONE) / RAMP_RANGE, 1);
-      const eased = t * t; // gentle ramp, no sudden jump
+      const eased = t * t;
       const magnitude = eased * MAX_FORCE;
 
       return delta > 0 ? magnitude : -magnitude;
@@ -211,35 +270,38 @@
     function updateCardPosition() {
       if (!isActivated) return;
 
-      let forceY = verticalForce(tiltY);
-      let forceX = 0;
+      // Only apply gravity tilt forces when user is NOT dragging the card
+      if (!isDragging) {
+        let forceY = verticalForce(tiltY);
+        let forceX = 0;
 
-      // --- Horizontal Gravity Logic ---
-      if (Math.abs(tiltX) > 3) {
-        forceX = tiltX * 0.12;
+        // Horizontal Gravity Logic
+        if (Math.abs(tiltX) > 3) {
+          forceX = tiltX * 0.12;
+        }
+
+        // Apply motion forces
+        velX += forceX;
+        velY += forceY;
+
+        // Air hockey friction
+        velX *= 0.90;
+        velY *= 0.90;
+
+        posX += velX;
+        posY += velY;
+
+        // Screen edge boundaries with elastic bounce
+        const maxX = stage.clientWidth - card.clientWidth;
+        const maxY = stage.clientHeight - card.clientHeight;
+
+        if (posX < 0) { posX = 0; velX *= -0.3; }
+        if (posX > maxX) { posX = maxX; velX *= -0.3; }
+        if (posY < 0) { posY = 0; velY *= -0.3; }
+        if (posY > maxY) { posY = maxY; velY *= -0.3; }
       }
 
-      // Apply motion forces
-      velX += forceX;
-      velY += forceY;
-
-      // Low friction for smooth air-hockey feel
-      velX *= 0.90;
-      velY *= 0.90;
-
-      posX += velX;
-      posY += velY;
-
-      // Screen edge boundaries with elastic bounce
-      const maxX = stage.clientWidth - card.clientWidth;
-      const maxY = stage.clientHeight - card.clientHeight;
-
-      if (posX < 0) { posX = 0; velX *= -0.3; }
-      if (posX > maxX) { posX = maxX; velX *= -0.3; }
-      if (posY < 0) { posY = 0; velY *= -0.3; }
-      if (posY > maxY) { posY = maxY; velY *= -0.3; }
-
-      // Apply screen transformation
+      // Render transformation on screen
       card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.4}deg)`;
 
       requestAnimationFrame(updateCardPosition);
