@@ -79,6 +79,7 @@
     let posX = 0, posY = 0;
     let velX = 0, velY = 0;
     let tiltX = 0, tiltY = 0;
+    let neutralY = 90; // recalibrated at activation time to match this device
     let isActivated = false;
     let isWaitingForDelay = false;
     let delayTimer = null;
@@ -139,6 +140,11 @@
       velX = 0;
       velY = 0;
 
+      // Calibrate: whatever tilt the phone is reporting right now becomes
+      // the "no gravity" reference point. This makes the effect work the
+      // same regardless of how a given device/browser reports beta.
+      neutralY = tiltY;
+
       isActivated = true;
       card.style.opacity = '1';
 
@@ -146,17 +152,13 @@
     }
 
     // --- Improved vertical gravity: single smooth curve, dead zone centered
-    // on a normal vertical holding angle instead of "flat on table" ---
+    // on the calibrated holding angle (neutralY) instead of a fixed number ---
     function verticalForce(beta) {
-      const FLAT_ZONE = 15;         // flat on table, no pull
-      const NEUTRAL = 90;           // normal vertical holding angle
-      const NEUTRAL_DEADZONE = 20;  // no pull within +/-20 deg of vertical
+      const NEUTRAL_DEADZONE = 8;   // no pull within +/-8 deg of calibrated angle
       const MAX_FORCE = 6;
-      const RAMP_RANGE = 60;        // deviation needed to reach max force
+      const RAMP_RANGE = 45;        // deviation needed to reach max force
 
-      if (beta > -FLAT_ZONE && beta < FLAT_ZONE) return 0;
-
-      const delta = beta - NEUTRAL;
+      const delta = beta - neutralY;
       const absDelta = Math.abs(delta);
       if (absDelta <= NEUTRAL_DEADZONE) return 0;
 
