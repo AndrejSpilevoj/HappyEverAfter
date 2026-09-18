@@ -129,7 +129,7 @@
       const maxY = stage.clientHeight - card.clientHeight;
       
       posX = Math.max(0, Math.min(posX, maxX));
-      posY = Math.min(posY, maxY); // Note: No Math.max(0, ...) so it can go off top!
+      posY = Math.min(posY, maxY); // Unbounded at the top
 
       const now = performance.now();
       const dt = (now - lastTouchTime) || 16;
@@ -147,7 +147,7 @@
       }
     });
 
-    // Double Tap Listener to Reveal Card
+    // Detect Double Tap anywhere on screen to trigger initial activation
     window.addEventListener('touchend', (e) => {
       if (isDragging) return;
 
@@ -188,8 +188,9 @@
     }
 
     function handleDoubleTap() {
+      // Double tap dismissed action REMOVED.
+      // Ignore double tap if the card is already active or timer is counting down.
       if (isActivated || isWaitingForDelay) {
-        dismissCard();
         return;
       }
 
@@ -212,7 +213,7 @@
       delayTimer = setTimeout(() => {
         isWaitingForDelay = false;
         calibrateThenStart();
-      }, 4000);
+      }, 3000);
     }
 
     function calibrateThenStart() {
@@ -290,8 +291,8 @@
         if (posX > maxX) { posX = maxX; velX *= -0.3; }
         if (posY > maxY) { posY = maxY; velY *= -0.3; }
 
-        // --- DISMISS CHECK ---
-        // If card flies completely above the top edge, reset it automatically
+        // --- EXCLUSIVE DISMISSAL MECHANIC ---
+        // Automatically resets only when the card is flicked/slid completely off the top
         if (posY < -card.clientHeight) {
           dismissCard();
           return;
