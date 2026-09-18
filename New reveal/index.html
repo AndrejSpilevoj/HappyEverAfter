@@ -1,70 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Card Motion Demo</title>
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #ffffff;
-      overflow: hidden;
-      touch-action: manipulation;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    #stage {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      top: env(safe-area-inset-top, 0px);
-      overflow: hidden;
-    }
-
-    /* Google Background Image */
-    .bg-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: top;
-      -webkit-user-drag: none;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    /* Moving Playing Card - 80% width */
-    #playing-card {
-      position: absolute;
-      width: 80%; 
-      height: auto;
-      z-index: 2;
-      pointer-events: none;
-      will-change: transform;
-      opacity: 0; /* Hidden initially */
-      transition: opacity 0.2s ease;
-      filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
-    }
-  </style>
-</head>
-<body>
-
-  <div id="stage">
-    <!-- Google UI Background -->
-    <img src="google-bg.jpg" class="bg-image" alt="Google Background">
-    
-    <!-- Floating Playing Card -->
-    <img src="card.png" id="playing-card" alt="Playing Card">
-  </div>
-
   <script>
     const card = document.getElementById('playing-card');
     const stage = document.getElementById('stage');
@@ -124,8 +57,11 @@
     }
 
     function startMotion() {
+      // Force position reset to absolute screen center upon reveal
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
+      velX = 0;
+      velY = 0;
 
       isActivated = true;
       card.style.opacity = '1';
@@ -136,35 +72,49 @@
     function updateCardPosition() {
       if (!isActivated) return;
 
-      // 1. High gravity offset (-20): Card pulls down firmly when held between 20° to 80°
-      // To send the card upward, you must push the top of the phone forward flat (< 20°)
-      const deltaY = tiltY - 20;
+      let forceY = 0;
+      let forceX = 0;
 
-      // 2. Gentle acceleration multipliers for smooth travel
-      velX += tiltX * 0.12;
-      velY += deltaY * 0.18; 
+      // --- Vertical Motion Logic ---
+      if (tiltY > 15 && tiltY < 75) {
+        // Phone held normally: strong gravity keeps card at bottom
+        forceY = (tiltY - 30) * 0.15;
+      } else if (tiltY <= 15 && tiltY >= -15) {
+        // Flat on table (horizontal): No vertical pull force (stays dead still in center)
+        forceY = 0;
+      } else if (tiltY < -15) {
+        // Phone tilted explicitly away/forward: card slides to top
+        forceY = (tiltY + 15) * 0.15;
+      }
 
-      // 3. Low air resistance (0.94 multiplier): Glides freely with high momentum
-      velX *= 0.94;
-      velY *= 0.94;
+      // --- Horizontal Motion Logic ---
+      if (Math.abs(tiltX) > 3) { // Small 3deg dead-zone so it doesn't drift sideways on a table
+        forceX = tiltX * 0.12;
+      }
+
+      // Apply forces
+      velX += forceX;
+      velY += forceY;
+
+      // Low friction for smooth air-hockey feel
+      velX *= 0.90;
+      velY *= 0.90;
 
       posX += velX;
       posY += velY;
 
-      // Screen edge boundaries with elastic bounce
+      // Screen edge boundaries
       const maxX = stage.clientWidth - card.clientWidth;
       const maxY = stage.clientHeight - card.clientHeight;
 
-      if (posX < 0) { posX = 0; velX *= -0.4; }
-      if (posX > maxX) { posX = maxX; velX *= -0.4; }
-      if (posY < 0) { posY = 0; velY *= -0.4; }
-      if (posY > maxY) { posY = maxY; velY *= -0.4; }
+      if (posX < 0) { posX = 0; velX *= -0.3; }
+      if (posX > maxX) { posX = maxX; velX *= -0.3; }
+      if (posY < 0) { posY = 0; velY *= -0.3; }
+      if (posY > maxY) { posY = maxY; velY *= -0.3; }
 
-      // Smooth transform application
+      // Apply coordinates
       card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.4}deg)`;
 
       requestAnimationFrame(updateCardPosition);
     }
   </script>
-</body>
-</html>
