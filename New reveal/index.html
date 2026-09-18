@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -144,23 +145,33 @@
       requestAnimationFrame(updateCardPosition);
     }
 
+    // --- Improved vertical gravity: single smooth curve, dead zone centered
+    // on a normal vertical holding angle instead of "flat on table" ---
+    function verticalForce(beta) {
+      const FLAT_ZONE = 15;         // flat on table, no pull
+      const NEUTRAL = 90;           // normal vertical holding angle
+      const NEUTRAL_DEADZONE = 20;  // no pull within +/-20 deg of vertical
+      const MAX_FORCE = 6;
+      const RAMP_RANGE = 60;        // deviation needed to reach max force
+
+      if (beta > -FLAT_ZONE && beta < FLAT_ZONE) return 0;
+
+      const delta = beta - NEUTRAL;
+      const absDelta = Math.abs(delta);
+      if (absDelta <= NEUTRAL_DEADZONE) return 0;
+
+      const t = Math.min((absDelta - NEUTRAL_DEADZONE) / RAMP_RANGE, 1);
+      const eased = t * t; // gentle ramp, no sudden jump
+      const magnitude = eased * MAX_FORCE;
+
+      return delta > 0 ? magnitude : -magnitude;
+    }
+
     function updateCardPosition() {
       if (!isActivated) return;
 
-      let forceY = 0;
+      let forceY = verticalForce(tiltY);
       let forceX = 0;
-
-      // --- Vertical Gravity Logic ---
-      if (tiltY > 15 && tiltY < 75) {
-        // Normal handheld posture: pulls card smoothly toward the bottom
-        forceY = (tiltY - 30) * 0.15;
-      } else if (tiltY <= 15 && tiltY >= -15) {
-        // Flat on table zone: zero vertical force (holds still in center)
-        forceY = 0;
-      } else if (tiltY < -15) {
-        // Tilted forward: slides card toward top screen edge
-        forceY = (tiltY + 15) * 0.15;
-      }
 
       // --- Horizontal Gravity Logic ---
       if (Math.abs(tiltX) > 3) {
