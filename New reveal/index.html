@@ -1,9 +1,15 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Card Motion Demo</title>
+  
+  <!-- iOS Standalone Web App Setup (Eliminates permission prompts once saved to Home Screen) -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Google">
+  
+  <title>Google</title>
   <style>
     html, body {
       margin: 0;
@@ -41,7 +47,7 @@
       z-index: 1;
     }
 
-    /* Moving Playing Card - 80% width */
+    /* Moving Playing Card (80% width) */
     #playing-card {
       position: absolute;
       width: 80%; 
@@ -58,13 +64,13 @@
 <body>
 
   <div id="stage">
-    <!-- Google UI Background -->
+    <!-- Background Screen -->
     <img src="google-bg.jpg" class="bg-image" alt="Google Background">
     
     <!-- Floating Playing Card -->
     <img src="card.png" id="playing-card" alt="Playing Card">
   </div>
-  
+
   <script>
     const card = document.getElementById('playing-card');
     const stage = document.getElementById('stage');
@@ -89,6 +95,7 @@
     });
 
     function handleDoubleTap() {
+      // Toggle off if double-tapped while active or during 4s delay
       if (isActivated || isWaitingForDelay) {
         clearTimeout(delayTimer);
         isWaitingForDelay = false;
@@ -97,6 +104,7 @@
         return;
       }
 
+      // Silent orientation listener request for iOS
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(response => {
           if (response === 'granted') {
@@ -116,7 +124,7 @@
 
       isWaitingForDelay = true;
 
-      // 4-second delay before card appears
+      // 4-second delay before card reveals
       delayTimer = setTimeout(() => {
         isWaitingForDelay = false;
         startMotion();
@@ -124,7 +132,7 @@
     }
 
     function startMotion() {
-      // Force position reset to absolute screen center upon reveal
+      // Force card to exact screen center upon appearance
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
       velX = 0;
@@ -142,24 +150,24 @@
       let forceY = 0;
       let forceX = 0;
 
-      // --- Vertical Motion Logic ---
+      // --- Vertical Gravity Logic ---
       if (tiltY > 15 && tiltY < 75) {
-        // Phone held normally: strong gravity keeps card at bottom
+        // Normal handheld posture: pulls card smoothly toward the bottom
         forceY = (tiltY - 30) * 0.15;
       } else if (tiltY <= 15 && tiltY >= -15) {
-        // Flat on table (horizontal): No vertical pull force (stays dead still in center)
+        // Flat on table zone: zero vertical force (holds still in center)
         forceY = 0;
       } else if (tiltY < -15) {
-        // Phone tilted explicitly away/forward: card slides to top
+        // Tilted forward: slides card toward top screen edge
         forceY = (tiltY + 15) * 0.15;
       }
 
-      // --- Horizontal Motion Logic ---
-      if (Math.abs(tiltX) > 3) { // Small 3deg dead-zone so it doesn't drift sideways on a table
+      // --- Horizontal Gravity Logic ---
+      if (Math.abs(tiltX) > 3) {
         forceX = tiltX * 0.12;
       }
 
-      // Apply forces
+      // Apply motion forces
       velX += forceX;
       velY += forceY;
 
@@ -170,7 +178,7 @@
       posX += velX;
       posY += velY;
 
-      // Screen edge boundaries
+      // Screen edge boundaries with elastic bounce
       const maxX = stage.clientWidth - card.clientWidth;
       const maxY = stage.clientHeight - card.clientHeight;
 
@@ -179,7 +187,7 @@
       if (posY < 0) { posY = 0; velY *= -0.3; }
       if (posY > maxY) { posY = maxY; velY *= -0.3; }
 
-      // Apply coordinates
+      // Apply screen transformation
       card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.4}deg)`;
 
       requestAnimationFrame(updateCardPosition);
