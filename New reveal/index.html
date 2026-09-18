@@ -136,36 +136,32 @@
     function updateCardPosition() {
       if (!isActivated) return;
 
-      // Calculate vertical tilt difference relative to a steep ~50 deg posture
-      let deltaY = tiltY - 50;
+      // 1. High gravity offset (-20): Card pulls down firmly when held between 20° to 80°
+      // To send the card upward, you must push the top of the phone forward flat (< 20°)
+      const deltaY = tiltY - 20;
 
-      // Add a 5-degree "dead zone" buffer to prevent jitter at resting angle
-      if (Math.abs(deltaY) < 5) {
-        deltaY = 0;
-      }
+      // 2. Gentle acceleration multipliers for smooth travel
+      velX += tiltX * 0.12;
+      velY += deltaY * 0.18; 
 
-      // Reduced acceleration factors for deliberate, heavier movement
-      velX += tiltX * 0.06;
-      velY += deltaY * 0.08; 
-
-      // Stronger friction force (lower multiplier = stops faster)
-      velX *= 0.78;
-      velY *= 0.78;
+      // 3. Low air resistance (0.94 multiplier): Glides freely with high momentum
+      velX *= 0.94;
+      velY *= 0.94;
 
       posX += velX;
       posY += velY;
 
-      // Screen edge boundaries
+      // Screen edge boundaries with elastic bounce
       const maxX = stage.clientWidth - card.clientWidth;
       const maxY = stage.clientHeight - card.clientHeight;
 
-      if (posX < 0) { posX = 0; velX *= -0.2; }
-      if (posX > maxX) { posX = maxX; velX *= -0.2; }
-      if (posY < 0) { posY = 0; velY *= -0.2; }
-      if (posY > maxY) { posY = maxY; velY *= -0.2; }
+      if (posX < 0) { posX = 0; velX *= -0.4; }
+      if (posX > maxX) { posX = maxX; velX *= -0.4; }
+      if (posY < 0) { posY = 0; velY *= -0.4; }
+      if (posY > maxY) { posY = maxY; velY *= -0.4; }
 
       // Smooth transform application
-      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.3}deg)`;
+      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.4}deg)`;
 
       requestAnimationFrame(updateCardPosition);
     }
