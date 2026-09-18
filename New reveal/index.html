@@ -81,7 +81,8 @@
     let tiltX = 0, tiltY = 0;
     let initialTiltX = 0, initialTiltY = 0;
     let isActivated = false;
-    let gravityActivated = false; // Controls whether gravity is engaged yet
+    let gravityActivated = false; 
+    let isDismissing = false; // Tracks when auto-exit takes over
     let isWaitingForDelay = false;
     let delayTimer = null;
     let lastTap = 0;
@@ -100,9 +101,8 @@
 
     // Card Touch Events
     card.addEventListener('touchstart', (e) => {
-      if (!isActivated) return;
+      if (!isActivated || isDismissing) return;
       
-      // Touching the card immediately enables physics/gravity
       gravityActivated = true; 
       isDragging = true;
       const touch = e.touches[0];
@@ -121,7 +121,7 @@
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
-      if (!isDragging || !isActivated) return;
+      if (!isDragging || !isActivated || isDismissing) return;
       
       const touch = e.touches[0];
       const deltaX = touch.clientX - dragStartX;
@@ -131,10 +131,8 @@
       posY = initialCardY + deltaY;
       
       const maxX = stage.clientWidth - card.clientWidth;
-      const maxY = stage.clientHeight - card.clientHeight;
       
       posX = Math.max(0, Math.min(posX, maxX));
-      posY = Math.min(posY, maxY); // Allows dragging upward to dismiss
 
       const now = performance.now();
       const dt = (now - lastTouchTime) || 16;
@@ -144,11 +142,24 @@
       lastTouchX = touch.clientX;
       lastTouchY = touch.clientY;
       lastTouchTime = now;
+
+      // Auto-trigger dismiss if dragged past halfway off the top
+      if (posY < -card.clientHeight / 2) {
+        isDragging = false;
+        isDismissing = true;
+        velY = Math.min(velY, -8); // Keep current upward speed, or give minimum push outward
+      }
     }, { passive: true });
 
     window.addEventListener('touchend', () => {
       if (isDragging) {
         isDragging = false;
+
+        // Trigger dismiss if released past halfway off the top
+        if (posY < -card.clientHeight / 2) {
+          isDismissing = true;
+          velY = Math.min(velY, -8);
+        }
       }
     });
 
@@ -225,6 +236,7 @@
       isWaitingForDelay = false;
       isActivated = false;
       gravityActivated = false;
+      isDismissing = false;
       card.style.opacity = '0';
     }
 
@@ -237,19 +249,18 @@
     }
 
     function startMotion() {
-      // Center card perfectly on screen
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
       
       velX = 0;
       velY = 0;
 
-      // Lock baseline angles to measure movement from the exact moment of reveal
       initialTiltX = tiltX;
       initialTiltY = tiltY;
 
       isActivated = true;
-      gravityActivated = false; // Freeze in center until motion occurs
+      gravityActivated = false; 
+      isDismissing = false;
       card.style.opacity = '1';
 
       requestAnimationFrame(updateCardPosition);
@@ -261,57 +272,80 @@
       return gravityEased * 1.8; 
     }
 
+    function horizontalForce(gamma) {
+      const TILT_DEADZONE = 12;
+      const absGamma = Math.abs(gamma);
+
+      if (absGamma <= TILT_DEADZONE) {
+        return 0; 
+      }
+
+      const effectiveTilt = (absGamma - TILT_DEADZONE) * Math.sign(gamma);
+      return effectiveTilt * 0.28; 
+    }
+
     function updateCardPosition() {
       if (!isActivated) return;
 
-      // --- MOTION DETECTION CHECK ---
-      // If frozen, monitor for slight angle tilt (> 3 degrees) to trigger gravity
-      if (!gravityActivated) {
-        const deltaX = Math.abs(tiltX - initialTiltX);
-        const deltaY = Math.abs(tiltY - initialTiltY);
+      // Auto-exit mode: Suck out card off the top boundary continuously
+      if (isDismissing) {
+        posY += velY; 
 
-        if (deltaX > 3 || deltaY > 3) {
-          gravityActivated = true;
+        if (posY < -card.clientHeight) {
+          dismissCard();
+          return;
         }
-      }
+      } 
+      else {
+        if (!gravityActivated) {
+          const deltaX = Math.abs(tiltX - initialTiltX);
+          const deltaY = Math.abs(tiltY - initialTiltY);
 
-      if (!isDragging) {
-        if (gravityActivated) {
-          let forceY = verticalForce(tiltY);
-          let forceX = 0;
-
-          if (Math.abs(tiltX) > 3) {
-            forceX = tiltX * 0.15;
+          if (deltaX > 3 || deltaY > 3) {
+            gravityActivated = true;
           }
+        }
 
-          velX += forceX;
-          velY += forceY;
+        if (!isDragging) {
+          if (gravityActivated) {
+            let forceY = verticalForce(tiltY);
+            let forceX = horizontalForce(tiltX);
 
-          velX *= 0.85;
-          velY *= 0.92;
+            velX += forceX;
+            velY += forceY;
 
-          posX += velX;
-          posY += velY;
+            if (forceX === 0) {
+              velX *= 0.70; 
+            } else {
+              velX *= 0.88; 
+            }
+            
+            velY *= 0.92;
 
-          const maxX = stage.clientWidth - card.clientWidth;
-          const maxY = stage.clientHeight - card.clientHeight;
+            posX += velX;
+            posY += velY;
 
-          if (posX < 0) { 
-            posX = 0; 
-            velX *= -0.1; 
-          }
-          if (posX > maxX) { 
-            posX = maxX; 
-            velX *= -0.1; 
-          }
-          if (posY > maxY) { 
-            posY = maxY; 
-            velY = 0; 
-          }
+            const maxX = stage.clientWidth - card.clientWidth;
+            const maxY = stage.clientHeight - card.clientHeight;
 
-          if (posY < -card.clientHeight) {
-            dismissCard();
-            return;
+            if (posX < 0) { 
+              posX = 0; 
+              velX *= -0.1; 
+            }
+            if (posX > maxX) { 
+              posX = maxX; 
+              velX *= -0.1; 
+            }
+            if (posY > maxY) { 
+              posY = maxY; 
+              velY = 0; 
+            }
+
+            // Passive check: triggers auto-suck exit if gravity or flick carries card past half height
+            if (posY < -card.clientHeight / 2) {
+              isDismissing = true;
+              velY = Math.min(velY, -8);
+            }
           }
         }
       }
