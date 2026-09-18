@@ -41,15 +41,15 @@
       z-index: 1;
     }
 
-    /* Moving Playing Card - 2x Larger (90% width) */
+    /* Moving Playing Card - 80% width */
     #playing-card {
       position: absolute;
-      width: 90%; 
+      width: 80%; 
       height: auto;
       z-index: 2;
       pointer-events: none;
       will-change: transform;
-      opacity: 0; /* Hidden until double tap */
+      opacity: 0; /* Hidden initially */
       transition: opacity 0.2s ease;
       filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
     }
@@ -73,6 +73,8 @@
     let velX = 0, velY = 0;
     let tiltX = 0, tiltY = 0;
     let isActivated = false;
+    let isWaitingForDelay = false;
+    let delayTimer = null;
     let lastTap = 0;
 
     // Detect Double Tap anywhere on screen
@@ -81,42 +83,56 @@
       const tapLength = currentTime - lastTap;
       
       if (tapLength < 300 && tapLength > 0) {
-        // Double tap detected!
-        if (!isActivated) {
-          enableCardAndSensors();
-        }
+        handleDoubleTap();
       }
       lastTap = currentTime;
     });
 
-    async function enableCardAndSensors() {
+    function handleDoubleTap() {
+      // If already active or waiting on timer, hide/cancel immediately
+      if (isActivated || isWaitingForDelay) {
+        clearTimeout(delayTimer);
+        isWaitingForDelay = false;
+        isActivated = false;
+        card.style.opacity = '0';
+        return;
+      }
+
       // Request permissions for iOS if needed
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        try {
-          const response = await DeviceOrientationEvent.requestPermission();
+        DeviceOrientationEvent.requestPermission().then(response => {
           if (response === 'granted') {
-            startMotion();
+            setupSensorsAndTimer();
           }
-        } catch (err) {
-          console.error(err);
-        }
+        }).catch(console.error);
       } else {
-        startMotion();
+        setupSensorsAndTimer();
       }
     }
 
-    function startMotion() {
-      isActivated = true;
-      card.style.opacity = '1'; // Make card visible
+    function setupSensorsAndTimer() {
+      // Listen to orientation changes immediately
+      window.addEventListener('deviceorientation', (e) => {
+        tiltX = e.gamma || 0; 
+        tiltY = e.beta || 0;  
+      });
 
-      // Center the card in the viewport
+      isWaitingForDelay = true;
+
+      // 4-second delay before card appears
+      delayTimer = setTimeout(() => {
+        isWaitingForDelay = false;
+        startMotion();
+      }, 4000);
+    }
+
+    function startMotion() {
+      // Center card in viewport before revealing
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
 
-      window.addEventListener('deviceorientation', (e) => {
-        tiltX = e.gamma || 0; // Left/Right tilt
-        tiltY = e.beta || 0;  // Front/Back tilt
-      });
+      isActivated = true;
+      card.style.opacity = '1'; // Show card
 
       requestAnimationFrame(updateCardPosition);
     }
@@ -124,18 +140,18 @@
     function updateCardPosition() {
       if (!isActivated) return;
 
-      // Stronger downward acceleration when holding phone at ~45 degree resting angle
+      // Gravity acceleration (~30-45 deg normal hold offset)
       velX += tiltX * 0.25;
       velY += (tiltY - 30) * 0.35; 
 
-      // Physics Friction
+      // Friction
       velX *= 0.86;
       velY *= 0.86;
 
       posX += velX;
       posY += velY;
 
-      // Boundaries (screen edges)
+      // Screen edge boundaries
       const maxX = stage.clientWidth - card.clientWidth;
       const maxY = stage.clientHeight - card.clientHeight;
 
@@ -144,7 +160,7 @@
       if (posY < 0) { posY = 0; velY *= -0.3; }
       if (posY > maxY) { posY = maxY; velY *= -0.3; }
 
-      // Apply screen transformation
+      // Apply 3D transform
       card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.4}deg)`;
 
       requestAnimationFrame(updateCardPosition);
