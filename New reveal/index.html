@@ -87,6 +87,9 @@
     let permissionGranted = false;
     let listenerAttached = false;
 
+    // Sensitivity threshold for "smash/shake" impact (25 is ideal for a physical tap/hit)
+    const SHAKE_THRESHOLD = 25; 
+
     // --- Touch Dragging Variables ---
     let isDragging = false;
     let dragStartX = 0, dragStartY = 0;
@@ -124,7 +127,6 @@
       posX = initialCardX + deltaX;
       posY = initialCardY + deltaY;
       
-      // Allow dragging off the top, but bound sides and bottom
       const maxX = stage.clientWidth - card.clientWidth;
       const maxY = stage.clientHeight - card.clientHeight;
       
@@ -147,7 +149,7 @@
       }
     });
 
-    // Detect Double Tap anywhere on screen to trigger initial activation
+    // Detect Double Tap anywhere on screen to trigger delayed activation
     window.addEventListener('touchend', (e) => {
       if (isDragging) return;
 
@@ -181,24 +183,41 @@
     function attachOrientationListener() {
       if (listenerAttached) return;
       listenerAttached = true;
+
+      // Tilt listener
       window.addEventListener('deviceorientation', (e) => {
         tiltX = e.gamma || 0;
         tiltY = e.beta || 0;
       });
+
+      // Impact/Smash listener
+      window.addEventListener('devicemotion', (e) => {
+        const acc = e.accelerationIncludingGravity;
+        if (!acc) return;
+
+        const totalAccel = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+
+        // Instant trigger on smash or sharp hit
+        if (totalAccel > SHAKE_THRESHOLD && !isActivated) {
+          triggerInstantReveal();
+        }
+      });
     }
 
     function handleDoubleTap() {
-      // Double tap dismissed action REMOVED.
-      // Ignore double tap if the card is already active or timer is counting down.
-      if (isActivated || isWaitingForDelay) {
-        return;
-      }
+      if (isActivated || isWaitingForDelay) return;
 
       if (!permissionGranted) {
         maybeRequestPermission();
       }
 
       startDelayTimer();
+    }
+
+    function triggerInstantReveal() {
+      clearTimeout(delayTimer);
+      isWaitingForDelay = false;
+      calibrateThenStart();
     }
 
     function dismissCard() {
@@ -210,6 +229,7 @@
 
     function startDelayTimer() {
       isWaitingForDelay = true;
+      // 3-second delay setting
       delayTimer = setTimeout(() => {
         isWaitingForDelay = false;
         calibrateThenStart();
@@ -286,13 +306,11 @@
         const maxX = stage.clientWidth - card.clientWidth;
         const maxY = stage.clientHeight - card.clientHeight;
 
-        // Side and Bottom edge boundaries with bounce
         if (posX < 0) { posX = 0; velX *= -0.3; }
         if (posX > maxX) { posX = maxX; velX *= -0.3; }
         if (posY > maxY) { posY = maxY; velY *= -0.3; }
 
-        // --- EXCLUSIVE DISMISSAL MECHANIC ---
-        // Automatically resets only when the card is flicked/slid completely off the top
+        // Slide off top dismiss mechanic
         if (posY < -card.clientHeight) {
           dismissCard();
           return;
