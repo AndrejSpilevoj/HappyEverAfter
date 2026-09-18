@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Card Motion Demo</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      overflow: hidden;
+      touch-action: manipulation;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    #stage {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: env(safe-area-inset-top, 0px);
+      overflow: hidden;
+    }
+
+    /* Google Background Image */
+    .bg-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      -webkit-user-drag: none;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Moving Playing Card */
+    #playing-card {
+      position: absolute;
+      width: 45%; /* Fits naturally on a phone screen */
+      height: auto;
+      z-index: 2; /* Sits directly ON TOP of the background image */
+      pointer-events: none;
+      will-change: transform;
+      filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.3));
+    }
+
+    /* Start Button Overlay (Required for iOS Permissions) */
+    #permission-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-family: sans-serif;
+      background: #4285F4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="stage">
+    <!-- Google UI Background -->
+    <img src="google-bg.jpg" class="bg-image" alt="Google Background">
+    
+    <!-- Floating Playing Card -->
+    <img src="card.png" id="playing-card" alt="Playing Card">
+
+    <!-- Tap to start motion button -->
+    <button id="permission-btn">Tap to Start</button>
+  </div>
+
+  <script>
+    const card = document.getElementById('playing-card');
+    const stage = document.getElementById('stage');
+    const btn = document.getElementById('permission-btn');
+
+    let posX = 0, posY = 0;
+    let velX = 0, velY = 0;
+    let tiltX = 0, tiltY = 0;
+    let isMoving = false;
+
+    // Request sensor permissions (Required on iPhones)
+    btn.addEventListener('click', async () => {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          const response = await DeviceOrientationEvent.requestPermission();
+          if (response === 'granted') {
+            startMotion();
+          } else {
+            alert('Permission denied');
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        // Non-iOS devices
+        startMotion();
+      }
+    });
+
+    function startMotion() {
+      btn.style.display = 'none'; // Hide the button once activated
+      
+      // Center card initially
+      posX = (stage.clientWidth - card.clientWidth) / 2;
+      posY = (stage.clientHeight - card.clientHeight) / 2;
+
+      window.addEventListener('deviceorientation', (e) => {
+        tiltX = e.gamma || 0; // Left/Right tilt (-90 to 90)
+        tiltY = e.beta || 0;  // Front/Back tilt (-180 to 180)
+      });
+
+      isMoving = true;
+      requestAnimationFrame(updateCardPosition);
+    }
+
+    function updateCardPosition() {
+      if (!isMoving) return;
+
+      // Accelerate position based on tilt angle (offsetting 45 deg for normal phone hold angle)
+      velX += tiltX * 0.15;
+      velY += (tiltY - 45) * 0.15;
+
+      // Friction to smooth out movement
+      velX *= 0.88;
+      velY *= 0.88;
+
+      posX += velX;
+      posY += velY;
+
+      // Screen Edge Bounce Limits
+      const maxX = stage.clientWidth - card.clientWidth;
+      const maxY = stage.clientHeight - card.clientHeight;
+
+      if (posX < 0) { posX = 0; velX *= -0.3; }
+      if (posX > maxX) { posX = maxX; velX *= -0.3; }
+      if (posY < 0) { posY = 0; velY *= -0.3; }
+      if (posY > maxY) { posY = maxY; velY *= -0.3; }
+
+      // Apply coordinates and slight tilt rotation
+      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.5}deg)`;
+
+      requestAnimationFrame(updateCardPosition);
+    }
+  </script>
+</body>
+</html>
