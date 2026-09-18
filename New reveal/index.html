@@ -87,8 +87,9 @@
     let permissionGranted = false;
     let listenerAttached = false;
 
-    // Sensitivity threshold for "smash/shake" impact
-    const SHAKE_THRESHOLD = 15; 
+    // --- RESTORED THRESHOLD (25) ---
+    // Requires a firm smash/hit to trigger, preventing table-drop false alarms.
+    const SHAKE_THRESHOLD = 25; 
 
     // --- Touch Dragging Variables ---
     let isDragging = false;
@@ -197,7 +198,7 @@
 
         const totalAccel = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
 
-        // Instant trigger on smash or sharp hit
+        // Instant trigger on firm smash or sharp hit
         if (totalAccel > SHAKE_THRESHOLD && !isActivated) {
           triggerInstantReveal();
         }
@@ -258,8 +259,11 @@
     function startMotion() {
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
+      
+      // --- INSTANT DOWNWARD DROP ---
+      // Initial vertical impulse forces the card to slide down immediately upon reveal
       velX = 0;
-      velY = 0;
+      velY = 12; 
 
       isActivated = true;
       card.style.opacity = '1';
@@ -281,7 +285,6 @@
       const t = Math.min((delta - NEUTRAL_DEADZONE) / RAMP_RANGE, 1);
       const eased = t * t;
       
-      // Returns purely downward force
       return eased * MAX_FORCE;
     }
 
@@ -289,7 +292,7 @@
       if (!isActivated) return;
 
       if (!isDragging) {
-        let forceY = verticalForce(tiltY); // Only pulls down
+        let forceY = verticalForce(tiltY);
         let forceX = 0;
 
         if (Math.abs(tiltX) > 3) {
