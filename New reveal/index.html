@@ -56,7 +56,7 @@
       pointer-events: auto;
       will-change: transform;
       opacity: 0;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.1s ease;
       filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
       touch-action: none;
     }
@@ -87,8 +87,8 @@
     let permissionGranted = false;
     let listenerAttached = false;
 
-    // Sensitivity threshold for "smash/shake" impact (25 is ideal for a physical tap/hit)
-    const SHAKE_THRESHOLD = 25; 
+    // Sensitivity threshold for "smash/shake" impact
+    const SHAKE_THRESHOLD = 15; 
 
     // --- Touch Dragging Variables ---
     let isDragging = false;
@@ -131,7 +131,7 @@
       const maxY = stage.clientHeight - card.clientHeight;
       
       posX = Math.max(0, Math.min(posX, maxX));
-      posY = Math.min(posY, maxY); // Unbounded at the top
+      posY = Math.min(posY, maxY); // Unbounded at top for finger dismiss
 
       const now = performance.now();
       const dt = (now - lastTouchTime) || 16;
@@ -217,7 +217,8 @@
     function triggerInstantReveal() {
       clearTimeout(delayTimer);
       isWaitingForDelay = false;
-      calibrateThenStart();
+      neutralY = tiltY || 90;
+      startMotion();
     }
 
     function dismissCard() {
@@ -229,7 +230,6 @@
 
     function startDelayTimer() {
       isWaitingForDelay = true;
-      // 3-second delay setting
       delayTimer = setTimeout(() => {
         isWaitingForDelay = false;
         calibrateThenStart();
@@ -238,7 +238,7 @@
 
     function calibrateThenStart() {
       const samples = [];
-      const sampleDuration = 50;
+      const sampleDuration = 100;
       const startTime = performance.now();
 
       function collect() {
@@ -267,27 +267,29 @@
       requestAnimationFrame(updateCardPosition);
     }
 
+    // --- ONE-WAY DOWNWARD GRAVITY ---
     function verticalForce(beta) {
       const NEUTRAL_DEADZONE = 8;
       const MAX_FORCE = 6;
       const RAMP_RANGE = 45;
 
       const delta = beta - neutralY;
-      const absDelta = Math.abs(delta);
-      if (absDelta <= NEUTRAL_DEADZONE) return 0;
+      
+      // Safety Lock: Disallow all upward forces caused by device tilt
+      if (delta <= NEUTRAL_DEADZONE) return 0;
 
-      const t = Math.min((absDelta - NEUTRAL_DEADZONE) / RAMP_RANGE, 1);
+      const t = Math.min((delta - NEUTRAL_DEADZONE) / RAMP_RANGE, 1);
       const eased = t * t;
-      const magnitude = eased * MAX_FORCE;
-
-      return delta > 0 ? magnitude : -magnitude;
+      
+      // Returns purely downward force
+      return eased * MAX_FORCE;
     }
 
     function updateCardPosition() {
       if (!isActivated) return;
 
       if (!isDragging) {
-        let forceY = verticalForce(tiltY);
+        let forceY = verticalForce(tiltY); // Only pulls down
         let forceX = 0;
 
         if (Math.abs(tiltX) > 3) {
@@ -310,7 +312,7 @@
         if (posX > maxX) { posX = maxX; velX *= -0.3; }
         if (posY > maxY) { posY = maxY; velY *= -0.3; }
 
-        // Slide off top dismiss mechanic
+        // Dismiss trigger if pushed off top by finger
         if (posY < -card.clientHeight) {
           dismissCard();
           return;
