@@ -84,6 +84,8 @@
     let isWaitingForDelay = false;
     let delayTimer = null;
     let lastTap = 0;
+    let permissionGranted = false;
+    let listenerAttached = false;
 
     // Detect Double Tap anywhere on screen
     window.addEventListener('touchend', (e) => {
@@ -92,9 +94,39 @@
       
       if (tapLength < 300 && tapLength > 0) {
         handleDoubleTap();
+      } else {
+        // A single tap (or the first tap of what may become a double tap):
+        // just get the permission prompt out of the way, do nothing else.
+        maybeRequestPermission();
       }
       lastTap = currentTime;
     });
+
+    function maybeRequestPermission() {
+      if (permissionGranted) return;
+
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission().then(response => {
+          if (response === 'granted') {
+            permissionGranted = true;
+            attachOrientationListener();
+          }
+        }).catch(console.error);
+      } else {
+        // Non-iOS-13+ device: no explicit permission needed.
+        permissionGranted = true;
+        attachOrientationListener();
+      }
+    }
+
+    function attachOrientationListener() {
+      if (listenerAttached) return;
+      listenerAttached = true;
+      window.addEventListener('deviceorientation', (e) => {
+        tiltX = e.gamma || 0;
+        tiltY = e.beta || 0;
+      });
+    }
 
     function handleDoubleTap() {
       // Toggle off if double-tapped while active or during 4s delay
@@ -106,31 +138,43 @@
         return;
       }
 
-      // Silent orientation listener request for iOS
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-          if (response === 'granted') {
-            setupSensorsAndTimer();
-          }
-        }).catch(console.error);
-      } else {
-        setupSensorsAndTimer();
+      if (!permissionGranted) {
+        // Fallback: permission wasn't requested ahead of time, ask now.
+        maybeRequestPermission();
       }
+
+      startDelayTimer();
     }
 
-    function setupSensorsAndTimer() {
-      window.addEventListener('deviceorientation', (e) => {
-        tiltX = e.gamma || 0; 
-        tiltY = e.beta || 0;  
-      });
-
+    function startDelayTimer() {
       isWaitingForDelay = true;
 
       // 4-second delay before card reveals
       delayTimer = setTimeout(() => {
         isWaitingForDelay = false;
-        startMotion();
+        calibrateThenStart();
       }, 4000);
+    }
+
+    // Sample tiltY for a short window before starting motion, so we never
+    // lock in a stale/zero first reading as the "neutral" holding angle.
+    function calibrateThenStart() {
+      const samples = [];
+      const sampleDuration = 400; // ms
+      const startTime = performance.now();
+
+      function collect() {
+        samples.push(tiltY);
+        if (performance.now() - startTime < sampleDuration) {
+          requestAnimationFrame(collect);
+        } else {
+          const sum = samples.reduce((a, b) => a + b, 0);
+          neutralY = sum / samples.length;
+          startMotion();
+        }
+      }
+
+      requestAnimationFrame(collect);
     }
 
     function startMotion() {
@@ -139,11 +183,6 @@
       posY = (stage.clientHeight - card.clientHeight) / 2;
       velX = 0;
       velY = 0;
-
-      // Calibrate: whatever tilt the phone is reporting right now becomes
-      // the "no gravity" reference point. This makes the effect work the
-      // same regardless of how a given device/browser reports beta.
-      neutralY = tiltY;
 
       isActivated = true;
       card.style.opacity = '1';
