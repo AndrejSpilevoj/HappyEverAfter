@@ -79,7 +79,7 @@
     let posX = 0, posY = 0;
     let velX = 0, velY = 0;
     let tiltX = 0, tiltY = 0;
-    let neutralY = 90;
+    let neutralY = 0; // Baseline calibrated for horizontal flat mode; vertical always falls
     let isActivated = false;
     let isWaitingForDelay = false;
     let delayTimer = null;
@@ -87,11 +87,10 @@
     let permissionGranted = false;
     let listenerAttached = false;
 
-    // --- RESTORED THRESHOLD (25) ---
-    // Requires a firm smash/hit to trigger, preventing table-drop false alarms.
+    // Hard impact threshold
     const SHAKE_THRESHOLD = 25; 
 
-    // --- Touch Dragging Variables ---
+    // Touch Dragging Variables
     let isDragging = false;
     let dragStartX = 0, dragStartY = 0;
     let initialCardX = 0, initialCardY = 0;
@@ -132,7 +131,7 @@
       const maxY = stage.clientHeight - card.clientHeight;
       
       posX = Math.max(0, Math.min(posX, maxX));
-      posY = Math.min(posY, maxY); // Unbounded at top for finger dismiss
+      posY = Math.min(posY, maxY); // Allows dragging upward to dismiss
 
       const now = performance.now();
       const dt = (now - lastTouchTime) || 16;
@@ -150,7 +149,7 @@
       }
     });
 
-    // Detect Double Tap anywhere on screen to trigger delayed activation
+    // Double Tap detection
     window.addEventListener('touchend', (e) => {
       if (isDragging) return;
 
@@ -185,20 +184,17 @@
       if (listenerAttached) return;
       listenerAttached = true;
 
-      // Tilt listener
       window.addEventListener('deviceorientation', (e) => {
         tiltX = e.gamma || 0;
         tiltY = e.beta || 0;
       });
 
-      // Impact/Smash listener
       window.addEventListener('devicemotion', (e) => {
         const acc = e.accelerationIncludingGravity;
         if (!acc) return;
 
         const totalAccel = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
 
-        // Instant trigger on firm smash or sharp hit
         if (totalAccel > SHAKE_THRESHOLD && !isActivated) {
           triggerInstantReveal();
         }
@@ -218,7 +214,7 @@
     function triggerInstantReveal() {
       clearTimeout(delayTimer);
       isWaitingForDelay = false;
-      neutralY = tiltY || 90;
+      neutralY = 15; // Set low baseline angle so holding upright consistently triggers gravity
       startMotion();
     }
 
@@ -233,37 +229,18 @@
       isWaitingForDelay = true;
       delayTimer = setTimeout(() => {
         isWaitingForDelay = false;
-        calibrateThenStart();
+        neutralY = 15;
+        startMotion();
       }, 3000);
-    }
-
-    function calibrateThenStart() {
-      const samples = [];
-      const sampleDuration = 100;
-      const startTime = performance.now();
-
-      function collect() {
-        samples.push(tiltY);
-        if (performance.now() - startTime < sampleDuration) {
-          requestAnimationFrame(collect);
-        } else {
-          const sum = samples.reduce((a, b) => a + b, 0);
-          neutralY = sum / samples.length;
-          startMotion();
-        }
-      }
-
-      requestAnimationFrame(collect);
     }
 
     function startMotion() {
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
       
-      // --- INSTANT DOWNWARD DROP ---
-      // Initial vertical impulse forces the card to slide down immediately upon reveal
+      // Initial vertical snap
       velX = 0;
-      velY = 12; 
+      velY = 16; 
 
       isActivated = true;
       card.style.opacity = '1';
@@ -271,21 +248,14 @@
       requestAnimationFrame(updateCardPosition);
     }
 
-    // --- ONE-WAY DOWNWARD GRAVITY ---
+    // --- REALISTIC CONSTANT GRAVITY ---
     function verticalForce(beta) {
-      const NEUTRAL_DEADZONE = 8;
-      const MAX_FORCE = 6;
-      const RAMP_RANGE = 45;
-
-      const delta = beta - neutralY;
+      // Scale gravity proportional to phone angle (vertical = fast drop, flat = rest)
+      const clampedBeta = Math.max(0, beta); 
+      const gravityEased = Math.sin((clampedBeta / 90) * (Math.PI / 2));
       
-      // Safety Lock: Disallow all upward forces caused by device tilt
-      if (delta <= NEUTRAL_DEADZONE) return 0;
-
-      const t = Math.min((delta - NEUTRAL_DEADZONE) / RAMP_RANGE, 1);
-      const eased = t * t;
-      
-      return eased * MAX_FORCE;
+      // Strong gravity multiplier so card slides quickly back to bottom upon release
+      return gravityEased * 1.8; 
     }
 
     function updateCardPosition() {
@@ -296,14 +266,16 @@
         let forceX = 0;
 
         if (Math.abs(tiltX) > 3) {
-          forceX = tiltX * 0.12;
+          forceX = tiltX * 0.15;
         }
 
+        // Apply constant force pull
         velX += forceX;
         velY += forceY;
 
-        velX *= 0.90;
-        velY *= 0.90;
+        // Friction tuned for smooth sliding without endless float
+        velX *= 0.85;
+        velY *= 0.92;
 
         posX += velX;
         posY += velY;
@@ -311,18 +283,29 @@
         const maxX = stage.clientWidth - card.clientWidth;
         const maxY = stage.clientHeight - card.clientHeight;
 
-        if (posX < 0) { posX = 0; velX *= -0.3; }
-        if (posX > maxX) { posX = maxX; velX *= -0.3; }
-        if (posY > maxY) { posY = maxY; velY *= -0.3; }
+        // --- SUBTLE WALL BOUNDARIES (No harsh wobble) ---
+        if (posX < 0) { 
+          posX = 0; 
+          velX *= -0.1; // Minimal rebound to kill bouncy jitter
+        }
+        if (posX > maxX) { 
+          posX = maxX; 
+          velX *= -0.1; 
+        }
+        if (posY > maxY) { 
+          posY = maxY; 
+          velY = 0; // Clean stop at bottom edge
+        }
 
-        // Dismiss trigger if pushed off top by finger
+        // Dismiss trigger when pushed off top edge
         if (posY < -card.clientHeight) {
           dismissCard();
           return;
         }
       }
 
-      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.4}deg)`;
+      // Restrained tilt rotation angle (0.1 multiplier) to prevent wild shaking
+      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.1}deg)`;
 
       requestAnimationFrame(updateCardPosition);
     }
