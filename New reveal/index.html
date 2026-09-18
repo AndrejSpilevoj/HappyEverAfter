@@ -89,7 +89,6 @@
     });
 
     function handleDoubleTap() {
-      // If already active or waiting on timer, hide/cancel immediately
       if (isActivated || isWaitingForDelay) {
         clearTimeout(delayTimer);
         isWaitingForDelay = false;
@@ -98,7 +97,6 @@
         return;
       }
 
-      // Request permissions for iOS if needed
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(response => {
           if (response === 'granted') {
@@ -111,7 +109,6 @@
     }
 
     function setupSensorsAndTimer() {
-      // Listen to orientation changes immediately
       window.addEventListener('deviceorientation', (e) => {
         tiltX = e.gamma || 0; 
         tiltY = e.beta || 0;  
@@ -127,12 +124,11 @@
     }
 
     function startMotion() {
-      // Center card in viewport before revealing
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
 
       isActivated = true;
-      card.style.opacity = '1'; // Show card
+      card.style.opacity = '1';
 
       requestAnimationFrame(updateCardPosition);
     }
@@ -140,13 +136,21 @@
     function updateCardPosition() {
       if (!isActivated) return;
 
-      // Gravity acceleration (~30-45 deg normal hold offset)
-      velX += tiltX * 0.25;
-      velY += (tiltY - 30) * 0.35; 
+      // Calculate vertical tilt difference relative to a steep ~50 deg posture
+      let deltaY = tiltY - 50;
 
-      // Friction
-      velX *= 0.86;
-      velY *= 0.86;
+      // Add a 5-degree "dead zone" buffer to prevent jitter at resting angle
+      if (Math.abs(deltaY) < 5) {
+        deltaY = 0;
+      }
+
+      // Reduced acceleration factors for deliberate, heavier movement
+      velX += tiltX * 0.06;
+      velY += deltaY * 0.08; 
+
+      // Stronger friction force (lower multiplier = stops faster)
+      velX *= 0.78;
+      velY *= 0.78;
 
       posX += velX;
       posY += velY;
@@ -155,13 +159,13 @@
       const maxX = stage.clientWidth - card.clientWidth;
       const maxY = stage.clientHeight - card.clientHeight;
 
-      if (posX < 0) { posX = 0; velX *= -0.3; }
-      if (posX > maxX) { posX = maxX; velX *= -0.3; }
-      if (posY < 0) { posY = 0; velY *= -0.3; }
-      if (posY > maxY) { posY = maxY; velY *= -0.3; }
+      if (posX < 0) { posX = 0; velX *= -0.2; }
+      if (posX > maxX) { posX = maxX; velX *= -0.2; }
+      if (posY < 0) { posY = 0; velY *= -0.2; }
+      if (posY > maxY) { posY = maxY; velY *= -0.2; }
 
-      // Apply 3D transform
-      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.4}deg)`;
+      // Smooth transform application
+      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.3}deg)`;
 
       requestAnimationFrame(updateCardPosition);
     }
