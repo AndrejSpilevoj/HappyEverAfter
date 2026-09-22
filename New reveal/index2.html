@@ -144,7 +144,7 @@
       if (posY < -card.clientHeight / 2) {
         isDragging = false;
         isDismissing = true;
-        velY = Math.min(velY, -8);
+        velY = Math.min(velY, -14);
       }
     }, { passive: true });
 
@@ -155,7 +155,7 @@
         // Trigger dismiss if released past halfway off the top
         if (posY < -card.clientHeight / 2) {
           isDismissing = true;
-          velY = Math.min(velY, -8);
+          velY = Math.min(velY, -14);
         }
       }
     });
@@ -215,6 +215,7 @@
 
       // Auto-exit mode: Suck out card off the top boundary continuously
       if (isDismissing) {
+        velY -= 0.6; // keeps accelerating on the way out
         posY += velY;
 
         if (posY < -card.clientHeight) {
