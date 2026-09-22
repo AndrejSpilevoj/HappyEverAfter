@@ -99,12 +99,6 @@
     let lastTouchX = 0, lastTouchY = 0;
     let lastTouchTime = 0;
 
-    // Long-press (finger hold) reveal variables
-    let holdTimer = null;
-    let holdStartX = 0, holdStartY = 0;
-    const HOLD_DURATION = 2000; // 2 seconds
-    const HOLD_MOVE_TOLERANCE = 10;
-
     // Card Touch Events
     card.addEventListener('touchstart', (e) => {
       if (!isActivated || isDismissing) return;
@@ -153,7 +147,7 @@
       if (posY < -card.clientHeight / 2) {
         isDragging = false;
         isDismissing = true;
-        velY = Math.min(velY, -12); // Keep current upward speed, or give minimum push outward
+        velY = Math.min(velY, -8); // Keep current upward speed, or give minimum push outward
       }
     }, { passive: true });
 
@@ -164,7 +158,7 @@
         // Trigger dismiss if released past halfway off the top
         if (posY < -card.clientHeight / 2) {
           isDismissing = true;
-          velY = Math.min(velY, -12);
+          velY = Math.min(velY, -8);
         }
       }
     });
@@ -182,44 +176,6 @@
         maybeRequestPermission();
       }
       lastTap = currentTime;
-    });
-
-    // Long-press (2 second finger hold) detection - alternate reveal trigger
-    window.addEventListener('touchstart', (e) => {
-      if (isActivated || isWaitingForDelay) return;
-
-      const touch = e.touches[0];
-      holdStartX = touch.clientX;
-      holdStartY = touch.clientY;
-
-      clearTimeout(holdTimer);
-      holdTimer = setTimeout(() => {
-        holdTimer = null;
-        if (!permissionGranted) {
-          maybeRequestPermission();
-        }
-        triggerInstantReveal();
-      }, HOLD_DURATION);
-    }, { passive: true });
-
-    window.addEventListener('touchmove', (e) => {
-      if (!holdTimer) return;
-
-      const touch = e.touches[0];
-      const dx = Math.abs(touch.clientX - holdStartX);
-      const dy = Math.abs(touch.clientY - holdStartY);
-
-      if (dx > HOLD_MOVE_TOLERANCE || dy > HOLD_MOVE_TOLERANCE) {
-        clearTimeout(holdTimer);
-        holdTimer = null;
-      }
-    }, { passive: true });
-
-    window.addEventListener('touchend', () => {
-      if (holdTimer) {
-        clearTimeout(holdTimer);
-        holdTimer = null;
-      }
     });
 
     function maybeRequestPermission() {
@@ -388,7 +344,7 @@
             // Passive check: triggers auto-suck exit if gravity or flick carries card past half height
             if (posY < -card.clientHeight / 2) {
               isDismissing = true;
-              velY = Math.min(velY, -12);
+              velY = Math.min(velY, -8);
             }
           }
         }
