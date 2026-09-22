@@ -153,7 +153,7 @@
       if (posY < -card.clientHeight / 2) {
         isDragging = false;
         isDismissing = true;
-        velY = Math.min(velY, -10); // Keep current upward speed, or give minimum push outward
+        velY = Math.min(velY, -12); // Keep current upward speed, or give minimum push outward
       }
     }, { passive: true });
 
@@ -164,7 +164,7 @@
         // Trigger dismiss if released past halfway off the top
         if (posY < -card.clientHeight / 2) {
           isDismissing = true;
-          velY = Math.min(velY, -10);
+          velY = Math.min(velY, -12);
         }
       }
     });
@@ -388,7 +388,7 @@
             // Passive check: triggers auto-suck exit if gravity or flick carries card past half height
             if (posY < -card.clientHeight / 2) {
               isDismissing = true;
-              velY = Math.min(velY, -10);
+              velY = Math.min(velY, -12);
             }
           }
         }
