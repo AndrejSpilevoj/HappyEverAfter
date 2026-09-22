@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -70,7 +69,7 @@
     <img src="google-bg.jpg" class="bg-image" alt="Google Background">
 
     <!-- Floating Playing Card -->
-    <img src="card1.png" id="playing-card" alt="Playing Card">
+    <img src="card2.png" id="playing-card" alt="Playing Card">
   </div>
 
   <script>
@@ -79,13 +78,9 @@
 
     let posX = 0, posY = 0;
     let velX = 0, velY = 0;
-    let tiltX = 0, tiltY = 0;
-    let initialTiltX = 0, initialTiltY = 0;
     let isActivated = false;
-    let gravityActivated = false;
     let isDismissing = false; // Tracks when auto-exit takes over
-    let permissionGranted = false;
-    let listenerAttached = false;
+    const GRAVITY = 0.9; // constant downward acceleration
 
     // Touch Dragging Variables (used once card is activated)
     let isDragging = false;
@@ -103,7 +98,6 @@
     card.addEventListener('touchstart', (e) => {
       if (!isActivated || isDismissing) return;
 
-      gravityActivated = true;
       isDragging = true;
       const touch = e.touches[0];
 
@@ -172,7 +166,6 @@
 
       pressTimer = setTimeout(() => {
         isPressing = false;
-        maybeRequestPermission();
         startMotion();
       }, PRESS_HOLD_MS);
     });
@@ -188,73 +181,24 @@
       isPressing = false;
     }
 
-    function maybeRequestPermission() {
-      if (permissionGranted) return;
-
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-          if (response === 'granted') {
-            permissionGranted = true;
-            attachOrientationListener();
-          }
-        }).catch(console.error);
-      } else {
-        permissionGranted = true;
-        attachOrientationListener();
-      }
-    }
-
-    function attachOrientationListener() {
-      if (listenerAttached) return;
-      listenerAttached = true;
-
-      window.addEventListener('deviceorientation', (e) => {
-        tiltX = e.gamma || 0;
-        tiltY = e.beta || 0;
-      });
-    }
-
     function dismissCard() {
       isActivated = false;
-      gravityActivated = false;
       isDismissing = false;
       card.style.opacity = '0';
     }
 
     function startMotion() {
       posX = (stage.clientWidth - card.clientWidth) / 2;
-      posY = (stage.clientHeight - card.clientHeight) / 2;
+      posY = 0;
 
       velX = 0;
       velY = 0;
 
-      initialTiltX = tiltX;
-      initialTiltY = tiltY;
-
       isActivated = true;
-      gravityActivated = false;
       isDismissing = false;
       card.style.opacity = '1';
 
       requestAnimationFrame(updateCardPosition);
-    }
-
-    function verticalForce(beta) {
-      const clampedBeta = Math.max(0, beta);
-      const gravityEased = Math.sin((clampedBeta / 90) * (Math.PI / 2));
-      return gravityEased * 1.8;
-    }
-
-    function horizontalForce(gamma) {
-      const TILT_DEADZONE = 12;
-      const absGamma = Math.abs(gamma);
-
-      if (absGamma <= TILT_DEADZONE) {
-        return 0;
-      }
-
-      const effectiveTilt = (absGamma - TILT_DEADZONE) * Math.sign(gamma);
-      return effectiveTilt * 0.28;
     }
 
     function updateCardPosition() {
@@ -269,57 +213,15 @@
           return;
         }
       }
-      else {
-        if (!gravityActivated) {
-          const deltaX = Math.abs(tiltX - initialTiltX);
-          const deltaY = Math.abs(tiltY - initialTiltY);
+      else if (!isDragging) {
+        velY += GRAVITY;
+        posY += velY;
 
-          if (deltaX > 3 || deltaY > 3) {
-            gravityActivated = true;
-          }
-        }
+        const maxY = stage.clientHeight - card.clientHeight;
 
-        if (!isDragging) {
-          if (gravityActivated) {
-            let forceY = verticalForce(tiltY);
-            let forceX = horizontalForce(tiltX);
-
-            velX += forceX;
-            velY += forceY;
-
-            if (forceX === 0) {
-              velX *= 0.70;
-            } else {
-              velX *= 0.88;
-            }
-
-            velY *= 0.92;
-
-            posX += velX;
-            posY += velY;
-
-            const maxX = stage.clientWidth - card.clientWidth;
-            const maxY = stage.clientHeight - card.clientHeight;
-
-            if (posX < 0) {
-              posX = 0;
-              velX *= -0.1;
-            }
-            if (posX > maxX) {
-              posX = maxX;
-              velX *= -0.1;
-            }
-            if (posY > maxY) {
-              posY = maxY;
-              velY = 0;
-            }
-
-            // Passive check: triggers auto-suck exit if gravity or flick carries card past half height
-            if (posY < -card.clientHeight / 2) {
-              isDismissing = true;
-              velY = Math.min(velY, -8);
-            }
-          }
+        if (posY > maxY) {
+          posY = maxY;
+          velY = 0;
         }
       }
 
