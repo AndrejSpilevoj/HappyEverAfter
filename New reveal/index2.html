@@ -80,7 +80,10 @@
     let velX = 0, velY = 0;
     let isActivated = false;
     let isDismissing = false; // Tracks when auto-exit takes over
+    let gravityEnabled = false;
+    let gravityTimer = null;
     const GRAVITY = 0.9; // constant downward acceleration
+    const GRAVITY_DURATION_MS = 2000; // how long gravity pulls the card down after reveal
 
     // Touch Dragging Variables (used once card is activated)
     let isDragging = false;
@@ -196,7 +199,13 @@
 
       isActivated = true;
       isDismissing = false;
+      gravityEnabled = true;
       card.style.opacity = '1';
+
+      clearTimeout(gravityTimer);
+      gravityTimer = setTimeout(() => {
+        gravityEnabled = false;
+      }, GRAVITY_DURATION_MS);
 
       requestAnimationFrame(updateCardPosition);
     }
@@ -213,7 +222,7 @@
           return;
         }
       }
-      else if (!isDragging) {
+      else if (!isDragging && gravityEnabled) {
         velY += GRAVITY;
         posY += velY;
 
