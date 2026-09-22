@@ -1,14 +1,15 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  
+
   <!-- iOS Standalone Web App Setup -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Google">
-  
+
   <title>Google</title>
   <style>
     html, body {
@@ -50,7 +51,7 @@
     /* Moving Playing Card (80% width) */
     #playing-card {
       position: absolute;
-      width: 80%; 
+      width: 80%;
       height: auto;
       z-index: 2;
       pointer-events: auto;
@@ -67,9 +68,9 @@
   <div id="stage">
     <!-- Background Screen -->
     <img src="google-bg.jpg" class="bg-image" alt="Google Background">
-    
+
     <!-- Floating Playing Card -->
-    <img src="card1.png" id="playing-card" alt="Playing Card">
+    <img src="card2.png" id="playing-card" alt="Playing Card">
   </div>
 
   <script>
@@ -81,96 +82,76 @@
     let tiltX = 0, tiltY = 0;
     let initialTiltX = 0, initialTiltY = 0;
     let isActivated = false;
-    let gravityActivated = false; 
+    let gravityActivated = false;
     let isDismissing = false; // Tracks when auto-exit takes over
     let permissionGranted = false;
     let listenerAttached = false;
 
-    // Long Press Variables
-    let holdTimer = null;
-    const HOLD_DURATION = 2000; // 2 seconds
-
-    // Touch Dragging Variables
+    // Touch Dragging Variables (used once card is activated)
     let isDragging = false;
     let dragStartX = 0, dragStartY = 0;
     let initialCardX = 0, initialCardY = 0;
     let lastTouchX = 0, lastTouchY = 0;
     let lastTouchTime = 0;
 
-    // Card Touch Events (Dragging)
+    // Long-press Variables (used to trigger the reveal)
+    let isPressing = false;
+    let pressTimer = null;
+    const PRESS_HOLD_MS = 2000;
+
+    // Card Touch Events
     card.addEventListener('touchstart', (e) => {
       if (!isActivated || isDismissing) return;
-      
-      gravityActivated = true; 
+
+      gravityActivated = true;
       isDragging = true;
       const touch = e.touches[0];
-      
+
       dragStartX = touch.clientX;
       dragStartY = touch.clientY;
       initialCardX = posX;
       initialCardY = posY;
-      
+
       lastTouchX = touch.clientX;
       lastTouchY = touch.clientY;
       lastTouchTime = performance.now();
-      
+
       velX = 0;
       velY = 0;
     }, { passive: true });
 
-    // Screen Touch Handling for Long Press Trigger
-    window.addEventListener('touchstart', (e) => {
-      maybeRequestPermission();
-
-      // Don't restart hold timer if card is already active or dragging
-      if (isActivated || isDragging || isDismissing) return;
-
-      // Start the 2-second hold timer
-      clearTimeout(holdTimer);
-      holdTimer = setTimeout(() => {
-        startMotion();
-      }, HOLD_DURATION);
-    }, { passive: true });
-
     window.addEventListener('touchmove', (e) => {
-      // If dragging the card after activation
-      if (isDragging && isActivated && !isDismissing) {
-        const touch = e.touches[0];
-        const deltaX = touch.clientX - dragStartX;
-        const deltaY = touch.clientY - dragStartY;
-        
-        posX = initialCardX + deltaX;
-        posY = initialCardY + deltaY;
-        
-        const maxX = stage.clientWidth - card.clientWidth;
-        
-        posX = Math.max(0, Math.min(posX, maxX));
+      if (!isDragging || !isActivated || isDismissing) return;
 
-        const now = performance.now();
-        const dt = (now - lastTouchTime) || 16;
-        velX = ((touch.clientX - lastTouchX) / dt) * 12; 
-        velY = ((touch.clientY - lastTouchY) / dt) * 12;
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartX;
+      const deltaY = touch.clientY - dragStartY;
 
-        lastTouchX = touch.clientX;
-        lastTouchY = touch.clientY;
-        lastTouchTime = now;
+      posX = initialCardX + deltaX;
+      posY = initialCardY + deltaY;
 
-        // Auto-trigger dismiss if dragged past halfway off the top
-        if (posY < -card.clientHeight / 2) {
-          isDragging = false;
-          isDismissing = true;
-          velY = Math.min(velY, -8);
-        }
-      } else if (!isActivated) {
-        // If finger moves significantly during the press, cancel the hold
-        clearTimeout(holdTimer);
+      const maxX = stage.clientWidth - card.clientWidth;
+
+      posX = Math.max(0, Math.min(posX, maxX));
+
+      const now = performance.now();
+      const dt = (now - lastTouchTime) || 16;
+      velX = ((touch.clientX - lastTouchX) / dt) * 12;
+      velY = ((touch.clientY - lastTouchY) / dt) * 12;
+
+      lastTouchX = touch.clientX;
+      lastTouchY = touch.clientY;
+      lastTouchTime = now;
+
+      // Auto-trigger dismiss if dragged past halfway off the top
+      if (posY < -card.clientHeight / 2) {
+        isDragging = false;
+        isDismissing = true;
+        velY = Math.min(velY, -8);
       }
     }, { passive: true });
 
     window.addEventListener('touchend', () => {
-      // Cancel timer if finger is lifted before 2 seconds
-      clearTimeout(holdTimer);
-
       if (isDragging) {
         isDragging = false;
 
@@ -182,10 +163,30 @@
       }
     });
 
-    window.addEventListener('touchcancel', () => {
-      clearTimeout(holdTimer);
-      isDragging = false;
+    // ---- Long-press (hold 2s) detection to reveal the card ----
+
+    window.addEventListener('touchstart', (e) => {
+      if (isActivated || isPressing) return;
+
+      isPressing = true;
+
+      pressTimer = setTimeout(() => {
+        isPressing = false;
+        maybeRequestPermission();
+        startMotion();
+      }, PRESS_HOLD_MS);
     });
+
+    window.addEventListener('touchend', () => {
+      if (isPressing) {
+        cancelPress();
+      }
+    });
+
+    function cancelPress() {
+      clearTimeout(pressTimer);
+      isPressing = false;
+    }
 
     function maybeRequestPermission() {
       if (permissionGranted) return;
@@ -214,7 +215,6 @@
     }
 
     function dismissCard() {
-      clearTimeout(holdTimer);
       isActivated = false;
       gravityActivated = false;
       isDismissing = false;
@@ -224,7 +224,7 @@
     function startMotion() {
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
-      
+
       velX = 0;
       velY = 0;
 
@@ -232,7 +232,7 @@
       initialTiltY = tiltY;
 
       isActivated = true;
-      gravityActivated = false; 
+      gravityActivated = false;
       isDismissing = false;
       card.style.opacity = '1';
 
@@ -240,9 +240,9 @@
     }
 
     function verticalForce(beta) {
-      const clampedBeta = Math.max(0, beta); 
+      const clampedBeta = Math.max(0, beta);
       const gravityEased = Math.sin((clampedBeta / 90) * (Math.PI / 2));
-      return gravityEased * 1.8; 
+      return gravityEased * 1.8;
     }
 
     function horizontalForce(gamma) {
@@ -250,11 +250,11 @@
       const absGamma = Math.abs(gamma);
 
       if (absGamma <= TILT_DEADZONE) {
-        return 0; 
+        return 0;
       }
 
       const effectiveTilt = (absGamma - TILT_DEADZONE) * Math.sign(gamma);
-      return effectiveTilt * 0.28; 
+      return effectiveTilt * 0.28;
     }
 
     function updateCardPosition() {
@@ -262,13 +262,13 @@
 
       // Auto-exit mode: Suck out card off the top boundary continuously
       if (isDismissing) {
-        posY += velY; 
+        posY += velY;
 
         if (posY < -card.clientHeight) {
           dismissCard();
           return;
         }
-      } 
+      }
       else {
         if (!gravityActivated) {
           const deltaX = Math.abs(tiltX - initialTiltX);
@@ -288,11 +288,11 @@
             velY += forceY;
 
             if (forceX === 0) {
-              velX *= 0.70; 
+              velX *= 0.70;
             } else {
-              velX *= 0.88; 
+              velX *= 0.88;
             }
-            
+
             velY *= 0.92;
 
             posX += velX;
@@ -301,17 +301,17 @@
             const maxX = stage.clientWidth - card.clientWidth;
             const maxY = stage.clientHeight - card.clientHeight;
 
-            if (posX < 0) { 
-              posX = 0; 
-              velX *= -0.1; 
+            if (posX < 0) {
+              posX = 0;
+              velX *= -0.1;
             }
-            if (posX > maxX) { 
-              posX = maxX; 
-              velX *= -0.1; 
+            if (posX > maxX) {
+              posX = maxX;
+              velX *= -0.1;
             }
-            if (posY > maxY) { 
-              posY = maxY; 
-              velY = 0; 
+            if (posY > maxY) {
+              posY = maxY;
+              velY = 0;
             }
 
             // Passive check: triggers auto-suck exit if gravity or flick carries card past half height
