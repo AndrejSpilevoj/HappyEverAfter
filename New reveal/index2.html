@@ -80,18 +80,25 @@
     let velX = 0, velY = 0;
     let tiltX = 0, tiltY = 0;
     let initialTiltX = 0, initialTiltY = 0;
+    
     let isActivated = false;
     let gravityActivated = false; 
-    let isDismissing = false; 
+    let isDismissing = false;
     let isWaitingForDelay = false;
-    let isCoolingDown = false; // FIX: Prevents post-dismiss vibration false-triggers
+    
+    // ONE-TIME USE LOCKOUT
+    let hasBeenTriggered = false; 
+
     let delayTimer = null;
     let lastTap = 0;
     let permissionGranted = false;
     let listenerAttached = false;
 
-    // Hard impact threshold (Adjust between 30 and 45 as needed)
-    const SHAKE_THRESHOLD = 35; 
+    // Hard impact threshold
+    const SHAKE_THRESHOLD = 30; 
+
+    // High-pass filter memory
+    let gx = 0, gy = 0, gz = 0;
 
     // Touch Dragging Variables
     let isDragging = false;
@@ -160,9 +167,9 @@
       }
     });
 
-    // Double Tap & Permission Request
+    // Double Tap detection
     window.addEventListener('touchend', (e) => {
-      if (isDragging) return;
+      if (isDragging || hasBeenTriggered) return;
 
       const currentTime = new Date().getTime();
       const tapLength = currentTime - lastTap;
@@ -201,22 +208,36 @@
       });
 
       window.addEventListener('devicemotion', (e) => {
-        // FIX: Reject shake checks if card is active or cooling down
-        if (isActivated || isCoolingDown) return;
+        // Block permanently if already triggered once
+        if (hasBeenTriggered) return;
 
-        const acc = e.accelerationIncludingGravity;
-        if (!acc) return;
+        let pureX = 0, pureY = 0, pureZ = 0;
 
-        const totalAccel = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+        if (e.acceleration && e.acceleration.x !== null) {
+          pureX = e.acceleration.x;
+          pureY = e.acceleration.y;
+          pureZ = e.acceleration.z;
+        } else if (e.accelerationIncludingGravity) {
+          const acc = e.accelerationIncludingGravity;
+          const alpha = 0.8;
+          gx = alpha * gx + (1 - alpha) * acc.x;
+          gy = alpha * gy + (1 - alpha) * acc.y;
+          gz = alpha * gz + (1 - alpha) * acc.z;
+          pureX = acc.x - gx;
+          pureY = acc.y - gy;
+          pureZ = acc.z - gz;
+        }
 
-        if (totalAccel > SHAKE_THRESHOLD) {
+        const forceMagnitude = Math.sqrt(pureX * pureX + pureY * pureY + pureZ * pureZ);
+
+        if (forceMagnitude > SHAKE_THRESHOLD) {
           triggerInstantReveal();
         }
       });
     }
 
     function handleDoubleTap() {
-      if (isActivated || isWaitingForDelay) return;
+      if (hasBeenTriggered || isActivated || isWaitingForDelay) return;
 
       if (!permissionGranted) {
         maybeRequestPermission();
@@ -226,6 +247,7 @@
     }
 
     function triggerInstantReveal() {
+      if (hasBeenTriggered) return;
       clearTimeout(delayTimer);
       isWaitingForDelay = false;
       startMotion();
@@ -238,12 +260,7 @@
       gravityActivated = false;
       isDismissing = false;
       card.style.opacity = '0';
-
-      // FIX: Activate 600ms cooldown to swallow residual accelerometer waves
-      isCoolingDown = true;
-      setTimeout(() => {
-        isCoolingDown = false;
-      }, 600);
+      card.style.display = 'none'; // Permanently hide card element
     }
 
     function startDelayTimer() {
@@ -255,6 +272,9 @@
     }
 
     function startMotion() {
+      // PERMANENT LOCK: Set triggered flag so listeners immediately ignore future events
+      hasBeenTriggered = true;
+
       posX = (stage.clientWidth - card.clientWidth) / 2;
       posY = (stage.clientHeight - card.clientHeight) / 2;
       
