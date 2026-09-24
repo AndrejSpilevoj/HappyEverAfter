@@ -82,14 +82,15 @@
     let initialTiltX = 0, initialTiltY = 0;
     let isActivated = false;
     let gravityActivated = false; 
-    let isDismissing = false; // Tracks when auto-exit takes over
+    let isDismissing = false; 
     let isWaitingForDelay = false;
+    let isCoolingDown = false; // FIX: Prevents post-dismiss vibration false-triggers
     let delayTimer = null;
     let lastTap = 0;
     let permissionGranted = false;
     let listenerAttached = false;
 
-    // Hard impact threshold
+    // Hard impact threshold (Adjust between 30 and 45 as needed)
     const SHAKE_THRESHOLD = 35; 
 
     // Touch Dragging Variables
@@ -131,7 +132,6 @@
       posY = initialCardY + deltaY;
       
       const maxX = stage.clientWidth - card.clientWidth;
-      
       posX = Math.max(0, Math.min(posX, maxX));
 
       const now = performance.now();
@@ -143,19 +143,16 @@
       lastTouchY = touch.clientY;
       lastTouchTime = now;
 
-      // Auto-trigger dismiss if dragged past halfway off the top
       if (posY < -card.clientHeight / 2) {
         isDragging = false;
         isDismissing = true;
-        velY = Math.min(velY, -8); // Keep current upward speed, or give minimum push outward
+        velY = Math.min(velY, -8);
       }
     }, { passive: true });
 
     window.addEventListener('touchend', () => {
       if (isDragging) {
         isDragging = false;
-
-        // Trigger dismiss if released past halfway off the top
         if (posY < -card.clientHeight / 2) {
           isDismissing = true;
           velY = Math.min(velY, -8);
@@ -163,7 +160,7 @@
       }
     });
 
-    // Double Tap detection
+    // Double Tap & Permission Request
     window.addEventListener('touchend', (e) => {
       if (isDragging) return;
 
@@ -204,12 +201,15 @@
       });
 
       window.addEventListener('devicemotion', (e) => {
+        // FIX: Reject shake checks if card is active or cooling down
+        if (isActivated || isCoolingDown) return;
+
         const acc = e.accelerationIncludingGravity;
         if (!acc) return;
 
         const totalAccel = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
 
-        if (totalAccel > SHAKE_THRESHOLD && !isActivated) {
+        if (totalAccel > SHAKE_THRESHOLD) {
           triggerInstantReveal();
         }
       });
@@ -238,6 +238,12 @@
       gravityActivated = false;
       isDismissing = false;
       card.style.opacity = '0';
+
+      // FIX: Activate 600ms cooldown to swallow residual accelerometer waves
+      isCoolingDown = true;
+      setTimeout(() => {
+        isCoolingDown = false;
+      }, 600);
     }
 
     function startDelayTimer() {
@@ -287,7 +293,6 @@
     function updateCardPosition() {
       if (!isActivated) return;
 
-      // Auto-exit mode: Suck out card off the top boundary continuously
       if (isDismissing) {
         posY += velY; 
 
@@ -341,7 +346,6 @@
               velY = 0; 
             }
 
-            // Passive check: triggers auto-suck exit if gravity or flick carries card past half height
             if (posY < -card.clientHeight / 2) {
               isDismissing = true;
               velY = Math.min(velY, -8);
