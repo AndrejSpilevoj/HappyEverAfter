@@ -2,195 +2,349 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <!-- Critical for mobile scale and disabling unwanted double-tap zoom -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Calculator</title>
   <style>
     * {
       box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent; /* Removes touch highlight box on iOS/Android */
-      user-select: none; /* Prevents text selection while tapping */
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
       -webkit-user-select: none;
     }
 
     body {
       background-color: #000;
       color: #fff;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
       margin: 0;
-      touch-action: manipulation; /* Optimizes for touch gestures */
-    }
-
-    .calculator {
-      width: 100%;
-      max-width: 360px;
-      background: #000;
-      padding: 20px;
-    }
-
-    .display {
-      font-size: 44px;
-      text-align: right;
-      margin-bottom: 20px;
-      padding: 10px 15px;
-      min-height: 80px;
+      padding: 0;
+      height: 100vh;
       display: flex;
-      align-items: flex-end;
+      flex-direction: column;
       justify-content: flex-end;
-      word-break: break-all;
-      color: #fff;
-    }
-
-    .buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
-
-    .btn {
-      height: 72px;
-      border-radius: 50%;
-      border: none;
-      font-size: 28px;
-      cursor: pointer;
-      background-color: #333;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      outline: none;
       touch-action: manipulation;
     }
 
-    .btn:active {
-      filter: brightness(140%);
+    .top-bar {
+      position: absolute;
+      top: 40px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    .btn.op {
-      background-color: #ff9f0a;
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #1c1c1e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8e8e93;
+      font-size: 20px;
+    }
+
+    .display-container {
+      padding: 0 24px 16px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .expression {
+      font-size: 28px;
+      color: #8e8e93;
+      min-height: 36px;
+      white-space: nowrap;
+      overflow-x: auto;
+      width: 100%;
+      text-align: right;
+      scrollbar-width: none;
+    }
+    .expression::-webkit-scrollbar { display: none; }
+
+    .main-display {
+      font-size: 64px;
+      font-weight: 300;
       color: #fff;
+      white-space: nowrap;
+      overflow-x: auto;
+      width: 100%;
+      text-align: right;
+      scrollbar-width: none;
+      letter-spacing: -1px;
+    }
+    .main-display::-webkit-scrollbar { display: none; }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 12px 16px 36px 16px;
+    }
+
+    .btn {
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: none;
+      font-size: 32px;
+      font-weight: 400;
+      color: #fff;
+      background-color: #333333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      outline: none;
+      transition: filter 0.1s;
+    }
+
+    .btn:active {
+      filter: brightness(150%);
     }
 
     .btn.gray {
-      background-color: #a5a5a5;
-      color: #000;
+      background-color: #505050;
+      color: #fff;
     }
 
-    .btn.zero {
-      grid-column: span 2;
-      border-radius: 36px;
-      justify-content: flex-start;
-      padding-left: 28px;
+    .btn.orange {
+      background-color: #ff9f0a;
+      color: #fff;
+      font-size: 36px;
+    }
+
+    .backspace-icon {
+      width: 28px;
+      height: 28px;
     }
   </style>
 </head>
 <body>
 
-<div class="calculator">
-  <div class="display" id="display">0</div>
-  <div class="buttons">
-    <button class="btn gray" onclick="handleClear()">AC</button>
-    <button class="btn gray" onclick="handleBtn('±')">±</button>
-    <button class="btn gray" onclick="handleBtn('%')">%</button>
-    <button class="btn op" onclick="handleOp('÷')">÷</button>
-    
-    <button class="btn" onclick="handleNum('7')">7</button>
-    <button class="btn" onclick="handleNum('8')">8</button>
-    <button class="btn" onclick="handleNum('9')">9</button>
-    <button class="btn op" onclick="handleOp('×')">×</button>
-    
-    <button class="btn" onclick="handleNum('4')">4</button>
-    <button class="btn" onclick="handleNum('5')">5</button>
-    <button class="btn" onclick="handleNum('6')">6</button>
-    <button class="btn op" onclick="handleOp('-')">-</button>
-    
-    <button class="btn" onclick="handleNum('1')">1</button>
-    <button class="btn" onclick="handleNum('2')">2</button>
-    <button class="btn" onclick="handleNum('3')">3</button>
-    <button class="btn op" onclick="handlePlus()">+</button>
-    
-    <button class="btn zero" onclick="handleNum('0')">0</button>
-    <button class="btn" onclick="handleNum('.')">.</button>
-    <button class="btn op" onclick="handleEquals()">=</button>
+  <div class="top-bar">
+    <div class="icon-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+    </div>
+    <div class="icon-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+    </div>
   </div>
-</div>
+
+  <div class="display-container">
+    <div class="expression" id="expression"></div>
+    <div class="main-display" id="mainDisplay">0</div>
+  </div>
+
+  <div class="keypad">
+    <button class="btn gray" onclick="handleBackspace()">
+      <svg class="backspace-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
+    </button>
+    <button class="btn gray" onclick="handleClear()">AC</button>
+    <button class="btn gray" onclick="handlePercent()">%</button>
+    <button class="btn orange" onclick="handleOp('÷')">÷</button>
+
+    <button class="btn" onclick="handleNumKey('7')">7</button>
+    <button class="btn" onclick="handleNumKey('8')">8</button>
+    <button class="btn" onclick="handleNumKey('9')">9</button>
+    <button class="btn orange" onclick="handleOp('×')">×</button>
+
+    <button class="btn" onclick="handleNumKey('4')">4</button>
+    <button class="btn" onclick="handleNumKey('5')">5</button>
+    <button class="btn" onclick="handleNumKey('6')">6</button>
+    <button class="btn orange" onclick="handleOp('-')">-</button>
+
+    <button class="btn" onclick="handleNumKey('1')">1</button>
+    <button class="btn" onclick="handleNumKey('2')">2</button>
+    <button class="btn" onclick="handleNumKey('3')">3</button>
+    <button class="btn orange" id="plusBtn" onclick="handlePlus()">+</button>
+
+    <button class="btn" onclick="handleToggleSign()">⁺/₋</button>
+    <button class="btn" onclick="handleNumKey('0')">0</button>
+    <button class="btn" onclick="handleComma()">,</button>
+    <button class="btn orange" onclick="handleEquals()">=</button>
+  </div>
 
 <script>
-  let currentDisplay = "0";
-  let stageTrickArmed = false;
+  let currentNumStr = "0";
+  let exprTokens = [];
+  let waitingForNewNum = false;
+  let stageArmed = false;
+  let intermediateVal = 0;
+  let forcedAddendStr = "";
+  let forcedIndex = 0;
 
-  // Prevent double-tap zoom delay on mobile devices
-  document.addEventListener('touchend', function (event) {
-    var now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-      event.preventDefault();
-    }
-    lastTouchEnd = now;
-  }, false);
-  var lastTouchEnd = 0;
+  const mainDisplay = document.getElementById("mainDisplay");
+  const expressionDisplay = document.getElementById("expression");
 
-  function refreshDisplay() {
-    document.getElementById("display").innerText = currentDisplay;
+  function formatDisplayNumber(str) {
+    if (str === "Error" || str === "NaN") return str;
+    let parts = str.split(",");
+    let integerPart = parts[0].replace(/\s/g, "");
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    return parts.length > 1 ? integerPart + "," + parts[1] : integerPart;
   }
 
-  function handleNum(num) {
-    if (currentDisplay === "0") {
-      currentDisplay = num;
-    } else {
-      currentDisplay += num;
+  function updateDisplays() {
+    mainDisplay.innerText = formatDisplayNumber(currentNumStr);
+    expressionDisplay.innerText = exprTokens.join(" ");
+
+    mainDisplay.scrollLeft = mainDisplay.scrollWidth;
+    expressionDisplay.scrollLeft = expressionDisplay.scrollWidth;
+  }
+
+  function getTargetTimestampPlusOneMin() {
+    // Current time + 1 minute buffer
+    const future = new Date(Date.now() + 60000);
+    const YYYY = future.getFullYear();
+    const MM = String(future.getMonth() + 1).padStart(2, '0');
+    const DD = String(future.getDate()).padStart(2, '0');
+    const HH = String(future.getHours()).padStart(2, '0');
+    const Min = String(future.getMinutes()).padStart(2, '0');
+
+    return parseInt(`${YYYY}${MM}${DD}${HH}${Min}`, 10);
+  }
+
+  function handleNumKey(key) {
+    if (stageArmed) {
+      // Blindfolded Mode: Force true math sequence digit by digit
+      if (forcedIndex < forcedAddendStr.length) {
+        if (waitingForNewNum) {
+          currentNumStr = forcedAddendStr[forcedIndex];
+          waitingForNewNum = false;
+        } else {
+          currentNumStr += forcedAddendStr[forcedIndex];
+        }
+        forcedIndex++;
+      }
+      updateDisplays();
+      return;
     }
-    refreshDisplay();
+
+    // Normal Input Mode
+    if (waitingForNewNum) {
+      currentNumStr = key;
+      waitingForNewNum = false;
+    } else {
+      currentNumStr = (currentNumStr === "0") ? key : currentNumStr + key;
+    }
+    updateDisplays();
+  }
+
+  function handleComma() {
+    if (!stageArmed) {
+      if (waitingForNewNum) {
+        currentNumStr = "0,";
+        waitingForNewNum = false;
+      } else if (!currentNumStr.includes(",")) {
+        currentNumStr += ",";
+      }
+      updateDisplays();
+    }
   }
 
   function handleOp(op) {
-    currentDisplay += " " + op + " ";
-    refreshDisplay();
+    exprTokens.push(formatDisplayNumber(currentNumStr));
+    exprTokens.push(op);
+    waitingForNewNum = true;
+    updateDisplays();
   }
 
   function handlePlus() {
-    // When '+' is pressed, the magic force logic is armed
-    stageTrickArmed = true;
-    currentDisplay += " + ";
-    refreshDisplay();
-  }
+    // Evaluate initial multiplication sum R
+    let evalString = exprTokens.map(t => {
+      if (t === "×") return "*";
+      if (t === "÷") return "/";
+      return t.replace(/\s/g, "").replace(",", ".");
+    }).join("") + currentNumStr.replace(/\s/g, "").replace(",", ".");
 
-  function handleClear() {
-    currentDisplay = "0";
-    stageTrickArmed = false;
-    refreshDisplay();
-  }
+    try {
+      intermediateVal = Function('"use strict";return (' + evalString + ')')();
+    } catch (e) {
+      intermediateVal = 0;
+    }
 
-  function handleBtn(val) {
-    currentDisplay += val;
-    refreshDisplay();
+    // Target = Current minute + 1 minute (YYYYMMDDHHMM)
+    let targetVal = getTargetTimestampPlusOneMin();
+    let addend = targetVal - intermediateVal;
+    
+    forcedAddendStr = String(addend);
+    forcedIndex = 0;
+    stageArmed = true;
+
+    exprTokens.push(formatDisplayNumber(currentNumStr));
+    exprTokens.push("+");
+    waitingForNewNum = true;
+    updateDisplays();
   }
 
   function handleEquals() {
-    if (stageTrickArmed) {
-      // Generate live timestamp string (YYYYMMDDHHMM)
-      const now = new Date();
-      const YYYY = now.getFullYear();
-      const MM = String(now.getMonth() + 1).padStart(2, '0');
-      const DD = String(now.getDate()).padStart(2, '0');
-      const HH = String(now.getHours()).padStart(2, '0');
-      const Min = String(now.getMinutes()).padStart(2, '0');
+    if (!stageArmed) {
+      let evalString = exprTokens.map(t => {
+        if (t === "×") return "*";
+        if (t === "÷") return "/";
+        return t.replace(/\s/g, "").replace(",", ".");
+      }).join("") + currentNumStr.replace(/\s/g, "").replace(",", ".");
 
-      currentDisplay = `${YYYY}${MM}${DD}${HH}${Min}`;
-      stageTrickArmed = false;
-    } else {
-      // Standard evaluation backup if '+' wasn't used in trick flow
       try {
-        let sanitized = currentDisplay.replace(/×/g, '*').replace(/÷/g, '/');
-        currentDisplay = String(Function('"use strict";return (' + sanitized + ')')());
+        let res = Function('"use strict";return (' + evalString + ')')();
+        currentNumStr = String(res).replace(".", ",");
       } catch (e) {
-        currentDisplay = "Error";
+        currentNumStr = "Error";
+      }
+      exprTokens = [];
+      updateDisplays();
+      return;
+    }
+
+    // Recalculate exact target timestamp (+1 min from pressing '=' moment)
+    let finalTarget = getTargetTimestampPlusOneMin();
+
+    exprTokens = [];
+    currentNumStr = String(finalTarget).replace(".", ",");
+    stageArmed = false;
+    updateDisplays();
+  }
+
+  function handleClear() {
+    currentNumStr = "0";
+    exprTokens = [];
+    waitingForNewNum = false;
+    stageArmed = false;
+    forcedAddendStr = "";
+    forcedIndex = 0;
+    updateDisplays();
+  }
+
+  function handleBackspace() {
+    if (currentNumStr.length > 1) {
+      currentNumStr = currentNumStr.slice(0, -1);
+    } else {
+      currentNumStr = "0";
+    }
+    updateDisplays();
+  }
+
+  function handlePercent() {
+    let val = parseFloat(currentNumStr.replace(/\s/g, "").replace(",", "."));
+    currentNumStr = String(val / 100).replace(".", ",");
+    updateDisplays();
+  }
+
+  function handleToggleSign() {
+    if (currentNumStr !== "0") {
+      if (currentNumStr.startsWith("-")) {
+        currentNumStr = currentNumStr.substring(1);
+      } else {
+        currentNumStr = "-" + currentNumStr;
       }
     }
-    refreshDisplay();
+    updateDisplays();
   }
 </script>
 
