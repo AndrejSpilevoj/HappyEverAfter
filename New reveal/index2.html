@@ -48,7 +48,7 @@
     }
 
     .display-container {
-      padding: 0 24px 16px 24px;
+      padding: 0 16px 12px 16px;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
@@ -57,9 +57,9 @@
     }
 
     .expression {
-      font-size: 28px;
+      font-size: 24px;
       color: #8e8e93;
-      min-height: 36px;
+      min-height: 32px;
       white-space: nowrap;
       overflow-x: auto;
       width: 100%;
@@ -68,8 +68,9 @@
     }
     .expression::-webkit-scrollbar { display: none; }
 
+    /* Reduced from 64px to 52px to prevent large numbers from overflowing mobile screens */
     .main-display {
-      font-size: 64px;
+      font-size: 52px;
       font-weight: 300;
       color: #fff;
       white-space: nowrap;
@@ -199,20 +200,18 @@
   }
 
   function getTargetTimestampPlusOneMin() {
-    // Current time + 1 minute buffer
     const future = new Date(Date.now() + 60000);
-    const YYYY = future.getFullYear();
+    const YY = String(future.getFullYear()).slice(-2);
     const MM = String(future.getMonth() + 1).padStart(2, '0');
     const DD = String(future.getDate()).padStart(2, '0');
     const HH = String(future.getHours()).padStart(2, '0');
     const Min = String(future.getMinutes()).padStart(2, '0');
 
-    return parseInt(`${YYYY}${MM}${DD}${HH}${Min}`, 10);
+    return parseInt(`${YY}${MM}${DD}${HH}${Min}`, 10);
   }
 
   function handleNumKey(key) {
     if (stageArmed) {
-      // Blindfolded Mode: Insert required digits sequentially
       if (forcedIndex < forcedAddendStr.length) {
         if (waitingForNewNum) {
           currentNumStr = forcedAddendStr[forcedIndex];
@@ -223,11 +222,9 @@
         forcedIndex++;
         updateDisplays();
       }
-      // If forcedIndex reaches the end of forcedAddendStr, lock keys and wait for '='
       return;
     }
 
-    // Normal Input Mode
     if (waitingForNewNum) {
       currentNumStr = key;
       waitingForNewNum = false;
@@ -250,7 +247,7 @@
   }
 
   function handleOp(op) {
-    if (stageArmed) return; // Prevent breaking the stage force sequence mid-way
+    if (stageArmed) return;
     exprTokens.push(formatDisplayNumber(currentNumStr));
     exprTokens.push(op);
     waitingForNewNum = true;
@@ -260,7 +257,6 @@
   function handlePlus() {
     if (stageArmed) return;
 
-    // Evaluate initial multiplication sum R
     let evalString = exprTokens.map(t => {
       if (t === "×") return "*";
       if (t === "÷") return "/";
@@ -273,7 +269,6 @@
       intermediateVal = 0;
     }
 
-    // Target = Current minute + 1 minute (YYYYMMDDHHMM)
     let targetVal = getTargetTimestampPlusOneMin();
     let addend = targetVal - intermediateVal;
     
@@ -306,7 +301,6 @@
       return;
     }
 
-    // Recalculate exact target timestamp (+1 min from pressing '=' moment)
     let finalTarget = getTargetTimestampPlusOneMin();
 
     exprTokens = [];
