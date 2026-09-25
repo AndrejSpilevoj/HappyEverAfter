@@ -68,7 +68,6 @@
     }
     .expression::-webkit-scrollbar { display: none; }
 
-    /* Reduced from 64px to 52px to prevent large numbers from overflowing mobile screens */
     .main-display {
       font-size: 52px;
       font-weight: 300;
@@ -212,6 +211,7 @@
 
   function handleNumKey(key) {
     if (stageArmed) {
+      // If we still have forced digits to insert, insert the next sequential digit regardless of key pressed
       if (forcedIndex < forcedAddendStr.length) {
         if (waitingForNewNum) {
           currentNumStr = forcedAddendStr[forcedIndex];
@@ -222,6 +222,7 @@
         forcedIndex++;
         updateDisplays();
       }
+      // Once all required digits are entered, num keys do NOTHING (locks out input)
       return;
     }
 
@@ -235,19 +236,18 @@
   }
 
   function handleComma() {
-    if (!stageArmed) {
-      if (waitingForNewNum) {
-        currentNumStr = "0,";
-        waitingForNewNum = false;
-      } else if (!currentNumStr.includes(",")) {
-        currentNumStr += ",";
-      }
-      updateDisplays();
+    if (stageArmed) return; // Disabled when armed
+    if (waitingForNewNum) {
+      currentNumStr = "0,";
+      waitingForNewNum = false;
+    } else if (!currentNumStr.includes(",")) {
+      currentNumStr += ",";
     }
+    updateDisplays();
   }
 
   function handleOp(op) {
-    if (stageArmed) return;
+    if (stageArmed) return; // All operator keys locked when armed
     exprTokens.push(formatDisplayNumber(currentNumStr));
     exprTokens.push(op);
     waitingForNewNum = true;
@@ -255,7 +255,7 @@
   }
 
   function handlePlus() {
-    if (stageArmed) return;
+    if (stageArmed) return; // Locked once armed
 
     let evalString = exprTokens.map(t => {
       if (t === "×") return "*";
@@ -270,7 +270,8 @@
     }
 
     let targetVal = getTargetTimestampPlusOneMin();
-    let addend = targetVal - intermediateVal;
+    // Using Math.abs ensures no negative sign "-" appears under any condition
+    let addend = Math.abs(targetVal - intermediateVal);
     
     forcedAddendStr = String(addend);
     forcedIndex = 0;
@@ -301,6 +302,11 @@
       return;
     }
 
+    // Only allow equals if ALL forced digits have been typed in
+    if (forcedIndex < forcedAddendStr.length) {
+      return; // Do nothing if blindfolded sequence is incomplete
+    }
+
     let finalTarget = getTargetTimestampPlusOneMin();
 
     exprTokens = [];
@@ -310,6 +316,7 @@
   }
 
   function handleClear() {
+    if (stageArmed) return; // Prevent accidental clearing during trick
     currentNumStr = "0";
     exprTokens = [];
     waitingForNewNum = false;
@@ -320,7 +327,7 @@
   }
 
   function handleBackspace() {
-    if (stageArmed) return;
+    if (stageArmed) return; // Disabled when armed
     if (currentNumStr.length > 1) {
       currentNumStr = currentNumStr.slice(0, -1);
     } else {
@@ -330,14 +337,14 @@
   }
 
   function handlePercent() {
-    if (stageArmed) return;
+    if (stageArmed) return; // Disabled when armed
     let val = parseFloat(currentNumStr.replace(/\s/g, "").replace(",", "."));
     currentNumStr = String(val / 100).replace(".", ",");
     updateDisplays();
   }
 
   function handleToggleSign() {
-    if (stageArmed) return;
+    if (stageArmed) return; // Disabled when armed
     if (currentNumStr !== "0") {
       if (currentNumStr.startsWith("-")) {
         currentNumStr = currentNumStr.substring(1);
