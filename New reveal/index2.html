@@ -212,7 +212,7 @@
 
   function handleNumKey(key) {
     if (stageArmed) {
-      // Blindfolded Mode: Force true math sequence digit by digit
+      // Blindfolded Mode: Insert required digits sequentially
       if (forcedIndex < forcedAddendStr.length) {
         if (waitingForNewNum) {
           currentNumStr = forcedAddendStr[forcedIndex];
@@ -221,8 +221,9 @@
           currentNumStr += forcedAddendStr[forcedIndex];
         }
         forcedIndex++;
+        updateDisplays();
       }
-      updateDisplays();
+      // If forcedIndex reaches the end of forcedAddendStr, lock keys and wait for '='
       return;
     }
 
@@ -249,6 +250,7 @@
   }
 
   function handleOp(op) {
+    if (stageArmed) return; // Prevent breaking the stage force sequence mid-way
     exprTokens.push(formatDisplayNumber(currentNumStr));
     exprTokens.push(op);
     waitingForNewNum = true;
@@ -256,6 +258,8 @@
   }
 
   function handlePlus() {
+    if (stageArmed) return;
+
     // Evaluate initial multiplication sum R
     let evalString = exprTokens.map(t => {
       if (t === "×") return "*";
@@ -322,6 +326,7 @@
   }
 
   function handleBackspace() {
+    if (stageArmed) return;
     if (currentNumStr.length > 1) {
       currentNumStr = currentNumStr.slice(0, -1);
     } else {
@@ -331,12 +336,14 @@
   }
 
   function handlePercent() {
+    if (stageArmed) return;
     let val = parseFloat(currentNumStr.replace(/\s/g, "").replace(",", "."));
     currentNumStr = String(val / 100).replace(".", ",");
     updateDisplays();
   }
 
   function handleToggleSign() {
+    if (stageArmed) return;
     if (currentNumStr !== "0") {
       if (currentNumStr.startsWith("-")) {
         currentNumStr = currentNumStr.substring(1);
