@@ -46,16 +46,17 @@
       color: #8e8e93;
     }
 
+    /* Padding set to 18px (~5mm margin on physical screens) */
     .display-container {
-      padding: 0 20px 8px 20px;
+      padding: 0 18px 8px 18px;
       display: flex;
       flex-direction: column;
       align-items: flex-end;
       justify-content: flex-end;
       overflow: hidden;
+      width: 100%;
     }
 
-    /* Top expression line matching continuous format (e.g., 5×25×2 013×13×55+) */
     .expression {
       font-size: 28px;
       color: #8e8e93;
@@ -68,20 +69,20 @@
     }
     .expression::-webkit-scrollbar { display: none; }
 
-    /* Matches native iOS large font size */
     .main-display {
-      font-size: 68px;
+      font-size: 64px;
       font-weight: 300;
       color: #fff;
       white-space: nowrap;
-      overflow-x: auto;
+      overflow: hidden;
       width: 100%;
       text-align: right;
-      scrollbar-width: none;
       letter-spacing: -0.5px;
       line-height: 1.1;
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-end;
     }
-    .main-display::-webkit-scrollbar { display: none; }
 
     .keypad {
       display: grid;
@@ -174,7 +175,7 @@
 
 <script>
   let currentNumStr = "0";
-  let exprTokens = []; // Contains numbers and operators
+  let exprTokens = [];
   let waitingForNewNum = false;
   let stageArmed = false;
   let intermediateVal = 0;
@@ -193,16 +194,27 @@
     return parts.length > 1 ? integerPart + "," + parts[1] : integerPart;
   }
 
+  function adjustFontSize() {
+    // Dynamic text-fitting algorithm
+    let fontSize = 64; // Max font size
+    mainDisplay.style.fontSize = fontSize + "px";
+    
+    // Decrease font size dynamically if text exceeds available container width
+    const containerWidth = mainDisplay.clientWidth;
+    while (mainDisplay.scrollWidth > containerWidth && fontSize > 28) {
+      fontSize -= 2;
+      mainDisplay.style.fontSize = fontSize + "px";
+    }
+  }
+
   function updateDisplays() {
     mainDisplay.innerText = formatDisplayNumber(currentNumStr);
-    
-    // Continuous expression string format without spaces around operators
     expressionDisplay.innerText = exprTokens.join("");
 
-    mainDisplay.scrollLeft = mainDisplay.scrollWidth;
+    adjustFontSize();
+
     expressionDisplay.scrollLeft = expressionDisplay.scrollWidth;
 
-    // Dynamic C / AC button text matching iOS behavior
     if (currentNumStr !== "0" || exprTokens.length > 0) {
       clearBtn.innerText = "C";
     } else {
@@ -233,7 +245,7 @@
         forcedIndex++;
         updateDisplays();
       }
-      return; // Lock number keys once all forced digits are entered
+      return;
     }
 
     if (waitingForNewNum) {
@@ -311,7 +323,6 @@
       return;
     }
 
-    // Require complete entry of all forced digits before allowing '=' to calculate
     if (forcedIndex < forcedAddendStr.length) {
       return;
     }
@@ -363,6 +374,8 @@
     }
     updateDisplays();
   }
+
+  window.addEventListener('resize', adjustFontSize);
 </script>
 
 </body>
