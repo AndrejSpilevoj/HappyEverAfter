@@ -2,382 +2,202 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  
-  <!-- iOS Standalone Web App Setup -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Google">
-  
-  <title>Google</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculator</title>
   <style>
-    html, body {
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background: #ffffff;
-      overflow: hidden;
-      touch-action: manipulation;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
     }
-
-    #stage {
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      top: env(safe-area-inset-top, 0px);
-      overflow: hidden;
+    .calculator {
+      width: 320px;
+      background: #000;
+      padding: 20px;
+      border-radius: 20px;
     }
-
-    /* Google Background Image */
-    .bg-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: top;
-      -webkit-user-drag: none;
-      pointer-events: none;
-      z-index: 1;
+    .display {
+      font-size: 48px;
+      text-align: right;
+      margin-bottom: 20px;
+      padding: 10px;
+      overflow-x: auto;
+      min-height: 60px;
+      word-wrap: break-word;
     }
-
-    /* Moving Playing Card (80% width) */
-    #playing-card {
-      position: absolute;
-      width: 80%; 
-      height: auto;
-      z-index: 2;
-      pointer-events: auto;
-      will-change: transform;
-      opacity: 0;
-      transition: opacity 0.1s ease;
-      filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
-      touch-action: none;
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
     }
+    button {
+      height: 65px;
+      border-radius: 50%;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      background-color: #333;
+      color: #fff;
+    }
+    button.op { background-color: #ff9f0a; }
+    button.gray { background-color: #a5a5a5; color: #000; }
   </style>
 </head>
 <body>
 
-  <div id="stage">
-    <!-- Background Screen -->
-    <img src="google-bg.jpg" class="bg-image" alt="Google Background">
+<div class="calculator">
+  <div class="display" id="display">0</div>
+  <div class="buttons">
+    <button class="gray" onclick="clearDisplay()">AC</button>
+    <button class="gray">±</button>
+    <button class="gray">%</button>
+    <button class="op" onclick="appendOp('/')">÷</button>
     
-    <!-- Floating Playing Card -->
-    <img src="card1.png" id="playing-card" alt="Playing Card">
+    <button onclick="appendNum('7')">7</button>
+    <button onclick="appendNum('8')">8</button>
+    <button onclick="appendNum('9')">9</button>
+    <button class="op" onclick="appendOp('*')">×</button>
+    
+    <button onclick="appendNum('4')">4</button>
+    <button onclick="appendNum('5')">5</button>
+    <button onclick="appendNum('6')">6</button>
+    <button class="op" onclick="appendOp('-')">-</button>
+    
+    <button onclick="appendNum('1')">1</button>
+    <button onclick="appendNum('2')">2</button>
+    <button onclick="appendNum('3')">3</button>
+    <button class="op" onclick="appendOp('+')">+</button>
+    
+    <button style="grid-column: span 2; border-radius: 35px; text-align: left; padding-left: 25px;" onclick="appendNum('0')">0</button>
+    <button onclick="appendNum('.')">.</button>
+    <button class="op" onclick="calculateResult()">=</button>
   </div>
+</div>
 
-  <script>
-    const card = document.getElementById('playing-card');
-    const stage = document.getElementById('stage');
+<script>
+  let currentInput = "";
 
-    let posX = 0, posY = 0;
-    let velX = 0, velY = 0;
-    let tiltX = 0, tiltY = 0;
-    let initialTiltX = 0, initialTiltY = 0;
-    
-    let isActivated = false;
-    let gravityActivated = false; 
-    let isDismissing = false;
-    let isWaitingForDelay = false;
-    
-    // ONE-TIME USE LOCKOUT
-    let hasBeenTriggered = false; 
+  function updateDisplay(val) {
+    document.getElementById("display").innerText = val || "0";
+  }
 
-    let delayTimer = null;
-    let lastTap = 0;
-    let permissionGranted = false;
-    let listenerAttached = false;
+  function appendNum(num) {
+    currentInput += num;
+    updateDisplay(currentInput);
+  }
 
-    // Hard impact threshold
-    const SHAKE_THRESHOLD = 25; 
+  function appendOp(op) {
+    currentInput += " " + op + " ";
+    updateDisplay(currentInput);
+  }
 
-    // High-pass filter memory
-    let gx = 0, gy = 0, gz = 0;
+  function clearDisplay() {
+    currentInput = "";
+    updateDisplay("0");
+  }
 
-    // Touch Dragging Variables
-    let isDragging = false;
-    let dragStartX = 0, dragStartY = 0;
-    let initialCardX = 0, initialCardY = 0;
-    let lastTouchX = 0, lastTouchY = 0;
-    let lastTouchTime = 0;
+  function calculateResult() {
+    // Stage Force Logic: Overrides any math with current live timestamp
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    constThis classical stage magic effect—often referred to as the **"Toxic Calculator"** or **"Magic Date Switch"**—allows you to perform a calculation with seemingly random audience-provided numbers, while secretly forcing a pre-determined total, such as today's date and exact time (e.g., `202609252220`).
 
-    // Card Touch Events
-    card.addEventListener('touchstart', (e) => {
-      if (!isActivated || isDismissing) return;
-      
-      gravityActivated = true; 
-      isDragging = true;
-      const touch = e.touches[0];
-      
-      dragStartX = touch.clientX;
-      dragStartY = touch.clientY;
-      initialCardX = posX;
-      initialCardY = posY;
-      
-      lastTouchX = touch.clientX;
-      lastTouchY = touch.clientY;
-      lastTouchTime = performance.now();
-      
-      velX = 0;
-      velY = 0;
-    }, { passive: true });
+The exact programming depends on whether you are using a standard physical pocket calculator, a smartphone's native calculator app, or a web/custom app build.
 
-    window.addEventListener('touchmove', (e) => {
-      if (!isDragging || !isActivated || isDismissing) return;
-      
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStartX;
-      const deltaY = touch.clientY - dragStartY;
-      
-      posX = initialCardX + deltaX;
-      posY = initialCardY + deltaY;
-      
-      const maxX = stage.clientWidth - card.clientWidth;
-      posX = Math.max(0, Math.min(posX, maxX));
+---
 
-      const now = performance.now();
-      const dt = (now - lastTouchTime) || 16;
-      velX = ((touch.clientX - lastTouchX) / dt) * 12; 
-      velY = ((touch.clientY - lastTouchY) / dt) * 12;
+### Method 1: Standard Physical Pocket Calculators (The "Toxic Key" Method)
 
-      lastTouchX = touch.clientX;
-      lastTouchY = touch.clientY;
-      lastTouchTime = now;
+Many classic pocket calculators (like standard Casio or Sharp models) have built-in memory registers and constant-operand evaluation logic that can be manipulated before you hand the device to the audience.
 
-      if (posY < -card.clientHeight / 2) {
-        isDragging = false;
-        isDismissing = true;
-        velY = Math.min(velY, -8);
-      }
-    }, { passive: true });
+#### Preparation Setup (Done before going on stage):
+1. **Calculate the Force Number:** Write down your target date/time as a single continuous integer. For example, September 25, 2026 at 22:20 becomes `202609252220`.
+2. **Clear the Memory:** Press `AC` or `ON/C`, then clear memory (`MC`).
+3. **Store the Target Value:** Type `202609252220` and press `M+`.
+4. **Arm the Force Sequence:** 
+   - Type `0` followed by `*` (multiplication sign).
+   - Press `MR` (Memory Recall).
+   - Press `+` (Plus sign).
+   - Press `0`.
+5. **Leave the Display at Zero:** Press `C` (Clear display without clearing memory/registers).
 
-    window.addEventListener('touchend', () => {
-      if (isDragging) {
-        isDragging = false;
-        if (posY < -card.clientHeight / 2) {
-          isDismissing = true;
-          velY = Math.min(velY, -8);
-        }
-      }
-    });
+#### The Stage Performance:
+1. Ask audience members for random numbers and multiply them together live on stage (e.g., birth years, shoe sizes, seat numbers: `2023 * 3 * 8 * 55 * 23`).
+2. When you hit the `+` key at the end of the input, the calculator's internal register evaluates the hidden chain: 
+   $$\text{User Inputs} \times 0 \times \text{Memory Target} + \text{Whatever follows}$$
+   Because the user input is multiplied by $0$, its value is neutralized completely.
+3. Ask for one final number (e.g., `12`) to make the math look interactive, then press `=`.
+4. The display instantly evaluates to your forced date/time string.
 
-    // Double Tap detection
-    window.addEventListener('touchend', (e) => {
-      if (isDragging || hasBeenTriggered) return;
+> **Note:** The exact key syntax varies slightly between calculator chipsets. Test the sequence on your specific physical calculator model prior to performing.
 
-      const currentTime = new Date().getTime();
-      const tapLength = currentTime - lastTap;
-      
-      if (tapLength < 300 && tapLength > 0) {
-        handleDoubleTap();
-      } else {
-        maybeRequestPermission();
-      }
-      lastTap = currentTime;
-    });
+---
 
-    function maybeRequestPermission() {
-      if (permissionGranted) return;
+### Method 2: iPhone / Android Native Calculator Workarounds
 
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-          if (response === 'granted') {
-            permissionGranted = true;
-            attachOrientationListener();
-          }
-        }).catch(console.error);
-      } else {
-        permissionGranted = true;
-        attachOrientationListener();
-      }
-    }
+Modern smartphone calculator apps handle order of operations (algebraic input) dynamically, which alters how standard memory operations work. 
 
-    function attachOrientationListener() {
-      if (listenerAttached) return;
-      listenerAttached = true;
+To achieve this seamlessly on a phone without custom code:
+1. **Scientific Calculator Orientation:** Rotate an iPhone calculator to landscape mode to reveal memory buttons (`m+`, `mr`).
+2. **Setup:** 
+   - Store target number $T$ into `m+`.
+   - Input: `0 * mr +`
+3. If an audience member enters numbers, the algebraic evaluation engine multiplies their long chain by $0$, preserving $T$ as the base addend once `=` is pressed.
 
-      window.addEventListener('deviceorientation', (e) => {
-        tiltX = e.gamma || 0;
-        tiltY = e.beta || 0;
-      });
+---
 
-      window.addEventListener('devicemotion', (e) => {
-        // Block permanently if already triggered once
-        if (hasBeenTriggered) return;
+### Method 3: Custom Python / Web Application (For Full Control)
 
-        let pureX = 0, pureY = 0, pureZ = 0;
+If you use a phone or tablet disguised as a normal calculator, writing a short custom script gives you absolute reliability. You can program it to capture current system time dynamically at the exact moment `=` is pressed, eliminating the need to pre-set the target number before entering the stage.
 
-        if (e.acceleration && e.acceleration.x !== null) {
-          pureX = e.acceleration.x;
-          pureY = e.acceleration.y;
-          pureZ = e.acceleration.z;
-        } else if (e.accelerationIncludingGravity) {
-          const acc = e.accelerationIncludingGravity;
-          const alpha = 0.8;
-          gx = alpha * gx + (1 - alpha) * acc.x;
-          gy = alpha * gy + (1 - alpha) * acc.y;
-          gz = alpha * gz + (1 - alpha) * acc.z;
-          pureX = acc.x - gx;
-          pureY = acc.y - gy;
-          pureZ = acc.z - gz;
-        }
+Here is a conceptual Python structure (usable in web frame tools like Streamlit, Flask, or a local Kivy UI):
 
-        const forceMagnitude = Math.sqrt(pureX * pureX + pureY * pureY + pureZ * pureZ);
+```python
+from datetime import datetime
 
-        if (forceMagnitude > SHAKE_THRESHOLD) {
-          triggerInstantReveal();
-        }
-      });
-    }
+class MagicCalculator:
+    def __init__(self):
+        self.raw_input = ""
+        self.plus_pressed = False
 
-    function handleDoubleTap() {
-      if (hasBeenTriggered || isActivated || isWaitingForDelay) return;
+    def press_key(self, key):
+        if key == '+':
+            self.plus_pressed = True
+            self.raw_input += key
+        elif key == '=':
+            return self.calculate_forced_result()
+        else:
+            self.raw_input += str(key)
 
-      if (!permissionGranted) {
-        maybeRequestPermission();
-      }
+    def calculate_forced_result(self):
+        # Generates today's date/time in YYYYMMDDHHMM format dynamically
+        now = datetime.now()
+        forced_date_time = now.strftime("%Y%m%d%H%M")
+        
+        # Returns the forced string regardless of what was typed
+        return forced_date_time
 
-      startDelayTimer();
-    }
+# Example usage on stage
+calc = MagicCalculator()
 
-    function triggerInstantReveal() {
-      if (hasBeenTriggered) return;
-      clearTimeout(delayTimer);
-      isWaitingForDelay = false;
-      startMotion();
-    }
+# Audience inputs continuous multiplication
+for input_char in ["2023", "*", "03", "*", "08", "*", "55", "*", "23"]:
+    calc.press_key(input_char)
 
-    function dismissCard() {
-      clearTimeout(delayTimer);
-      isWaitingForDelay = false;
-      isActivated = false;
-      gravityActivated = false;
-      isDismissing = false;
-      card.style.opacity = '0';
-      card.style.display = 'none'; // Permanently hide card element
-    }
+# Performer presses 'plus'
+calc.press_key("+")
 
-    function startDelayTimer() {
-      isWaitingForDelay = true;
-      delayTimer = setTimeout(() => {
-        isWaitingForDelay = false;
-        startMotion();
-      }, 3000);
-    }
+# Audience provides arbitrary final inputs
+calc.press_key("99")
 
-    function startMotion() {
-      // PERMANENT LOCK: Set triggered flag so listeners immediately ignore future events
-      hasBeenTriggered = true;
-
-      posX = (stage.clientWidth - card.clientWidth) / 2;
-      posY = (stage.clientHeight - card.clientHeight) / 2;
-      
-      velX = 0;
-      velY = 0;
-
-      initialTiltX = tiltX;
-      initialTiltY = tiltY;
-
-      isActivated = true;
-      gravityActivated = false; 
-      isDismissing = false;
-      card.style.opacity = '1';
-
-      requestAnimationFrame(updateCardPosition);
-    }
-
-    function verticalForce(beta) {
-      const clampedBeta = Math.max(0, beta); 
-      const gravityEased = Math.sin((clampedBeta / 90) * (Math.PI / 2));
-      return gravityEased * 1.8; 
-    }
-
-    function horizontalForce(gamma) {
-      const TILT_DEADZONE = 12;
-      const absGamma = Math.abs(gamma);
-
-      if (absGamma <= TILT_DEADZONE) {
-        return 0; 
-      }
-
-      const effectiveTilt = (absGamma - TILT_DEADZONE) * Math.sign(gamma);
-      return effectiveTilt * 0.28; 
-    }
-
-    function updateCardPosition() {
-      if (!isActivated) return;
-
-      if (isDismissing) {
-        posY += velY; 
-
-        if (posY < -card.clientHeight) {
-          dismissCard();
-          return;
-        }
-      } 
-      else {
-        if (!gravityActivated) {
-          const deltaX = Math.abs(tiltX - initialTiltX);
-          const deltaY = Math.abs(tiltY - initialTiltY);
-
-          if (deltaX > 3 || deltaY > 3) {
-            gravityActivated = true;
-          }
-        }
-
-        if (!isDragging) {
-          if (gravityActivated) {
-            let forceY = verticalForce(tiltY);
-            let forceX = horizontalForce(tiltX);
-
-            velX += forceX;
-            velY += forceY;
-
-            if (forceX === 0) {
-              velX *= 0.70; 
-            } else {
-              velX *= 0.88; 
-            }
-            
-            velY *= 0.92;
-
-            posX += velX;
-            posY += velY;
-
-            const maxX = stage.clientWidth - card.clientWidth;
-            const maxY = stage.clientHeight - card.clientHeight;
-
-            if (posX < 0) { 
-              posX = 0; 
-              velX *= -0.1; 
-            }
-            if (posX > maxX) { 
-              posX = maxX; 
-              velX *= -0.1; 
-            }
-            if (posY > maxY) { 
-              posY = maxY; 
-              velY = 0; 
-            }
-
-            if (posY < -card.clientHeight / 2) {
-              isDismissing = true;
-              velY = Math.min(velY, -8);
-            }
-          }
-        }
-      }
-
-      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.1}deg)`;
-
-      requestAnimationFrame(updateCardPosition);
-    }
-  </script>
-</body>
-</html>
+# Hit '=' to reveal current timestamp
+final_display = calc.press_key("=")
+print(f"Display shows: {final_display}")
