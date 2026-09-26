@@ -81,6 +81,18 @@
       display: flex;
       justify-content: flex-end;
       align-items: flex-end;
+      touch-action: none;
+    }
+
+    /* Individual digits for the 0.5s fade-away animation */
+    .digit-fade {
+      display: inline-block;
+      transition: opacity 0.5s ease;
+      opacity: 1;
+    }
+
+    .digit-fade.faded {
+      opacity: 0;
     }
 
     .keypad {
@@ -180,6 +192,7 @@
   let intermediateVal = 0;
   let forcedAddendStr = "";
   let forcedIndex = 0;
+  let isShowingFinalResult = false; // Controls when touch-to-fade is active
 
   const mainDisplay = document.getElementById("mainDisplay");
   const expressionDisplay = document.getElementById("expression");
@@ -205,7 +218,23 @@
   }
 
   function updateDisplays() {
-    mainDisplay.innerText = formatDisplayNumber(currentNumStr);
+    const formatted = formatDisplayNumber(currentNumStr);
+
+    if (isShowingFinalResult) {
+      // Wrap each digit in a span to enable individual touch fading
+      let html = "";
+      for (let char of formatted) {
+        if (char === " ") {
+          html += `<span class="digit-fade" style="white-space: pre;"> </span>`;
+        } else {
+          html += `<span class="digit-fade">${char}</span>`;
+        }
+      }
+      mainDisplay.innerHTML = html;
+    } else {
+      mainDisplay.innerText = formatted;
+    }
+
     expressionDisplay.innerText = exprTokens.join("");
 
     adjustFontSize();
@@ -219,8 +248,46 @@
     }
   }
 
+  // --- TOUCH SLIDE TO FADE LOGIC (Active ONLY for Final Result) ---
+  let isTouching = false;
+
+  function fadeDigitAtPoint(clientX, clientY) {
+    if (!isShowingFinalResult) return;
+    const element = document.elementFromPoint(clientX, clientY);
+    if (element && element.classList.contains("digit-fade")) {
+      element.classList.add("faded");
+    }
+  }
+
+  mainDisplay.addEventListener("touchstart", (e) => {
+    if (!isShowingFinalResult) return;
+    isTouching = true;
+    fadeDigitAtPoint(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+
+  mainDisplay.addEventListener("touchmove", (e) => {
+    if (!isShowingFinalResult || !isTouching) return;
+    fadeDigitAtPoint(e.touches[0].clientX, e.touches[0].clientY);
+  }, { passive: true });
+
+  mainDisplay.addEventListener("touchend", () => { isTouching = false; });
+  mainDisplay.addEventListener("touchcancel", () => { isTouching = false; });
+
+  // Mouse fallback for desktop testing
+  mainDisplay.addEventListener("mousedown", (e) => {
+    if (!isShowingFinalResult) return;
+    isTouching = true;
+    fadeDigitAtPoint(e.clientX, e.clientY);
+  });
+
+  mainDisplay.addEventListener("mousemove", (e) => {
+    if (!isShowingFinalResult || !isTouching) return;
+    fadeDigitAtPoint(e.clientX, e.clientY);
+  });
+
+  window.addEventListener("mouseup", () => { isTouching = false; });
+
   function getTargetTimestampPlusThirtySec() {
-    // Adds 30 seconds (30000ms) to current device time
     const future = new Date(Date.now() + 30000);
     const YY = String(future.getFullYear()).slice(-2);
     const MM = String(future.getMonth() + 1).padStart(2, '0');
@@ -232,6 +299,8 @@
   }
 
   function handleNumKey(key) {
+    isShowingFinalResult = false; // Reset fade state when new numbers are typed
+
     if (stageArmed) {
       if (forcedIndex < forcedAddendStr.length) {
         if (waitingForNewNum) {
@@ -256,6 +325,7 @@
   }
 
   function handleComma() {
+    isShowingFinalResult = false;
     if (stageArmed) return;
     if (waitingForNewNum) {
       currentNumStr = "0,";
@@ -267,6 +337,7 @@
   }
 
   function handleOp(op) {
+    isShowingFinalResult = false;
     if (stageArmed) return;
     exprTokens.push(formatDisplayNumber(currentNumStr));
     exprTokens.push(op);
@@ -275,6 +346,7 @@
   }
 
   function handlePlus() {
+    isShowingFinalResult = false;
     if (stageArmed) return;
 
     let evalString = exprTokens.map(t => {
@@ -317,6 +389,7 @@
         currentNumStr = "Error";
       }
       exprTokens = [];
+      isShowingFinalResult = true; // Activate touch-to-fade effect on result
       updateDisplays();
       return;
     }
@@ -330,10 +403,12 @@
     exprTokens = [];
     currentNumStr = String(finalTarget).replace(".", ",");
     stageArmed = false;
+    isShowingFinalResult = true; // Activate touch-to-fade effect on result
     updateDisplays();
   }
 
   function handleClear() {
+    isShowingFinalResult = false;
     if (stageArmed) return;
     currentNumStr = "0";
     exprTokens = [];
@@ -345,6 +420,7 @@
   }
 
   function handleBackspace() {
+    isShowingFinalResult = false;
     if (stageArmed) return;
     if (currentNumStr.length > 1) {
       currentNumStr = currentNumStr.slice(0, -1);
@@ -355,6 +431,7 @@
   }
 
   function handlePercent() {
+    isShowingFinalResult = false;
     if (stageArmed) return;
     let val = parseFloat(currentNumStr.replace(/\s/g, "").replace(",", "."));
     currentNumStr = String(val / 100).replace(".", ",");
@@ -362,6 +439,7 @@
   }
 
   function handleToggleSign() {
+    isShowingFinalResult = false;
     if (stageArmed) return;
     if (currentNumStr !== "0") {
       if (currentNumStr.startsWith("-")) {
@@ -373,7 +451,7 @@
     updateDisplays();
   }
 
-  window.addEventListener('resize', adjustFontSize);
+  window.addEventListener('resize', updateDisplays);
 </script>
 
 </body>
