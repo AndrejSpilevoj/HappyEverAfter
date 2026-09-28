@@ -258,9 +258,6 @@
   window.addEventListener("click", (e) => {
     if (!stageArmed) return;
 
-    // Always let AC and backspace work normally, even mid-trick.
-    if (clearBtn.contains(e.target) || backspaceBtn.contains(e.target)) return;
-
     const isEquals = equalsBtn.contains(e.target);
 
     // Once every forced digit has been revealed, let a genuine "=" tap through normally.
