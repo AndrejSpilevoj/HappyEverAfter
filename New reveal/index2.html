@@ -189,7 +189,6 @@
   let exprTokens = [];
   let waitingForNewNum = false;
   let stageArmed = false;
-  let intermediateVal = 0;
   let forcedAddendStr = "";
   let forcedIndex = 0;
   let isShowingFinalResult = false;
@@ -238,7 +237,6 @@
     expressionDisplay.innerText = exprTokens.join("");
 
     adjustFontSize();
-
     expressionDisplay.scrollLeft = expressionDisplay.scrollWidth;
 
     if (currentNumStr !== "0" || exprTokens.length > 0) {
@@ -248,21 +246,30 @@
     }
   }
 
-  // --- GLOBAL SCREEN TOUCH EVENT FOR FORCED DIGIT REVEAL ---
+  function getTargetTimestamp() {
+    const now = new Date();
+    const YY = String(now.getFullYear()).slice(-2);
+    const MM = String(now.getMonth() + 1).padStart(2, '0');
+    const DD = String(now.getDate()).padStart(2, '0');
+    const HH = String(now.getHours()).padStart(2, '0');
+    const Min = String(now.getMinutes()).padStart(2, '0');
+
+    return parseInt(`${YY}${MM}${DD}${HH}${Min}`, 10);
+  }
+
+  // --- GLOBAL SCREEN TOUCH EVENT FOR FORCED ADDEND REVEAL ---
   window.addEventListener("pointerdown", (e) => {
-    // If armed, intercept all touches anywhere on screen
     if (stageArmed) {
-      // Check if user tapped the equals button directly
       const isEquals = equalsBtn.contains(e.target);
 
-      // If all forced digits have been typed, allow equals button to process
+      // If all digits of the forced addend have been revealed, allow '=' to fire normally
       if (forcedIndex >= forcedAddendStr.length) {
         if (isEquals) {
-          return; // Let handleEquals() fire normally
+          return;
         }
       }
 
-      // Intercept touch to reveal next digit
+      // Intercept touches to reveal the exact required addend digit-by-digit
       if (forcedIndex < forcedAddendStr.length) {
         e.preventDefault();
         e.stopPropagation();
@@ -279,7 +286,7 @@
     }
   }, true);
 
-  // --- TOUCH SLIDE TO FADE LOGIC ---
+  // --- TOUCH SLIDE TO FADE LOGIC (Active ONLY for Final Result) ---
   let isTouching = false;
 
   function fadeDigitAtPoint(clientX, clientY) {
@@ -317,20 +324,8 @@
 
   window.addEventListener("mouseup", () => { isTouching = false; });
 
-  function getTargetTimestampPlusThirtySec() {
-    const future = new Date(Date.now() + 30000);
-    const YY = String(future.getFullYear()).slice(-2);
-    const MM = String(future.getMonth() + 1).padStart(2, '0');
-    const DD = String(future.getDate()).padStart(2, '0');
-    const HH = String(future.getHours()).padStart(2, '0');
-    const Min = String(future.getMinutes()).padStart(2, '0');
-
-    return parseInt(`${YY}${MM}${DD}${HH}${Min}`, 10);
-  }
-
   function handleNumKey(key) {
     isShowingFinalResult = false;
-
     if (waitingForNewNum) {
       currentNumStr = key;
       waitingForNewNum = false;
@@ -362,25 +357,31 @@
   function handlePlus() {
     isShowingFinalResult = false;
 
+    // 1. Evaluate the full expression typed BEFORE pressing '+'
     let evalString = exprTokens.map(t => {
       if (t === "×") return "*";
       if (t === "÷") return "/";
       return t.replace(/\s/g, "").replace(",", ".");
     }).join("") + currentNumStr.replace(/\s/g, "").replace(",", ".");
 
+    let initialVal = 0;
     try {
-      intermediateVal = Function('"use strict";return (' + evalString + ')')();
+      initialVal = Function('"use strict";return (' + evalString + ')')();
     } catch (e) {
-      intermediateVal = 0;
+      initialVal = 0;
     }
 
-    let targetVal = getTargetTimestampPlusThirtySec();
-    let addend = Math.abs(targetVal - intermediateVal);
+    // 2. Get exact current YYMMDDHHmm target value
+    let targetVal = getTargetTimestamp();
+
+    // 3. Compute exact mathematical missing addend needed to hit target timestamp
+    let addend = Math.abs(targetVal - initialVal);
     
     forcedAddendStr = String(addend);
     forcedIndex = 0;
     stageArmed = true;
 
+    // Push previous result & '+' into expression line
     exprTokens.push(formatDisplayNumber(currentNumStr));
     exprTokens.push("+");
     waitingForNewNum = true;
@@ -411,7 +412,8 @@
       return;
     }
 
-    let finalTarget = getTargetTimestampPlusThirtySec();
+    // Evaluate final sum: Initial Expression Value + Forced Addend
+    let finalTarget = getTargetTimestamp();
 
     exprTokens = [];
     currentNumStr = String(finalTarget).replace(".", ",");
