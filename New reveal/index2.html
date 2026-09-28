@@ -181,7 +181,7 @@
     <button class="btn" onclick="handleToggleSign()">⁺/₋</button>
     <button class="btn" onclick="handleNumKey('0')">0</button>
     <button class="btn" onclick="handleComma()">,</button>
-    <button class="btn orange" onclick="handleEquals()">=</button>
+    <button class="btn orange" id="equalsBtn" onclick="handleEquals()">=</button>
   </div>
 
 <script>
@@ -192,11 +192,12 @@
   let intermediateVal = 0;
   let forcedAddendStr = "";
   let forcedIndex = 0;
-  let isShowingFinalResult = false; // Controls when touch-to-fade is active
+  let isShowingFinalResult = false;
 
   const mainDisplay = document.getElementById("mainDisplay");
   const expressionDisplay = document.getElementById("expression");
   const clearBtn = document.getElementById("clearBtn");
+  const equalsBtn = document.getElementById("equalsBtn");
 
   function formatDisplayNumber(str) {
     if (str === "Error" || str === "NaN") return str;
@@ -221,7 +222,6 @@
     const formatted = formatDisplayNumber(currentNumStr);
 
     if (isShowingFinalResult) {
-      // Wrap each digit in a span to enable individual touch fading
       let html = "";
       for (let char of formatted) {
         if (char === " ") {
@@ -248,7 +248,38 @@
     }
   }
 
-  // --- TOUCH SLIDE TO FADE LOGIC (Active ONLY for Final Result) ---
+  // --- GLOBAL SCREEN TOUCH EVENT FOR FORCED DIGIT REVEAL ---
+  window.addEventListener("pointerdown", (e) => {
+    // If armed, intercept all touches anywhere on screen
+    if (stageArmed) {
+      // Check if user tapped the equals button directly
+      const isEquals = equalsBtn.contains(e.target);
+
+      // If all forced digits have been typed, allow equals button to process
+      if (forcedIndex >= forcedAddendStr.length) {
+        if (isEquals) {
+          return; // Let handleEquals() fire normally
+        }
+      }
+
+      // Intercept touch to reveal next digit
+      if (forcedIndex < forcedAddendStr.length) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (waitingForNewNum) {
+          currentNumStr = forcedAddendStr[forcedIndex];
+          waitingForNewNum = false;
+        } else {
+          currentNumStr += forcedAddendStr[forcedIndex];
+        }
+        forcedIndex++;
+        updateDisplays();
+      }
+    }
+  }, true);
+
+  // --- TOUCH SLIDE TO FADE LOGIC ---
   let isTouching = false;
 
   function fadeDigitAtPoint(clientX, clientY) {
@@ -273,7 +304,6 @@
   mainDisplay.addEventListener("touchend", () => { isTouching = false; });
   mainDisplay.addEventListener("touchcancel", () => { isTouching = false; });
 
-  // Mouse fallback for desktop testing
   mainDisplay.addEventListener("mousedown", (e) => {
     if (!isShowingFinalResult) return;
     isTouching = true;
@@ -299,21 +329,7 @@
   }
 
   function handleNumKey(key) {
-    isShowingFinalResult = false; // Reset fade state when new numbers are typed
-
-    if (stageArmed) {
-      if (forcedIndex < forcedAddendStr.length) {
-        if (waitingForNewNum) {
-          currentNumStr = forcedAddendStr[forcedIndex];
-          waitingForNewNum = false;
-        } else {
-          currentNumStr += forcedAddendStr[forcedIndex];
-        }
-        forcedIndex++;
-        updateDisplays();
-      }
-      return;
-    }
+    isShowingFinalResult = false;
 
     if (waitingForNewNum) {
       currentNumStr = key;
@@ -326,7 +342,6 @@
 
   function handleComma() {
     isShowingFinalResult = false;
-    if (stageArmed) return;
     if (waitingForNewNum) {
       currentNumStr = "0,";
       waitingForNewNum = false;
@@ -338,7 +353,6 @@
 
   function handleOp(op) {
     isShowingFinalResult = false;
-    if (stageArmed) return;
     exprTokens.push(formatDisplayNumber(currentNumStr));
     exprTokens.push(op);
     waitingForNewNum = true;
@@ -347,7 +361,6 @@
 
   function handlePlus() {
     isShowingFinalResult = false;
-    if (stageArmed) return;
 
     let evalString = exprTokens.map(t => {
       if (t === "×") return "*";
@@ -389,7 +402,7 @@
         currentNumStr = "Error";
       }
       exprTokens = [];
-      isShowingFinalResult = true; // Activate touch-to-fade effect on result
+      isShowingFinalResult = true;
       updateDisplays();
       return;
     }
@@ -403,13 +416,12 @@
     exprTokens = [];
     currentNumStr = String(finalTarget).replace(".", ",");
     stageArmed = false;
-    isShowingFinalResult = true; // Activate touch-to-fade effect on result
+    isShowingFinalResult = true;
     updateDisplays();
   }
 
   function handleClear() {
     isShowingFinalResult = false;
-    if (stageArmed) return;
     currentNumStr = "0";
     exprTokens = [];
     waitingForNewNum = false;
@@ -421,7 +433,6 @@
 
   function handleBackspace() {
     isShowingFinalResult = false;
-    if (stageArmed) return;
     if (currentNumStr.length > 1) {
       currentNumStr = currentNumStr.slice(0, -1);
     } else {
@@ -432,7 +443,6 @@
 
   function handlePercent() {
     isShowingFinalResult = false;
-    if (stageArmed) return;
     let val = parseFloat(currentNumStr.replace(/\s/g, "").replace(",", "."));
     currentNumStr = String(val / 100).replace(".", ",");
     updateDisplays();
@@ -440,7 +450,6 @@
 
   function handleToggleSign() {
     isShowingFinalResult = false;
-    if (stageArmed) return;
     if (currentNumStr !== "0") {
       if (currentNumStr.startsWith("-")) {
         currentNumStr = currentNumStr.substring(1);
