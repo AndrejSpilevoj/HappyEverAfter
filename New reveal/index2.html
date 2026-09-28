@@ -84,7 +84,6 @@
       touch-action: none;
     }
 
-    /* Individual digits for the 0.5s fade-away animation */
     .digit-fade {
       display: inline-block;
       transition: opacity 0.5s ease;
@@ -156,7 +155,7 @@
   </div>
 
   <div class="keypad">
-    <button class="btn gray" onclick="handleBackspace()">
+    <button class="btn gray" id="backspaceBtn" onclick="handleBackspace()">
       <svg class="backspace-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
     </button>
     <button class="btn gray" id="clearBtn" onclick="handleClear()">AC</button>
@@ -188,14 +187,19 @@
   let currentNumStr = "0";
   let exprTokens = [];
   let waitingForNewNum = false;
-  let stageArmed = false;
-  let forcedAddendStr = "";
-  let forcedIndex = 0;
+
+  // --- Trick state ---
+  let stageArmed = false;         // true after "+" is pressed, until the forced digits are all revealed
+  let intermediateVal = 0;        // value of the person's own multiplication, before the forced addend
+  let forcedAddendStr = "";       // the digits that MUST appear, one per tap, to reach the locked target
+  let forcedIndex = 0;            // how many forced digits have been revealed so far
+  let lockedTargetVal = 0;        // the shared target, frozen the instant "+" is pressed
   let isShowingFinalResult = false;
 
   const mainDisplay = document.getElementById("mainDisplay");
   const expressionDisplay = document.getElementById("expression");
   const clearBtn = document.getElementById("clearBtn");
+  const backspaceBtn = document.getElementById("backspaceBtn");
   const equalsBtn = document.getElementById("equalsBtn");
 
   function formatDisplayNumber(str) {
@@ -209,7 +213,7 @@
   function adjustFontSize() {
     let fontSize = 64;
     mainDisplay.style.fontSize = fontSize + "px";
-    
+
     const containerWidth = mainDisplay.clientWidth;
     while (mainDisplay.scrollWidth > containerWidth && fontSize > 28) {
       fontSize -= 2;
@@ -237,6 +241,7 @@
     expressionDisplay.innerText = exprTokens.join("");
 
     adjustFontSize();
+
     expressionDisplay.scrollLeft = expressionDisplay.scrollWidth;
 
     if (currentNumStr !== "0" || exprTokens.length > 0) {
@@ -246,47 +251,41 @@
     }
   }
 
-  function getTargetTimestamp() {
-    const now = new Date();
-    const YY = String(now.getFullYear()).slice(-2);
-    const MM = String(now.getMonth() + 1).padStart(2, '0');
-    const DD = String(now.getDate()).padStart(2, '0');
-    const HH = String(now.getHours()).padStart(2, '0');
-    const Min = String(now.getMinutes()).padStart(2, '0');
+  // --- FORCED DIGIT INTERCEPT ---
+  // Runs on the same "click" event the buttons themselves use, in the capture phase,
+  // so it always runs BEFORE any button's own onclick — guaranteeing the real
+  // number never gets typed while the trick is armed, on touch or mouse alike.
+  window.addEventListener("click", (e) => {
+    if (!stageArmed) return;
 
-    return parseInt(`${YY}${MM}${DD}${HH}${Min}`, 10);
-  }
+    // Always let AC and backspace work normally, even mid-trick.
+    if (clearBtn.contains(e.target) || backspaceBtn.contains(e.target)) return;
 
-  // --- GLOBAL SCREEN TOUCH EVENT FOR FORCED ADDEND REVEAL ---
-  window.addEventListener("pointerdown", (e) => {
-    if (stageArmed) {
-      const isEquals = equalsBtn.contains(e.target);
+    const isEquals = equalsBtn.contains(e.target);
 
-      // If all digits of the forced addend have been revealed, allow '=' to fire normally
-      if (forcedIndex >= forcedAddendStr.length) {
-        if (isEquals) {
-          return;
-        }
-      }
-
-      // Intercept touches to reveal the exact required addend digit-by-digit
-      if (forcedIndex < forcedAddendStr.length) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (waitingForNewNum) {
-          currentNumStr = forcedAddendStr[forcedIndex];
-          waitingForNewNum = false;
-        } else {
-          currentNumStr += forcedAddendStr[forcedIndex];
-        }
-        forcedIndex++;
-        updateDisplays();
-      }
+    // Once every forced digit has been revealed, let a genuine "=" tap through normally.
+    if (forcedIndex >= forcedAddendStr.length && isEquals) {
+      return;
     }
+
+    // Swallow the tap completely so the real button logic never runs.
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    if (forcedIndex < forcedAddendStr.length) {
+      if (waitingForNewNum) {
+        currentNumStr = forcedAddendStr[forcedIndex];
+        waitingForNewNum = false;
+      } else {
+        currentNumStr += forcedAddendStr[forcedIndex];
+      }
+      forcedIndex++;
+      updateDisplays();
+    }
+    // If all digits are already shown and they tap something other than "=", ignore it.
   }, true);
 
-  // --- TOUCH SLIDE TO FADE LOGIC (Active ONLY for Final Result) ---
+  // --- TOUCH SLIDE TO FADE (reveal flourish, unrelated to the forcing) ---
   let isTouching = false;
 
   function fadeDigitAtPoint(clientX, clientY) {
@@ -324,8 +323,21 @@
 
   window.addEventListener("mouseup", () => { isTouching = false; });
 
+  // Target = current date/time + 1 minute, formatted YYMMDDHHMin (e.g. 2609281021)
+  function getTargetTimestampPlusOneMinute() {
+    const future = new Date(Date.now() + 60000);
+    const YY = String(future.getFullYear()).slice(-2);
+    const MM = String(future.getMonth() + 1).padStart(2, '0');
+    const DD = String(future.getDate()).padStart(2, '0');
+    const HH = String(future.getHours()).padStart(2, '0');
+    const Min = String(future.getMinutes()).padStart(2, '0');
+
+    return parseInt(`${YY}${MM}${DD}${HH}${Min}`, 10);
+  }
+
   function handleNumKey(key) {
     isShowingFinalResult = false;
+
     if (waitingForNewNum) {
       currentNumStr = key;
       waitingForNewNum = false;
@@ -357,31 +369,32 @@
   function handlePlus() {
     isShowingFinalResult = false;
 
-    // 1. Evaluate the full expression typed BEFORE pressing '+'
     let evalString = exprTokens.map(t => {
       if (t === "×") return "*";
       if (t === "÷") return "/";
       return t.replace(/\s/g, "").replace(",", ".");
     }).join("") + currentNumStr.replace(/\s/g, "").replace(",", ".");
 
-    let initialVal = 0;
     try {
-      initialVal = Function('"use strict";return (' + evalString + ')')();
+      intermediateVal = Function('"use strict";return (' + evalString + ')')();
     } catch (e) {
-      initialVal = 0;
+      intermediateVal = 0;
     }
 
-    // 2. Get exact current YYMMDDHHmm target value
-    let targetVal = getTargetTimestamp();
+    // Lock the target NOW - it must not change while you talk for the next minute.
+    lockedTargetVal = getTargetTimestampPlusOneMinute();
+    let addend = lockedTargetVal - intermediateVal;
 
-    // 3. Compute exact mathematical missing addend needed to hit target timestamp
-    let addend = Math.abs(targetVal - initialVal);
-    
-    forcedAddendStr = String(addend);
+    if (addend < 0) {
+      // Dev-only warning, never shown to the audience: this person's multiplication
+      // already exceeds the target, so adding digits alone can't reach it.
+      console.warn("Target is smaller than this multiplication result — pick smaller numbers or a later target.");
+    }
+
+    forcedAddendStr = String(Math.abs(addend));
     forcedIndex = 0;
     stageArmed = true;
 
-    // Push previous result & '+' into expression line
     exprTokens.push(formatDisplayNumber(currentNumStr));
     exprTokens.push("+");
     waitingForNewNum = true;
@@ -412,11 +425,9 @@
       return;
     }
 
-    // Evaluate final sum: Initial Expression Value + Forced Addend
-    let finalTarget = getTargetTimestamp();
-
+    // Use the LOCKED target, not a freshly-computed one — a minute has passed since "+".
     exprTokens = [];
-    currentNumStr = String(finalTarget).replace(".", ",");
+    currentNumStr = String(lockedTargetVal).replace(".", ",");
     stageArmed = false;
     isShowingFinalResult = true;
     updateDisplays();
