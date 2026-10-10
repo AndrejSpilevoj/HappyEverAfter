@@ -1,15 +1,16 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  
-  <!-- iOS Standalone Web App Setup -->
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Google">
-  
+
   <title>Google</title>
+
   <style>
     html, body {
       margin: 0;
@@ -18,6 +19,7 @@
       height: 100%;
       background: #ffffff;
       overflow: hidden;
+      overscroll-behavior: none;
       touch-action: manipulation;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -33,163 +35,160 @@
       overflow: hidden;
     }
 
-    /* Google Background Image */
     .bg-image {
       position: absolute;
-      top: 0;
-      left: 0;
+      inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
       object-position: top;
-      -webkit-user-drag: none;
       pointer-events: none;
+      -webkit-user-drag: none;
       z-index: 1;
     }
 
-    /* Note Element: Scaled to fit nicely and vertically on iPhone Pro Max screen */
+    /*
+      The note is rotated 90 degrees.
+      Its CSS height becomes its visible width.
+      95vw makes the visible width approximately
+      95% of the screen width.
+    */
     #playing-card {
       position: absolute;
-      width: 78vh; 
-      max-width: 380px;
-      height: auto;
+      top: 0;
+      left: 0;
+      width: auto;
+      height: 95vw;
+      max-width: none;
+      max-height: none;
       z-index: 2;
-      pointer-events: auto;
+      pointer-events: none;
       will-change: transform;
       opacity: 0;
       transition: opacity 0.1s ease;
       filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
       touch-action: none;
+      -webkit-user-drag: none;
       transform-origin: center center;
+    }
+
+    #playing-card.visible {
+      pointer-events: auto;
+      opacity: 1;
     }
   </style>
 </head>
+
 <body>
 
   <div id="stage">
-    <!-- Background Screen -->
-    <img src="google-bg.jpg" class="bg-image" alt="Google Background">
-    
-    <!-- Floating Note -->
-    <img src="card3.png" id="playing-card" alt="20 Euro Note">
+    <img src="google-bg.jpg" class="bg-image" alt="">
+    <img src="card3.png" id="playing-card" alt="20 Euro Note" draggable="false">
   </div>
 
   <script>
     const card = document.getElementById('playing-card');
     const stage = document.getElementById('stage');
 
-    let posX = 0, posY = 0;
-    let velX = 0, velY = 0;
-    let tiltX = 0, tiltY = 0;
-    let initialTiltX = 0, initialTiltY = 0;
+    let posX = 0;
+    let posY = 0;
+    let velX = 0;
+    let velY = 0;
+
+    let tiltX = 0;
+    let tiltY = 0;
+    let initialTiltX = 0;
+    let initialTiltY = 0;
+
     let isActivated = false;
-    let gravityActivated = false; 
-    let isDismissing = false; 
+    let gravityActivated = false;
+    let isDismissing = false;
     let isWaitingForDelay = false;
+    let isDragging = false;
+    let animationRunning = false;
+
     let delayTimer = null;
     let lastTap = 0;
     let permissionGranted = false;
     let listenerAttached = false;
 
-    // Hard impact threshold
-    const SHAKE_THRESHOLD = 25; 
+    const SHAKE_THRESHOLD = 25;
+    const REVEAL_DELAY = 3000;
 
-    // Touch Dragging Variables
-    let isDragging = false;
-    let dragStartX = 0, dragStartY = 0;
-    let initialCardX = 0, initialCardY = 0;
-    let lastTouchX = 0, lastTouchY = 0;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let initialCardX = 0;
+    let initialCardY = 0;
+    let lastTouchX = 0;
+    let lastTouchY = 0;
     let lastTouchTime = 0;
 
-    // Card Touch Events
-    card.addEventListener('touchstart', (e) => {
-      if (!isActivated || isDismissing) return;
-      
-      gravityActivated = true; 
-      isDragging = true;
-      const touch = e.touches[0];
-      
-      dragStartX = touch.clientX;
-      dragStartY = touch.clientY;
-      initialCardX = posX;
-      initialCardY = posY;
-      
-      lastTouchX = touch.clientX;
-      lastTouchY = touch.clientY;
-      lastTouchTime = performance.now();
-      
-      velX = 0;
-      velY = 0;
-    }, { passive: true });
+    // Dimensions of the rotated note.
+    // CSS height becomes visible width after rotation.
+    function visibleWidth() {
+      return card.offsetHeight;
+    }
 
-    window.addEventListener('touchmove', (e) => {
-      if (!isDragging || !isActivated || isDismissing) return;
-      
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStartX;
-      const deltaY = touch.clientY - dragStartY;
-      
-      posX = initialCardX + deltaX;
-      posY = initialCardY + deltaY;
-      
-      const maxX = stage.clientWidth - card.clientWidth;
+    function visibleHeight() {
+      return card.offsetWidth;
+    }
+
+    function clampPosition() {
+      const maxX = Math.max(0, stage.clientWidth - visibleWidth());
+      const maxY = Math.max(0, stage.clientHeight - visibleHeight());
+
       posX = Math.max(0, Math.min(posX, maxX));
+      posY = Math.max(0, Math.min(posY, maxY));
+    }
 
-      const now = performance.now();
-      const dt = (now - lastTouchTime) || 16;
-      velX = ((touch.clientX - lastTouchX) / dt) * 12; 
-      velY = ((touch.clientY - lastTouchY) / dt) * 12;
+    // posX and posY refer to the top-left of the
+    // rotated note's visible bounding box.
+    function renderCard() {
+      const width = card.offsetWidth;
+      const height = card.offsetHeight;
 
-      lastTouchX = touch.clientX;
-      lastTouchY = touch.clientY;
-      lastTouchTime = now;
+      const offsetX = (height - width) / 2;
+      const offsetY = (width - height) / 2;
 
-      if (posY < -card.clientHeight / 2) {
-        isDragging = false;
-        isDismissing = true;
-        velY = Math.min(velY, -8);
-      }
-    }, { passive: true });
+      card.style.transform =
+        `translate3d(${posX + offsetX}px, ${posY + offsetY}px, 0) ` +
+        `rotate(90deg) rotate(${velX * 0.1}deg)`;
+    }
 
-    window.addEventListener('touchend', () => {
-      if (isDragging) {
-        isDragging = false;
-
-        if (posY < -card.clientHeight / 2) {
-          isDismissing = true;
-          velY = Math.min(velY, -8);
-        }
-      }
-    });
-
-    // Double Tap detection
-    window.addEventListener('touchend', (e) => {
-      if (isDragging) return;
-
-      const currentTime = new Date().getTime();
-      const tapLength = currentTime - lastTap;
-      
-      if (tapLength < 300 && tapLength > 0) {
-        handleDoubleTap();
-      } else {
-        maybeRequestPermission();
-      }
-      lastTap = currentTime;
-    });
-
-    function maybeRequestPermission() {
+    // Ask for sensor permission on compatible iPhones.
+    async function maybeRequestPermission() {
       if (permissionGranted) return;
 
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-          if (response === 'granted') {
+      try {
+        if (
+          typeof DeviceOrientationEvent !== 'undefined' &&
+          typeof DeviceOrientationEvent.requestPermission === 'function'
+        ) {
+          const result =
+            await DeviceOrientationEvent.requestPermission();
+
+          if (result !== 'granted') return;
+        }
+
+        if (
+          typeof DeviceMotionEvent !== 'undefined' &&
+          typeof DeviceMotionEvent.requestPermission === 'function'
+        ) {
+          const result =
+            await DeviceMotionEvent.requestPermission();
+
+          if (result !== 'granted') {
             permissionGranted = true;
             attachOrientationListener();
+            return;
           }
-        }).catch(console.error);
-      } else {
+        }
+
         permissionGranted = true;
         attachOrientationListener();
+
+      } catch (error) {
+        console.warn('Motion permission unavailable:', error);
       }
     }
 
@@ -197,31 +196,61 @@
       if (listenerAttached) return;
       listenerAttached = true;
 
-      window.addEventListener('deviceorientation', (e) => {
-        tiltX = e.gamma || 0;
-        tiltY = e.beta || 0;
+      window.addEventListener('deviceorientation', (event) => {
+        tiltX = event.gamma || 0;
+        tiltY = event.beta || 0;
       });
 
-      window.addEventListener('devicemotion', (e) => {
-        const acc = e.accelerationIncludingGravity;
+      window.addEventListener('devicemotion', (event) => {
+        const acc = event.accelerationIncludingGravity;
         if (!acc) return;
 
-        const totalAccel = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+        const x = acc.x || 0;
+        const y = acc.y || 0;
+        const z = acc.z || 0;
 
-        if (totalAccel > SHAKE_THRESHOLD && !isActivated) {
+        const totalAccel = Math.sqrt(x*x + y*y + z*z);
+
+        if (
+          totalAccel > SHAKE_THRESHOLD &&
+          !isActivated &&
+          !isWaitingForDelay
+        ) {
           triggerInstantReveal();
         }
       });
     }
 
-    function handleDoubleTap() {
-      if (isActivated || isWaitingForDelay) return;
+    // Double-tap to reveal after three seconds.
+    stage.addEventListener('touchend', (event) => {
+      if (isDragging || isActivated) return;
 
-      if (!permissionGranted) {
+      const now = Date.now();
+      const elapsed = now - lastTap;
+
+      if (elapsed > 0 && elapsed < 300) {
+        lastTap = 0;
+        handleDoubleTap();
+      } else {
+        lastTap = now;
         maybeRequestPermission();
       }
+    }, { passive: true });
 
+    function handleDoubleTap() {
+      if (isActivated || isWaitingForDelay) return;
       startDelayTimer();
+    }
+
+    function startDelayTimer() {
+      isWaitingForDelay = true;
+
+      clearTimeout(delayTimer);
+
+      delayTimer = setTimeout(() => {
+        isWaitingForDelay = false;
+        startMotion();
+      }, REVEAL_DELAY);
     }
 
     function triggerInstantReveal() {
@@ -230,27 +259,15 @@
       startMotion();
     }
 
-    function dismissCard() {
-      clearTimeout(delayTimer);
-      isWaitingForDelay = false;
-      isActivated = false;
-      gravityActivated = false;
-      isDismissing = false;
-      card.style.opacity = '0';
-    }
-
-    function startDelayTimer() {
-      isWaitingForDelay = true;
-      delayTimer = setTimeout(() => {
-        isWaitingForDelay = false;
-        startMotion();
-      }, 3000);
-    }
-
     function startMotion() {
-      posX = (stage.clientWidth - card.clientWidth) / 2;
-      posY = (stage.clientHeight - card.clientHeight) / 2;
-      
+      if (!card.complete || !card.naturalWidth) {
+        card.addEventListener('load', startMotion, { once: true });
+        return;
+      }
+
+      posX = (stage.clientWidth - visibleWidth()) / 2;
+      posY = (stage.clientHeight - visibleHeight()) / 2;
+
       velX = 0;
       velY = 0;
 
@@ -258,99 +275,193 @@
       initialTiltY = tiltY;
 
       isActivated = true;
-      gravityActivated = false; 
+      gravityActivated = false;
       isDismissing = false;
-      card.style.opacity = '1';
+      isDragging = false;
 
-      requestAnimationFrame(updateCardPosition);
+      clampPosition();
+
+      card.classList.add('visible');
+      renderCard();
+
+      if (!animationRunning) {
+        animationRunning = true;
+        requestAnimationFrame(updateCardPosition);
+      }
     }
 
+    function dismissCard() {
+      clearTimeout(delayTimer);
+
+      isActivated = false;
+      gravityActivated = false;
+      isDismissing = false;
+      isDragging = false;
+      isWaitingForDelay = false;
+
+      card.classList.remove('visible');
+    }
+
+    // Drag the note with your finger.
+    card.addEventListener('touchstart', (event) => {
+      if (!isActivated || isDismissing) return;
+
+      event.preventDefault();
+
+      gravityActivated = true;
+      isDragging = true;
+
+      const touch = event.touches[0];
+
+      dragStartX = touch.clientX;
+      dragStartY = touch.clientY;
+
+      initialCardX = posX;
+      initialCardY = posY;
+
+      lastTouchX = touch.clientX;
+      lastTouchY = touch.clientY;
+      lastTouchTime = performance.now();
+
+      velX = 0;
+      velY = 0;
+    }, { passive: false });
+
+    window.addEventListener('touchmove', (event) => {
+      if (!isDragging || !isActivated || isDismissing) return;
+
+      event.preventDefault();
+
+      const touch = event.touches[0];
+
+      posX = initialCardX + touch.clientX - dragStartX;
+      posY = initialCardY + touch.clientY - dragStartY;
+
+      const maxX = Math.max(0, stage.clientWidth - visibleWidth());
+      posX = Math.max(0, Math.min(posX, maxX));
+
+      const now = performance.now();
+      const dt = Math.max(1, now - lastTouchTime);
+
+      velX = ((touch.clientX - lastTouchX) / dt) * 12;
+      velY = ((touch.clientY - lastTouchY) / dt) * 12;
+
+      lastTouchX = touch.clientX;
+      lastTouchY = touch.clientY;
+      lastTouchTime = now;
+
+      if (posY < -visibleHeight() / 2) {
+        isDragging = false;
+        isDismissing = true;
+        velY = Math.min(velY, -8);
+      }
+
+      renderCard();
+    }, { passive: false });
+
+    window.addEventListener('touchend', () => {
+      if (!isDragging) return;
+
+      isDragging = false;
+
+      if (posY < -visibleHeight() / 2) {
+        isDismissing = true;
+        velY = Math.min(velY, -8);
+      }
+    });
+
     function verticalForce(beta) {
-      const clampedBeta = Math.max(0, beta); 
-      const gravityEased = Math.sin((clampedBeta / 90) * (Math.PI / 2));
-      return gravityEased * 1.8; 
+      const clampedBeta = Math.max(0, beta);
+
+      return Math.sin(
+        (clampedBeta / 90) * (Math.PI / 2)
+      ) * 1.8;
     }
 
     function horizontalForce(gamma) {
-      const TILT_DEADZONE = 12;
+      const DEADZONE = 12;
       const absGamma = Math.abs(gamma);
 
-      if (absGamma <= TILT_DEADZONE) {
-        return 0; 
-      }
+      if (absGamma <= DEADZONE) return 0;
 
-      const effectiveTilt = (absGamma - TILT_DEADZONE) * Math.sign(gamma);
-      return effectiveTilt * 0.28; 
+      return (absGamma - DEADZONE) * Math.sign(gamma) * 0.28;
     }
 
     function updateCardPosition() {
-      if (!isActivated) return;
+      if (!isActivated) {
+        animationRunning = false;
+        return;
+      }
 
       if (isDismissing) {
-        posY += velY; 
+        posY += velY;
 
-        if (posY < -card.clientHeight) {
+        if (posY < -visibleHeight()) {
           dismissCard();
+          animationRunning = false;
           return;
         }
-      } 
-      else {
-        if (!gravityActivated) {
-          const deltaX = Math.abs(tiltX - initialTiltX);
-          const deltaY = Math.abs(tiltY - initialTiltY);
+      } else if (!isDragging) {
 
-          if (deltaX > 3 || deltaY > 3) {
+        if (!gravityActivated) {
+          if (
+            Math.abs(tiltX - initialTiltX) > 3 ||
+            Math.abs(tiltY - initialTiltY) > 3
+          ) {
             gravityActivated = true;
           }
         }
 
-        if (!isDragging) {
-          if (gravityActivated) {
-            let forceY = verticalForce(tiltY);
-            let forceX = horizontalForce(tiltX);
+        if (gravityActivated) {
+          const forceX = horizontalForce(tiltX);
+          const forceY = verticalForce(tiltY);
 
-            velX += forceX;
-            velY += forceY;
+          velX += forceX;
+          velY += forceY;
 
-            if (forceX === 0) {
-              velX *= 0.70; 
-            } else {
-              velX *= 10.88; 
-            }
-            
-            velY *= 0.92;
+          // Gentle damping keeps the note controllable.
+          velX *= forceX === 0 ? 0.70 : 0.92;
+          velY *= 0.92;
 
-            posX += velX;
-            posY += velY;
+          posX += velX;
+          posY += velY;
 
-            const maxX = stage.clientWidth - card.clientWidth;
-            const maxY = stage.clientHeight - card.clientHeight;
+          const maxX = Math.max(0, stage.clientWidth - visibleWidth());
+          const maxY = Math.max(0, stage.clientHeight - visibleHeight());
 
-            if (posX < 0) { 
-              posX = 0; 
-              velX *= -0.1; 
-            }
-            if (posX > maxX) { 
-              posX = maxX; 
-              velX *= -0.1; 
-            }
-            if (posY > maxY) { 
-              posY = maxY; 
-              velY = 0; 
-            }
+          if (posX < 0) {
+            posX = 0;
+            velX *= -0.1;
+          }
 
-            if (posY < -card.clientHeight / 2) {
-              isDismissing = true;
-              velY = Math.min(velY, -8);
-            }
+          if (posX > maxX) {
+            posX = maxX;
+            velX *= -0.1;
+          }
+
+          if (posY > maxY) {
+            posY = maxY;
+            velY = 0;
+          }
+
+          if (posY < -visibleHeight() / 2) {
+            isDismissing = true;
+            velY = Math.min(velY, -8);
           }
         }
       }
 
-      card.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(90deg) rotate(${velX * 0.1}deg)`;
-
+      renderCard();
       requestAnimationFrame(updateCardPosition);
     }
+
+    window.addEventListener('resize', () => {
+      if (!isActivated) return;
+      clampPosition();
+      renderCard();
+    });
+
   </script>
 </body>
 </html>
+```
