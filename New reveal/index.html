@@ -47,12 +47,14 @@
       z-index: 1;
     }
 
-    /* Note Element: Maximized to full height/width of iPhone Pro Max screen size */
+    /* Note Element: Scaled to fully cover the screen */
     #playing-card {
       position: absolute;
-      width: 96vh; 
-      max-width: 430px;
-      height: auto;
+      width: 100vh;
+      height: 100vw;
+      max-width: none;
+      max-height: none;
+      object-fit: cover;
       z-index: 2;
       pointer-events: auto;
       will-change: transform;
