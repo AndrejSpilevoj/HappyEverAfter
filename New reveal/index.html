@@ -47,14 +47,14 @@
       z-index: 1;
     }
 
-    /* Note Element: Scaled to fully cover the screen */
+    /* Note Element: Full screen proportions, correctly centered */
     #playing-card {
       position: absolute;
-      width: 100vh;
-      height: 100vw;
+      width: 100vw;
+      height: 100vh;
       max-width: none;
       max-height: none;
-      object-fit: cover;
+      object-fit: contain;
       z-index: 2;
       pointer-events: auto;
       will-change: transform;
@@ -134,8 +134,9 @@
       posX = initialCardX + deltaX;
       posY = initialCardY + deltaY;
       
-      const maxX = stage.clientWidth - card.clientWidth;
-      posX = Math.max(0, Math.min(posX, maxX));
+      const minX = -card.clientWidth * 0.4;
+      const maxX = stage.clientWidth - (card.clientWidth * 0.6);
+      posX = Math.max(minX, Math.min(posX, maxX));
 
       const now = performance.now();
       const dt = (now - lastTouchTime) || 16;
@@ -277,7 +278,7 @@
       const TILT_DEADZONE = 12;
       const absGamma = Math.abs(gamma);
 
-      if (absGamma <= TILT_DEADZONE) {
+      if (absGamma <= TinylDeadzone = absGamma <= TILT_DEADZONE) {
         return 0; 
       }
 
@@ -325,11 +326,12 @@
             posX += velX;
             posY += velY;
 
-            const maxX = stage.clientWidth - card.clientWidth;
+            const minX = -card.clientWidth * 0.4;
+            const maxX = stage.clientWidth - (card.clientWidth * 0.6);
             const maxY = stage.clientHeight - card.clientHeight;
 
-            if (posX < 0) { 
-              posX = 0; 
+            if (posX < minX) { 
+              posX = minX; 
               velX *= -0.1; 
             }
             if (posX > maxX) { 
