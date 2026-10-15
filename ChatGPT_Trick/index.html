@@ -47,13 +47,13 @@ html, body {
     z-index: 1;
 }
 
-/* Square Video Element positioned precisely in the center area */
+/* Square Video Element filling maximum horizontal width and centered vertically */
 #myVideo {
     position: absolute;
     left: 50%;
-    top: 18%; /* Adjust this percentage to shift the video vertically into place */
-    transform: translateX(-50%);
-    width: 80%; /* Matches your preferred width proportion */
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
     aspect-ratio: 1 / 1;
     object-fit: cover;
     z-index: 2;
