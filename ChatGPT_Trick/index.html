@@ -2,58 +2,88 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Video Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Prevents iOS Safari top status bar from dimming or turning dark -->
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <title>ChatGPT</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html, body {
             width: 100%;
-            min-height: 100vh;
+            height: 100%;
             background-image: url('chatgpt-bg.png');
-            background-size: 100% auto;
-            background-repeat: repeat-y;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
             background-position: top center;
             background-color: #ffffff;
+            overflow: hidden;
+            position: fixed; /* Lock page scrolling so it stays crisp */
         }
 
         .video-container {
             width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            position: relative;
+            background: transparent;
         }
 
         video {
             width: 100%;
-            max-width: 100%;
+            display: block;
             aspect-ratio: 1 / 1;
             object-fit: cover;
-            display: block;
+            border: none;
+            outline: none;
+            background: transparent;
+            /* Prevents iOS video shadows */
+            -webkit-appearance: none;
+            mix-blend-mode: multiply; /* Blends pure white video edges seamlessly with BG */
+        }
+
+        /* Fullscreen invisible touch trigger */
+        .click-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 9999;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .click-overlay.hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="video-container" id="videoContainer">
-        <video id="myVideo" src="Phone.mov#t=0.01" playsinline webkit-playsinline muted preload="auto"></video>
+    <div class="click-overlay" id="tapOverlay"></div>
+
+    <div class="video-container">
+        <video id="myVideo" src="Phone.mov#t=0.001" playsinline webkit-playsinline muted preload="auto"></video>
     </div>
 
     <script>
         const video = document.getElementById('myVideo');
+        const overlay = document.getElementById('tapOverlay');
 
-        // Play video with audio on tap anywhere on the page
-        document.body.addEventListener('click', () => {
-            if (video.paused) {
-                video.muted = false; // Enable audio upon user interaction
-                video.play().catch(error => {
-                    console.log("Playback failed:", error);
-                });
-            }
+        overlay.addEventListener('click', () => {
+            video.muted = false; // Enable audio
+            video.play().then(() => {
+                overlay.classList.add('hidden');
+            }).catch(error => {
+                console.log("Playback failed:", error);
+            });
         });
     </script>
 
