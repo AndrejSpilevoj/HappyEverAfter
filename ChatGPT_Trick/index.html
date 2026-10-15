@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Video Player</title>
+    <title>Video Page</title>
     <style>
         * {
             margin: 0;
@@ -13,60 +13,46 @@
 
         html, body {
             width: 100%;
-            height: 100%;
-            background-color: #000;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            min-height: 100vh;
+            background-image: url('chatgpt-bg.png');
+            background-size: 100% auto;
+            background-repeat: repeat-y;
+            background-position: top center;
+            background-color: #ffffff;
         }
 
-        .container {
-            width: 1320px;
-            height: 2868px;
-            max-width: 100vw;
-            max-height: 100vh;
-            aspect-ratio: 1320 / 2868;
-            position: relative;
-            background-color: #000;
+        .video-container {
+            width: 100%;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
         }
 
         video {
             width: 100%;
-            height: 100%;
-            object-fit: contain;
+            max-width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
             display: block;
         }
     </style>
 </head>
 <body>
 
-    <div class="container" id="videoContainer">
-        <video id="myVideo" src="Phone.mp4" playsinline webkit-playsinline></video>
+    <div class="video-container" id="videoContainer">
+        <video id="myVideo" src="Phone.mov#t=0.01" playsinline webkit-playsinline muted preload="auto"></video>
     </div>
 
     <script>
-        const container = document.getElementById('videoContainer');
         const video = document.getElementById('myVideo');
 
-        // Play video and request fullscreen on the first touch/click anywhere
-        container.addEventListener('click', () => {
+        // Play video with audio on tap anywhere on the page
+        document.body.addEventListener('click', () => {
             if (video.paused) {
+                video.muted = false; // Enable audio upon user interaction
                 video.play().catch(error => {
                     console.log("Playback failed:", error);
                 });
-
-                // Request fullscreen if supported
-                if (container.requestFullscreen) {
-                    container.requestFullscreen().catch(err => {
-                        console.log("Fullscreen request failed:", err);
-                    });
-                } else if (container.webkitRequestFullscreen) {
-                    container.webkitRequestFullscreen();
-                }
             }
         });
     </script>
