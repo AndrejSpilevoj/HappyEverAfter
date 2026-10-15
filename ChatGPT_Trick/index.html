@@ -1,93 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff">
-    <title>ChatGPT</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 
-        html, body {
-            width: 100%;
-            min-height: 100vh;
-            background-image: url('chatgpt-bg.png');
-            background-size: 100% auto;
-            background-repeat: repeat-y;
-            background-position: top center;
-            background-color: #ffffff;
-        }
+<!-- iOS Standalone Web App Setup -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ChatGPT">
 
-        .page-container {
-            width: 100%;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            /* Adjust this padding-top to move the video up or down to align with your background */
-            padding-top: 15vh; 
-        }
+<title>ChatGPT</title>
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
 
-        .video-container {
-            width: 100%;
-            max-width: 600px; /* Limits max width on desktop so it looks like a phone screen, remove if you want it full width */
-            position: relative;
-        }
+#stage {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: env(safe-area-inset-top, 0px);
+    overflow: hidden;
+}
 
-        video {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
-            display: block;
-            border: none;
-            outline: none;
-        }
+/* ChatGPT Background Image */
+.bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    -webkit-user-drag: none;
+    pointer-events: none;
+    z-index: 1;
+}
 
-        /* Fullscreen invisible touch trigger */
-        .click-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 9999;
-            background: transparent;
-            cursor: pointer;
-        }
-
-        .click-overlay.hidden {
-            display: none;
-        }
-    </style>
+/* Square Video Element positioned precisely in the center area */
+#myVideo {
+    position: absolute;
+    left: 50%;
+    top: 18%; /* Adjust this percentage to shift the video vertically into place */
+    transform: translateX(-50%);
+    width: 80%; /* Matches your preferred width proportion */
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    z-index: 2;
+    pointer-events: auto;
+    border: none;
+    outline: none;
+    background: transparent;
+    -webkit-appearance: none;
+}
+</style>
 </head>
 <body>
 
-    <div class="click-overlay" id="tapOverlay"></div>
+<div id="stage">
+    <!-- Background Screen Template -->
+    <img src="chatgpt-bg.png" class="bg-image" alt="ChatGPT Background">
 
-    <div class="page-container">
-        <div class="video-container">
-            <video id="myVideo" src="Phone.mov#t=0.001" playsinline webkit-playsinline muted preload="auto"></video>
-        </div>
-    </div>
+    <!-- Square Video Element -->
+    <video id="myVideo" src="Phone.mov#t=0.001" playsinline webkit-playsinline muted preload="auto"></video>
+</div>
 
-    <script>
-        const video = document.getElementById('myVideo');
-        const overlay = document.getElementById('tapOverlay');
+<script>
+const video = document.getElementById('myVideo');
 
-        overlay.addEventListener('click', () => {
-            video.muted = false; // Enable audio
-            video.play().then(() => {
-                overlay.classList.add('hidden');
-            }).catch(error => {
-                console.log("Playback failed:", error);
-            });
+// Play video with audio and disable mute on the first touch anywhere
+window.addEventListener('touchend', () => {
+    if (video.paused) {
+        video.muted = false;
+        video.play().catch(error => {
+            console.log("Playback failed:", error);
         });
-    </script>
+    }
+}, { once: true });
+</script>
 
 </body>
 </html>
