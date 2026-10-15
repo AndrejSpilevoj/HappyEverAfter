@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Video Player</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 1320px;
+            height: 2868px;
+            max-width: 100vw;
+            max-height: 100vh;
+            aspect-ratio: 1320 / 2868;
+            position: relative;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="videoContainer">
+        <video id="myVideo" src="Phone.mp4" playsinline webkit-playsinline></video>
+    </div>
+
+    <script>
+        const container = document.getElementById('videoContainer');
+        const video = document.getElementById('myVideo');
+
+        // Play video and request fullscreen on the first touch/click anywhere
+        container.addEventListener('click', () => {
+            if (video.paused) {
+                video.play().catch(error => {
+                    console.log("Playback failed:", error);
+                });
+
+                // Request fullscreen if supported
+                if (container.requestFullscreen) {
+                    container.requestFullscreen().catch(err => {
+                        console.log("Fullscreen request failed:", err);
+                    });
+                } else if (container.webkitRequestFullscreen) {
+                    container.webkitRequestFullscreen();
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
