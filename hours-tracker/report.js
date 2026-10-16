@@ -91,10 +91,13 @@
       sum += dur;
       ws.getCell("B" + r).value = (i + 1) + ".";
       ws.getCell("C" + r).value = y + "." + m + "." + d;
-      ws.getCell("D" + r).value = person.name;
+      ws.getCell("D" + r).value = (e.vol && e.vol.trim()) || person.name;
       ws.getCell("E" + r).value = from / 1440;  ws.getCell("E" + r).numFmt = "h:mm";
       ws.getCell("F" + r).value = to / 1440;    ws.getCell("F" + r).numFmt = "h:mm";
       ws.getCell("G" + r).value = person.code || null;
+      const text = (e.text || "").trim();
+      ws.getCell("H" + r).value = text || null;                       // H:I are merged in the template
+      if (text.length > 80) ws.getRow(r).height = 13.5 * Math.ceil(text.length / 80) + 2;
       ws.getCell("J" + r).value = dur / 1440;   ws.getCell("J" + r).numFmt = "[h]:mm";
     });
 
