@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Stiprybės Tinklas (ataskaita)</title>
+<title>Valandų apskaita</title>
 <style>
   :root{ --text:#5d6472; --muted:#8d93a0; --line:rgba(255,255,255,.55); --glass:rgba(255,255,255,.38); }
   *{box-sizing:border-box}
@@ -49,9 +49,18 @@
     background:rgba(255,255,255,.55); border:1px solid var(--line); border-radius:16px; outline:none;
     box-shadow:inset 0 1px 3px rgba(120,130,145,.12);
   }
+  input[type=text]{
+    padding:14px 16px; font-size:16px; font-family:inherit; color:var(--text); width:100%;
+    background:rgba(255,255,255,.55); border:1px solid var(--line); border-radius:16px; outline:none;
+    box-shadow:inset 0 1px 3px rgba(120,130,145,.12);
+  }
+  input[type=text]::placeholder{color:#a9afba}
+  input[type=text]:focus{background:rgba(255,255,255,.8); border-color:#fff}
+  .grow{flex:1 1 260px}
+  .row .submit{margin-left:0}
   input[type=time]{width:130px}
   input[type=date]{width:178px; font-size:16px}
-  input:focus{background:rgba(255,255,255,.8); border-color:#fff}
+  input[type=time]:focus,input[type=date]:focus,input[type=password]:focus{background:rgba(255,255,255,.8); border-color:#fff}
   .dash{font-size:24px; padding-bottom:10px; color:var(--muted)}
   .dur{padding-bottom:12px; font-size:14px; color:var(--muted); min-width:90px}
   .dur b{color:var(--text); font-size:18px; font-weight:600}
@@ -110,6 +119,12 @@
       <div class="dash">–</div>
       <label class="field"><span>Iki</span><input type="time" id="to" value="00:00"></label>
       <div class="dur">Trukmė<br><b id="dur">0:00</b></div>
+      <label class="field grow" id="volBox" style="display:none"><span>Savanorio vardas, pavardė</span>
+        <input type="text" id="vol" maxlength="80" autocomplete="off" placeholder="Vardas Pavardė"></label>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <label class="field grow"><span>Atlikti darbai (trumpai aprašykite veiklą)</span>
+        <input type="text" id="text" maxlength="400" autocomplete="off" placeholder="Pvz.: Konsultavau 2 asmenis dėl būsto nuomos ir kompensacijų"></label>
       <button class="submit" id="go">Pateikti</button>
     </div>
     <div id="msg"></div>
@@ -135,7 +150,7 @@
 <script>
 // ====== CONFIG ======
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOiZTxP1gi1INvdPnLtQSw5BDp66IT8FolrsQXSix2FBtZkfPL6B2z2C93nPcoTT8xWw/exec";   // Apps Script web app URL (ends with /exec)
-const MONTHS_SHOWN = 7;                          // columns in the summary table
+const MONTHS_SHOWN = 7;                         // columns in the summary table
 // ====================
 const DEMO = new URLSearchParams(location.search).has("demo") || SCRIPT_URL.startsWith("PASTE");
 const T = Tracker;
@@ -165,7 +180,7 @@ async function api(payload){
   if (DEMO) {
     if (payload.action==="data") return {ok:true,people:demo.people,log:demo.log};
     const mins = T.toMin(payload.to)-T.toMin(payload.from);
-    demo.log.push({person:payload.person,date:payload.date,from:payload.from,to:payload.to,min:mins});
+    demo.log.push({person:payload.person,date:payload.date,from:payload.from,to:payload.to,min:mins,text:payload.text,vol:payload.vol});
     return {ok:true,min:mins};
   }
   const r = await fetch(SCRIPT_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
@@ -200,7 +215,7 @@ function renderNames(){
     const b=document.createElement("button");
     b.className="chip"+(i===sel?" on":"");
     b.innerHTML=`${p.name}<small>${p.role?"("+p.role+")":""}</small>`;
-    b.onclick=()=>{sel=i;renderNames()};
+    b.onclick=()=>{sel=i;renderNames();$("volBox").style.display=people[i].id==="savanoriai"?"flex":"none"};
     box.appendChild(b);
   });
 }
@@ -244,13 +259,16 @@ $("go").onclick=async()=>{
   if(d<=0){msg.style.color="#b08a7a";msg.textContent="Įveskite laiką: „Iki“ turi būti vėlesnis nei „Nuo“.";return}
   if(!$("d").value){msg.style.color="#b08a7a";msg.textContent="Pasirinkite datą.";return}
   const p=people[sel], date=$("d").value, from=$("from").value, to=$("to").value;
+  const text=$("text").value.trim(), vol=$("vol").value.trim(), isVol=p.id==="savanoriai";
+  if(!text){msg.style.color="#b08a7a";msg.textContent="Aprašykite atliktus darbus.";return}
+  if(isVol&&!vol){msg.style.color="#b08a7a";msg.textContent="Įveskite savanorio vardą ir pavardę.";return}
   $("go").disabled=true; msg.style.color="#8d93a0"; msg.textContent="Saugoma…";
   try{
-    const r=await call({action:"add",person:p.id,date,from,to});
+    const r=await call({action:"add",person:p.id,date,from,to,text,vol:isVol?vol:""});
     if(!r||!r.ok) throw new Error(r&&r.error||"klaida");
     msg.style.color="#7f9a86";
-    msg.textContent=`Išsaugota: ${plain(p)} · ${date} · ${from}–${to} · ${T.fmt(d)} val.`;
-    $("from").value="00:00"; $("to").value="00:00"; duration();
+    msg.textContent=`Išsaugota: ${plain(p)}${isVol?" – "+vol:""} · ${date} · ${from}–${to} · ${T.fmt(d)} val.`;
+    $("from").value="00:00"; $("to").value="00:00"; $("text").value=""; $("vol").value=""; duration();
     await load();
   }catch(e){ msg.style.color="#b08a7a"; msg.textContent="Nepavyko išsaugoti: "+e.message; }
   $("go").disabled=false;
