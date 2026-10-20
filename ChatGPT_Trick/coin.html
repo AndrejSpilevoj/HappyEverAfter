@@ -122,9 +122,9 @@ let revealDelayTimer = null;
 let isWaitingForReveal = false;
 
 const SHAKE_THRESHOLD = 25;
-const EXIT_UNLOCK_MS = 5000;   // coin may leave the screen this long after appearing
+const HOLD_TO_RELEASE_MS = 1500; // hold the coin this long to "break the walls"
 const EXIT_SOUND_VISIBLE = 0.10; // play coin.mp3 when only this fraction is still visible
-let exitUnlockTimer = null;
+let holdTimer = null;
 let exitSoundPlayed = false;
 
 // ---- Web Audio: cling.mp3 decoded once, plays with minimal latency ----
@@ -249,9 +249,7 @@ function startMotion() {
     isUnlockedForExit = false;
     exitSoundPlayed = false;
 
-    // After 5 seconds the coin is free to leave the screen
-    clearTimeout(exitUnlockTimer);
-    exitUnlockTimer = setTimeout(() => { isUnlockedForExit = true; }, EXIT_UNLOCK_MS);
+    clearTimeout(holdTimer);
 
     playCoinSound();
     coin.style.opacity = '1';
@@ -269,10 +267,6 @@ window.addEventListener('touchend', (e) => {
     if (tapLength < 300 && tapLength > 0) {
         if (!isActivated) {
             startMotion(); // reveal instantly on double tap
-        }
-    } else {
-        if (isActivated) {
-            isUnlockedForExit = true;
         }
     }
     lastTapTime = currentTime;
@@ -296,6 +290,10 @@ coin.addEventListener('touchstart', (e) => {
 
     velX = 0;
     velY = 0;
+
+    // Holding the coin long enough breaks the walls
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(() => { isUnlockedForExit = true; }, HOLD_TO_RELEASE_MS);
 }, { passive: true });
 
 window.addEventListener('touchmove', (e) => {
@@ -321,11 +319,12 @@ window.addEventListener('touchmove', (e) => {
     lastTouchTime = now;
 }, { passive: true });
 
-window.addEventListener('touchend', () => {
-    if (isDragging) {
-        isDragging = false;
-    }
-});
+function releaseTouch() {
+    clearTimeout(holdTimer); // released before 1.5s: walls stay
+    isDragging = false;
+}
+window.addEventListener('touchend', releaseTouch);
+window.addEventListener('touchcancel', releaseTouch);
 
 window.addEventListener('touchstart', handleFirstTouch, { once: true });
 window.addEventListener('click', handleFirstTouch, { once: true });
