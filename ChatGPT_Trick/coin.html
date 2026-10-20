@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+<!-- iOS Standalone Web App Setup -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ChatGPT">
+
+<title>ChatGPT</title>
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffffff;
+    overflow: hidden;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+#stage {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: env(safe-area-inset-top, 0px);
+    overflow: hidden;
+}
+
+/* ChatGPT Background Image */
+.bg-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    -webkit-user-drag: none;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Square Video Element filling maximum horizontal width and centered vertically */
+#myVideo {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    z-index: 2;
+    pointer-events: auto;
+    border: none;
+    outline: none;
+    background: transparent;
+    -webkit-appearance: none;
+}
+
+/* Overlay Image (Coin) - Centered in the exact same location as the video */
+#coinOverlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    z-index: 3;
+    pointer-events: none;
+    display: none; /* Hidden by default until 5 seconds */
+}
+</style>
+</head>
+<body>
+
+<div id="stage">
+    <!-- Background Screen Template -->
+    <img src="chatgpt-bg.png" class="bg-image" alt="ChatGPT Background">
+
+    <!-- Square Video Element -->
+    <video id="myVideo" src="Coin.mov#t=0.001" playsinline webkit-playsinline muted preload="auto"></video>
+
+    <!-- Coin Image Overlay -->
+    <img id="coinOverlay" src="coin.png" alt="Coin Overlay">
+</div>
+
+<script>
+const video = document.getElementById('myVideo');
+const coinOverlay = document.getElementById('coinOverlay');
+
+const playVideo = () => {
+    if (video.paused) {
+        video.muted = false;
+        video.play().catch(error => {
+            console.log("Playback failed:", error);
+        });
+    }
+};
+
+// Reveal coin image when video reaches 5 seconds
+video.addEventListener('timeupdate', () => {
+    if (video.currentTime >= 5) {
+        coinOverlay.style.display = 'block';
+    } else {
+        coinOverlay.style.display = 'none';
+    }
+});
+
+window.addEventListener('touchstart', playVideo, { once: true });
+window.addEventListener('click', playVideo, { once: true });
+</script>
+
+</body>
+</html>
