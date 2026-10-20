@@ -97,13 +97,9 @@ html, body {
     <img id="coinOverlay" src="coin.png" alt="Coin Overlay">
 </div>
 
-<!-- Audio Elements -->
-<audio id="coinSound" src="coin.mp3" preload="auto"></audio>
-
 <script>
 const video = document.getElementById('myVideo');
 const coin = document.getElementById('coinOverlay');
-const coinSound = document.getElementById('coinSound');
 const stage = document.getElementById('stage');
 
 let posX = 0, posY = 0;
@@ -127,20 +123,24 @@ let isWaitingForReveal = false;
 
 const SHAKE_THRESHOLD = 25;
 
-// Audio Pool for instant zero-latency bounce sounds (cling.mp3)
-const clingPool = [];
-for (let i = 0; i < 4; i++) {
-    const audio = new Audio('cling.mp3');
-    audio.preload = 'auto';
-    clingPool.push(audio);
-}
-let clingPoolIndex = 0;
+// ---- Web Audio: cling.mp3 decoded once, plays with minimal latency ----
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+const audioCtx = new AudioCtx({ latencyHint: 'interactive' });
+let clingBuffer = null;
+
+fetch('cling.mp3')
+    .then(r => r.arrayBuffer())
+    .then(data => new Promise((res, rej) => audioCtx.decodeAudioData(data, res, rej)))
+    .then(buf => { clingBuffer = buf; })
+    .catch(err => console.error('cling.mp3 load failed:', err));
 
 function playInstantCling() {
-    const audio = clingPool[clingPoolIndex];
-    clingPoolIndex = (clingPoolIndex + 1) % clingPool.length;
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
+    if (!clingBuffer) return;
+    if (audioCtx.state !== 'running') audioCtx.resume();
+    const src = audioCtx.createBufferSource();
+    src.buffer = clingBuffer;
+    src.connect(audioCtx.destination);
+    src.start(0);
 }
 
 // Request orientation and motion permissions for iOS on first user gesture
@@ -183,18 +183,13 @@ const handleFirstTouch = () => {
         video.muted = false;
         video.play().catch(error => console.log("Playback failed:", error));
     }
-    // Unlock audio elements for iOS
-    coinSound.play().then(() => { coinSound.pause(); coinSound.currentTime = 0; }).catch(() => {});
-    clingPool.forEach(audio => {
-        audio.play().then(() => { audio.pause(); audio.currentTime = 0; }).catch(() => {});
-    });
+    audioCtx.resume(); // unlock Web Audio on iOS
 
     requestSensorsPermission();
 };
 
 function playCoinSound() {
-    coinSound.currentTime = 0;
-    coinSound.play().catch(error => console.log("Audio play blocked:", error));
+    playInstantCling(); // coin appearing now uses cling.mp3
 }
 
 function startMotion() {
@@ -212,8 +207,8 @@ function startMotion() {
     isActivated = true;
     gravityActivated = true;
     isDismissing = false;
-    isUnlockedForExit = false; 
-    
+    isUnlockedForExit = false;
+
     playCoinSound();
     coin.style.opacity = '1';
 
