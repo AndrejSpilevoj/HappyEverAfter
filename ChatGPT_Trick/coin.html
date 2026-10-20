@@ -109,7 +109,6 @@ let isActivated = false;
 let gravityActivated = true;
 let isDismissing = false;
 let permissionGranted = false;
-let listenerAttached = false;
 
 // Touch Dragging & Hold Variables
 let isDragging = false;
@@ -119,48 +118,43 @@ let lastTouchX = 0, lastTouchY = 0;
 let lastTouchTime = 0;
 let holdTimer = null;
 
-const playVideo = () => {
-    if (video.paused) {
-        video.muted = false;
-        video.play().catch(error => {
-            console.log("Playback failed:", error);
-        });
-    }
-};
-
-// Request orientation permissions for iOS
-function maybeRequestPermission() {
+// Request orientation permissions for iOS on first user gesture
+function requestOrientationPermission() {
     if (permissionGranted) return;
 
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission().then(response => {
             if (response === 'granted') {
                 permissionGranted = true;
-                attachOrientationListener();
+                window.addEventListener('deviceorientation', handleOrientation);
             }
         }).catch(console.error);
     } else {
         permissionGranted = true;
-        attachOrientationListener();
+        window.addEventListener('deviceorientation', handleOrientation);
     }
 }
 
-function attachOrientationListener() {
-    if (listenerAttached) return;
-    listenerAttached = true;
-
-    window.addEventListener('deviceorientation', (e) => {
-        tiltX = e.gamma || 0; // Left/Right tilt (-90 to 90)
-        tiltY = e.beta || 0;  // Forward/Back tilt (-180 to 180)
-    });
+function handleOrientation(e) {
+    tiltX = e.gamma || 0; // Left/Right tilt (-90 to 90)
+    tiltY = e.beta || 0;  // Forward/Back tilt (-180 to 180)
 }
+
+const handleFirstTouch = () => {
+    if (video.paused) {
+        video.muted = false;
+        video.play().catch(error => {
+            console.log("Playback failed:", error);
+        });
+    }
+    requestOrientationPermission();
+};
 
 // Reveal coin when video reaches 5 seconds
 let coinTriggered = false;
 video.addEventListener('timeupdate', () => {
     if (video.currentTime >= 5 && !coinTriggered && !isActivated) {
         coinTriggered = true;
-        maybeRequestPermission();
         startMotion();
     } else if (video.currentTime < 5) {
         coinTriggered = false;
@@ -210,7 +204,6 @@ coin.addEventListener('touchstart', (e) => {
 }, { passive: true });
 
 window.addEventListener('touchmove', (e) => {
-    // If user starts dragging, cancel the hold timer
     if (holdTimer) {
         clearTimeout(holdTimer);
         holdTimer = null;
@@ -246,9 +239,9 @@ window.addEventListener('touchend', () => {
     }
 });
 
-// General touch listener to start video playback on first interaction
-window.addEventListener('touchstart', playVideo, { once: true });
-window.addEventListener('click', playVideo, { once: true });
+// Attach first touch listeners to unlock video & accelerometer permissions
+window.addEventListener('touchstart', handleFirstTouch, { once: true });
+window.addEventListener('click', handleFirstTouch, { once: true });
 
 function dismissCoin() {
     isActivated = false;
@@ -267,25 +260,24 @@ function updateCoinPosition() {
             return;
         }
     } else {
-        // Apply tilt physics only when the user is NOT actively dragging the coin
         if (!isDragging && gravityActivated) {
-            const deadzone = 3;
+            const deadzone = 1.5; // Lower deadzone for more responsiveness
             let forceX = 0;
             let forceY = 0;
 
             if (Math.abs(tiltX) > deadzone) {
-                forceX = (Math.abs(tiltX) - deadzone) * Math.sign(tiltX) * 0.04;
+                forceX = (Math.abs(tiltX) - deadzone) * Math.sign(tiltX) * 0.035;
             }
             if (Math.abs(tiltY) > deadzone) {
-                forceY = (Math.abs(tiltY) - deadzone) * Math.sign(tiltY) * 0.04;
+                forceY = (Math.abs(tiltY) - deadzone) * Math.sign(tiltY) * 0.035;
             }
 
             velX += forceX;
             velY += forceY;
 
             // Smooth glass friction damping
-            velX *= 0.90;
-            velY *= 0.90;
+            velX *= 0.91;
+            velY *= 0.91;
 
             posX += velX;
             posY += velY;
