@@ -64,18 +64,19 @@ html, body {
     -webkit-appearance: none;
 }
 
-/* Overlay Image (Coin) - Centered, scaled 10% smaller than previous (36%) */
+/* Overlay Image (Coin) - Centered, scaled 36% with physics */
 #coinOverlay {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
     width: 36%;
     aspect-ratio: 1 / 1;
     object-fit: contain;
     z-index: 3;
-    pointer-events: none;
-    display: none; /* Hidden by default until 5 seconds */
+    pointer-events: auto;
+    will-change: transform;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+    filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
+    touch-action: none;
 }
 </style>
 </head>
@@ -94,8 +95,26 @@ html, body {
 
 <script>
 const video = document.getElementById('myVideo');
-const coinOverlay = document.getElementById('coinOverlay');
-let coinDismissed = false;
+const coin = document.getElementById('coinOverlay');
+const stage = document.getElementById('stage');
+
+let posX = 0, posY = 0;
+let velX = 0, velY = 0;
+let tiltX = 0, tiltY = 0;
+let initialTiltX = 0, initialTiltY = 0;
+let isActivated = false;
+let gravityActivated = false;
+let isDismissing = false;
+let permissionGranted = false;
+let listenerAttached = false;
+
+// Touch Dragging & Hold Variables
+let isDragging = false;
+let dragStartX = 0, dragStartY = 0;
+let initialCoinX = 0, initialCoinY = 0;
+let lastTouchX = 0, lastTouchY = 0;
+let lastTouchTime = 0;
+let holdTimer = null;
 
 const playVideo = () => {
     if (video.paused) {
@@ -106,29 +125,201 @@ const playVideo = () => {
     }
 };
 
-// Reveal coin image when video reaches 5 seconds
+// Request orientation permissions for iOS
+function maybeRequestPermission() {
+    if (permissionGranted) return;
+
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission().then(response => {
+            if (response === 'granted') {
+                permissionGranted = true;
+                attachOrientationListener();
+            }
+        }).catch(console.error);
+    } else {
+        permissionGranted = true;
+        attachOrientationListener();
+    }
+}
+
+function attachOrientationListener() {
+    if (listenerAttached) return;
+    listenerAttached = true;
+
+    window.addEventListener('deviceorientation', (e) => {
+        tiltX = e.gamma || 0; // Left/Right tilt
+        tiltY = e.beta || 0;  // Forward/Back tilt
+    });
+}
+
+// Reveal coin when video reaches 5 seconds
+let coinTriggered = false;
 video.addEventListener('timeupdate', () => {
-    if (video.currentTime >= 5 && !coinDismissed) {
-        coinOverlay.style.display = 'block';
+    if (video.currentTime >= 5 && !coinTriggered && !isActivated) {
+        coinTriggered = true;
+        maybeRequestPermission();
+        startMotion();
     } else if (video.currentTime < 5) {
-        coinOverlay.style.display = 'none';
-        coinDismissed = false; // Reset if video loops or rewinds
+        coinTriggered = false;
     }
 });
 
-// Hide coin image on touch/click
-const hideCoin = () => {
-    if (coinOverlay.style.display === 'block') {
-        coinOverlay.style.display = 'none';
-        coinDismissed = true; // Keeps it hidden even as timeupdate continues firing
-    }
-};
+function startMotion() {
+    posX = (stage.clientWidth - coin.clientWidth) / 2;
+    posY = (stage.clientHeight - coin.clientHeight) / 2;
 
+    velX = 0;
+    velY = 0;
+
+    initialTiltX = tiltX;
+    initialTiltY = tiltY;
+
+    isActivated = true;
+    gravityActivated = false;
+    isDismissing = false;
+    coin.style.opacity = '1';
+
+    requestAnimationFrame(updateCoinPosition);
+}
+
+// Coin Touch & Hold Events
+coin.addEventListener('touchstart', (e) => {
+    if (!isActivated || isDismissing) return;
+
+    gravityActivated = true;
+    isDragging = true;
+    const touch = e.touches[0];
+
+    dragStartX = touch.clientX;
+    dragStartY = touch.clientY;
+    initialCoinX = posX;
+    initialCoinY = posY;
+
+    lastTouchX = touch.clientX;
+    lastTouchY = touch.clientY;
+    lastTouchTime = performance.now();
+
+    velX = 0;
+    velY = 0;
+
+    // Start 2-second hold timer (disappears only if held still without moving)
+    holdTimer = setTimeout(() => {
+        dismissCoin();
+    }, 2000);
+}, { passive: true });
+
+window.addEventListener('touchmove', (e) => {
+    // If user moves/drags, cancel the 2-second hold timer
+    if (holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+    }
+
+    if (!isDragging || !isActivated || isDismissing) return;
+
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - dragStartX;
+    const deltaY = touch.clientY - dragStartY;
+
+    posX = initialCoinX + deltaX;
+    posY = initialCoinY + deltaY;
+
+    const now = performance.now();
+    const dt = (now - lastTouchTime) || 16;
+    velX = ((touch.clientX - lastTouchX) / dt) * 8;
+    velY = ((touch.clientY - lastTouchY) / dt) * 8;
+
+    lastTouchX = touch.clientX;
+    lastTouchY = touch.clientY;
+    lastTouchTime = now;
+}, { passive: true });
+
+window.addEventListener('touchend', () => {
+    if (holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+    }
+
+    if (isDragging) {
+        isDragging = false;
+    }
+});
+
+// General touch listener to start video playback on first interaction
 window.addEventListener('touchstart', playVideo, { once: true });
 window.addEventListener('click', playVideo, { once: true });
 
-window.addEventListener('touchstart', hideCoin);
-window.addEventListener('click', hideCoin);
+function dismissCoin() {
+    isActivated = false;
+    isDismissing = false;
+    coin.style.opacity = '0';
+}
+
+function updateCoinPosition() {
+    if (!isActivated) return;
+
+    if (isDismissing) {
+        posX += velX;
+        posY += velY;
+        // Check if fully off screen
+        if (posX < -coin.clientWidth || posX > stage.clientWidth || posY < -coin.clientHeight || posY > stage.clientHeight) {
+            dismissCoin();
+            return;
+        }
+    } else {
+        if (!gravityActivated) {
+            const deltaX = Math.abs(tiltX - initialTiltX);
+            const deltaY = Math.abs(tiltY - initialTiltY);
+
+            if (deltaX > 3 || deltaY > 3) {
+                gravityActivated = true;
+            }
+        }
+
+        if (!isDragging && gravityActivated) {
+            // Gentle "sliding on glass" forces (low multiplier & high friction)
+            const deltaX = tiltX - initialTiltX;
+            const deltaY = tiltY - initialTiltY;
+            const deadzone = 4;
+
+            let forceX = 0;
+            let forceY = 0;
+
+            if (Math.abs(deltaX) > deadzone) {
+                forceX = (Math.abs(deltaX) - deadzone) * Math.sign(deltaX) * 0.015;
+            }
+            if (Math.abs(deltaY) > deadzone) {
+                forceY = (Math.abs(deltaY) - deadzone) * Math.sign(deltaY) * 0.015;
+            }
+
+            velX += forceX;
+            velY += forceY;
+
+            // Glass friction damping
+            velX *= 0.92;
+            velY *= 0.92;
+
+            posX += velX;
+            posY += velY;
+
+            // Left wall boundary (bounce back)
+            if (posX < 0) {
+                posX = 0;
+                velX *= -0.2;
+            }
+
+            // Exit triggers for Right, Top (back tilt), and Bottom (front tilt)
+            if (posX > stage.clientWidth - coin.clientWidth/2 || posY < -coin.clientHeight/2 || posY > stage.clientHeight - coin.clientHeight/2) {
+                isDismissing = true;
+            }
+        }
+    }
+
+    // Gentle spin/tilt effect based on velocity
+    coin.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.5}deg)`;
+
+    requestAnimationFrame(updateCoinPosition);
+}
 </script>
 
 </body>
