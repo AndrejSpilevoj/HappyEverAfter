@@ -122,6 +122,10 @@ let revealDelayTimer = null;
 let isWaitingForReveal = false;
 
 const SHAKE_THRESHOLD = 25;
+const EXIT_UNLOCK_MS = 5000;   // coin may leave the screen this long after appearing
+const EXIT_SOUND_VISIBLE = 0.10; // play coin.mp3 when only this fraction is still visible
+let exitUnlockTimer = null;
+let exitSoundPlayed = false;
 
 // ---- Web Audio: cling.mp3 decoded once, plays with minimal latency ----
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -243,6 +247,11 @@ function startMotion() {
     gravityActivated = true;
     isDismissing = false;
     isUnlockedForExit = false;
+    exitSoundPlayed = false;
+
+    // After 5 seconds the coin is free to leave the screen
+    clearTimeout(exitUnlockTimer);
+    exitUnlockTimer = setTimeout(() => { isUnlockedForExit = true; }, EXIT_UNLOCK_MS);
 
     playCoinSound();
     coin.style.opacity = '1';
@@ -258,13 +267,8 @@ window.addEventListener('touchend', (e) => {
     const tapLength = currentTime - lastTapTime;
 
     if (tapLength < 300 && tapLength > 0) {
-        if (!isActivated && !isWaitingForReveal) {
-            isWaitingForReveal = true;
-            clearTimeout(revealDelayTimer);
-            revealDelayTimer = setTimeout(() => {
-                isWaitingForReveal = false;
-                startMotion();
-            }, 2000);
+        if (!isActivated) {
+            startMotion(); // reveal instantly on double tap
         }
     } else {
         if (isActivated) {
@@ -344,6 +348,17 @@ function updateCoinPosition() {
         posX += velX;
         posY += velY;
 
+        // Play coin.mp3 once, when only the last 10% of the coin is visible
+        if (!exitSoundPlayed) {
+            const w = coin.clientWidth, h = coin.clientHeight;
+            const visW = Math.max(0, Math.min(posX + w, stage.clientWidth) - Math.max(posX, 0));
+            const visH = Math.max(0, Math.min(posY + h, stage.clientHeight) - Math.max(posY, 0));
+            if ((visW * visH) / (w * h) <= EXIT_SOUND_VISIBLE) {
+                exitSoundPlayed = true;
+                playExitSound();
+            }
+        }
+
         if (posX < -coin.clientWidth * 2 || posX > stage.clientWidth * 2 || posY < -coin.clientHeight * 2 || posY > stage.clientHeight * 2) {
             dismissCoin();
             return;
@@ -415,7 +430,6 @@ function updateCoinPosition() {
             } else {
                 if (posX > maxX || posY < 0 || posY > maxY) {
                     isDismissing = true;
-                    playExitSound(); // coin.mp3 as the coin leaves the screen
                 }
             }
         }
