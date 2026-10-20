@@ -64,13 +64,13 @@ html, body {
     -webkit-appearance: none;
 }
 
-/* Overlay Image (Coin) - Centered and scaled 2x smaller */
+/* Overlay Image (Coin) - Centered, scaled 20% smaller (40%) */
 #coinOverlay {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: 50%;
+    width: 40%;
     aspect-ratio: 1 / 1;
     object-fit: contain;
     z-index: 3;
@@ -95,6 +95,7 @@ html, body {
 <script>
 const video = document.getElementById('myVideo');
 const coinOverlay = document.getElementById('coinOverlay');
+let coinDismissed = false;
 
 const playVideo = () => {
     if (video.paused) {
@@ -107,15 +108,27 @@ const playVideo = () => {
 
 // Reveal coin image when video reaches 5 seconds
 video.addEventListener('timeupdate', () => {
-    if (video.currentTime >= 5) {
+    if (video.currentTime >= 5 && !coinDismissed) {
         coinOverlay.style.display = 'block';
-    } else {
+    } else if (video.currentTime < 5) {
         coinOverlay.style.display = 'none';
+        coinDismissed = false; // Reset if video loops or rewinds
     }
 });
 
+// Hide coin image on touch/click
+const hideCoin = () => {
+    if (coinOverlay.style.display === 'block') {
+        coinOverlay.style.display = 'none';
+        coinDismissed = true; // Keeps it hidden even as timeupdate continues firing
+    }
+};
+
 window.addEventListener('touchstart', playVideo, { once: true });
 window.addEventListener('click', playVideo, { once: true });
+
+window.addEventListener('touchstart', hideCoin);
+window.addEventListener('click', hideCoin);
 </script>
 
 </body>
