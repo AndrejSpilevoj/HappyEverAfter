@@ -134,23 +134,44 @@ fetch('cling.mp3')
     .then(buf => { clingBuffer = buf; })
     .catch(err => console.error('cling.mp3 load failed:', err));
 
-function playInstantCling() {
-    if (!clingBuffer) return;
+let coinBuffer = null;
+
+fetch('coin.mp3')
+    .then(r => r.arrayBuffer())
+    .then(data => new Promise((res, rej) => audioCtx.decodeAudioData(data, res, rej)))
+    .then(buf => { coinBuffer = buf; })
+    .catch(err => console.error('coin.mp3 load failed:', err));
+
+function playBuffer(buffer) {
+    if (!buffer) return;
     if (audioCtx.state !== 'running') audioCtx.resume();
     const src = audioCtx.createBufferSource();
-    src.buffer = clingBuffer;
+    src.buffer = buffer;
     src.connect(audioCtx.destination);
     src.start(0);
 }
+
+function playInstantCling() { playBuffer(clingBuffer); }
+function playExitSound() { playBuffer(coinBuffer); }
 
 // Wall contact tracking: cling plays once per new touch, not while resting/sliding
 const contact = { l: false, r: false, t: false, b: false };
 const WALL_RELEASE = 4; // px the coin must move away before the wall "resets"
 
-function wallHit(side, vel) {
+// Rotation physics (degrees per frame)
+let angle = 0, angVel = 0;
+const SPIN_DAMPING = 0.985; // closer to 1 = spins longer
+const MAX_SPIN = 25;
+const SPIN_DIR = { l: -1, r: 1, t: 1, b: -1 }; // wall friction spin direction
+
+function wallHit(side, vel, tangent) {
     if (!contact[side]) {
         contact[side] = true;
-        if (Math.abs(vel) > 0.4) playInstantCling();
+        const speed = Math.abs(vel);
+        if (speed > 0.4) playInstantCling();
+        // Impact spin: from sliding along the wall + a small random kick
+        angVel += SPIN_DIR[side] * tangent * 0.8;
+        angVel += (Math.random() < 0.5 ? -1 : 1) * speed * 0.6;
     }
 }
 
@@ -215,6 +236,8 @@ function startMotion() {
     velX = 0;
     velY = 0;
     contact.l = contact.r = contact.t = contact.b = false;
+    angle = 0;
+    angVel = 0;
 
     isActivated = true;
     gravityActivated = true;
@@ -286,6 +309,9 @@ window.addEventListener('touchmove', (e) => {
     velX = ((touch.clientX - lastTouchX) / dt) * 8;
     velY = ((touch.clientY - lastTouchY) / dt) * 8;
 
+    // Flicking the coin gives it spin (direction follows horizontal flick)
+    angVel += velX * 0.08;
+
     lastTouchX = touch.clientX;
     lastTouchY = touch.clientY;
     lastTouchTime = now;
@@ -344,10 +370,19 @@ function updateCoinPosition() {
             posX += velX;
             posY += velY;
 
+            // Continuous wall friction: sliding along a wall keeps nudging the spin
+            if (contact.l) angVel += SPIN_DIR.l * velY * 0.05;
+            if (contact.r) angVel += SPIN_DIR.r * velY * 0.05;
+            if (contact.t) angVel += SPIN_DIR.t * velX * 0.05;
+            if (contact.b) angVel += SPIN_DIR.b * velX * 0.05;
+
+            // Free sliding on glass: slight spin from acceleration
+            angVel += (forceX * 0.15);
+
             // Left Wall (cling only on a NEW contact)
             if (posX < 0) {
                 posX = 0;
-                wallHit('l', velX);
+                wallHit('l', velX, velY);
                 velX *= -0.25;
             } else if (posX > WALL_RELEASE) {
                 contact.l = false;
@@ -356,21 +391,21 @@ function updateCoinPosition() {
             if (!isUnlockedForExit) {
                 if (posX > maxX) {
                     posX = maxX;
-                    wallHit('r', velX);
+                    wallHit('r', velX, velY);
                     velX *= -0.25;
                 } else if (posX < maxX - WALL_RELEASE) {
                     contact.r = false;
                 }
                 if (posY < 0) {
                     posY = 0;
-                    wallHit('t', velY);
+                    wallHit('t', velY, velX);
                     velY *= -0.25;
                 } else if (posY > WALL_RELEASE) {
                     contact.t = false;
                 }
                 if (posY > maxY) {
                     posY = maxY;
-                    wallHit('b', velY);
+                    wallHit('b', velY, velX);
                     velY *= -0.25;
                 } else if (posY < maxY - WALL_RELEASE) {
                     contact.b = false;
@@ -378,12 +413,20 @@ function updateCoinPosition() {
             } else {
                 if (posX > maxX || posY < 0 || posY > maxY) {
                     isDismissing = true;
+                    playExitSound(); // coin.mp3 as the coin leaves the screen
                 }
             }
         }
     }
 
-    coin.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${velX * 0.5}deg)`;
+    // Spin momentum: decays slowly (glass friction)
+    angVel *= SPIN_DAMPING;
+    if (angVel > MAX_SPIN) angVel = MAX_SPIN;
+    if (angVel < -MAX_SPIN) angVel = -MAX_SPIN;
+    if (Math.abs(angVel) < 0.01) angVel = 0;
+    angle = (angle + angVel) % 360;
+
+    coin.style.transform = `translate3d(${posX}px, ${posY}px, 0) rotate(${angle}deg)`;
 
     requestAnimationFrame(updateCoinPosition);
 }
