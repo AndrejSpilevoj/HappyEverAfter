@@ -160,8 +160,8 @@ const WALL_RELEASE = 4; // px the coin must move away before the wall "resets"
 
 // Rotation physics (degrees per frame)
 let angle = 0, angVel = 0;
-const SPIN_DAMPING = 0.985; // closer to 1 = spins longer
-const MAX_SPIN = 25;
+const SPIN_DAMPING = 0.96; // closer to 1 = spins longer
+const MAX_SPIN = 4;
 const SPIN_DIR = { l: -1, r: 1, t: 1, b: -1 }; // wall friction spin direction
 
 function wallHit(side, vel, tangent) {
@@ -169,9 +169,9 @@ function wallHit(side, vel, tangent) {
         contact[side] = true;
         const speed = Math.abs(vel);
         if (speed > 0.4) playInstantCling();
-        // Impact spin: from sliding along the wall + a small random kick
-        angVel += SPIN_DIR[side] * tangent * 0.8;
-        angVel += (Math.random() < 0.5 ? -1 : 1) * speed * 0.6;
+        // Hitting a wall stops most of the spin; only a tiny bit from sliding
+        angVel *= 0.2;
+        angVel += SPIN_DIR[side] * tangent * 0.03;
     }
 }
 
@@ -310,7 +310,7 @@ window.addEventListener('touchmove', (e) => {
     velY = ((touch.clientY - lastTouchY) / dt) * 8;
 
     // Flicking the coin gives it spin (direction follows horizontal flick)
-    angVel += velX * 0.08;
+    angVel += velX * 0.01;
 
     lastTouchX = touch.clientX;
     lastTouchY = touch.clientY;
@@ -371,13 +371,15 @@ function updateCoinPosition() {
             posY += velY;
 
             // Continuous wall friction: sliding along a wall keeps nudging the spin
-            if (contact.l) angVel += SPIN_DIR.l * velY * 0.05;
-            if (contact.r) angVel += SPIN_DIR.r * velY * 0.05;
-            if (contact.t) angVel += SPIN_DIR.t * velX * 0.05;
-            if (contact.b) angVel += SPIN_DIR.b * velX * 0.05;
+            if (contact.l) angVel += SPIN_DIR.l * velY * 0.01;
+            if (contact.r) angVel += SPIN_DIR.r * velY * 0.01;
+            if (contact.t) angVel += SPIN_DIR.t * velX * 0.01;
+            if (contact.b) angVel += SPIN_DIR.b * velX * 0.01;
 
-            // Free sliding on glass: slight spin from acceleration
-            angVel += (forceX * 0.15);
+            // Subtle spin only while flying free (not touching any wall)
+            if (!(contact.l || contact.r || contact.t || contact.b)) {
+                angVel += velX * 0.006;
+            }
 
             // Left Wall (cling only on a NEW contact)
             if (posX < 0) {
@@ -420,7 +422,8 @@ function updateCoinPosition() {
     }
 
     // Spin momentum: decays slowly (glass friction)
-    angVel *= SPIN_DAMPING;
+    const touchingWall = contact.l || contact.r || contact.t || contact.b;
+    angVel *= touchingWall ? 0.88 : SPIN_DAMPING; // wall friction kills spin fast
     if (angVel > MAX_SPIN) angVel = MAX_SPIN;
     if (angVel < -MAX_SPIN) angVel = -MAX_SPIN;
     if (Math.abs(angVel) < 0.01) angVel = 0;
