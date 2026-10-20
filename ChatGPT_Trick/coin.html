@@ -90,16 +90,20 @@ html, body {
     <!-- Background Screen Template -->
     <img src="chatgpt-bg.png" class="bg-image" alt="ChatGPT Background">
 
-    <!-- Square Video Element -->
-    <video id="myVideo" src="Coin.mov#t=0.001" playsinline webkit-playsinline muted preload="auto"></video>
+    <!-- Square Video Element with Loop -->
+    <video id="myVideo" src="Coin.mov#t=0.001" playsinline webkit-playsinline muted loop preload="auto"></video>
 
     <!-- Coin Image Overlay -->
     <img id="coinOverlay" src="coin.png" alt="Coin Overlay">
 </div>
 
+<!-- Audio Element for Coin Sound Effect -->
+<audio id="coinSound" src="coin.mp3" preload="auto"></audio>
+
 <script>
 const video = document.getElementById('myVideo');
 const coin = document.getElementById('coinOverlay');
+const coinSound = document.getElementById('coinSound');
 const stage = document.getElementById('stage');
 
 let posX = 0, posY = 0;
@@ -117,6 +121,7 @@ let initialCoinX = 0, initialCoinY = 0;
 let lastTouchX = 0, lastTouchY = 0;
 let lastTouchTime = 0;
 let holdTimer = null;
+let lastTapTime = 0;
 
 // Request orientation permissions for iOS on first user gesture
 function requestOrientationPermission() {
@@ -143,14 +148,24 @@ function handleOrientation(e) {
 const handleFirstTouch = () => {
     if (video.paused) {
         video.muted = false;
-        video.play().catch(error => {
-            console.log("Playback failed:", error);
-        });
+        video.play().catch(error => console.log("Playback failed:", error));
     }
+    // Prepare audio for iOS touch unlock
+    coinSound.play().then(() => {
+        coinSound.pause();
+        coinSound.currentTime = 0;
+    }).catch(() => {});
+
     requestOrientationPermission();
 };
 
-// Reveal coin when video reaches 5 seconds
+// Play sound effect when coin appears
+function playCoinSound() {
+    coinSound.currentTime = 0;
+    coinSound.play().catch(error => console.log("Audio play blocked:", error));
+}
+
+// Reveal coin when video reaches 5 seconds (first pass)
 let coinTriggered = false;
 video.addEventListener('timeupdate', () => {
     if (video.currentTime >= 5 && !coinTriggered && !isActivated) {
@@ -173,8 +188,22 @@ function startMotion() {
     isDismissing = false;
     coin.style.opacity = '1';
 
+    playCoinSound();
+
     requestAnimationFrame(updateCoinPosition);
 }
+
+// Double-Tap Listener to Reveal Coin Unlimited Times
+window.addEventListener('touchend', (e) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTapTime;
+
+    if (tapLength < 300 && tapLength > 0) {
+        // Double-tap detected
+        startMotion();
+    }
+    lastTapTime = currentTime;
+});
 
 // Touch & Drag Events
 coin.addEventListener('touchstart', (e) => {
@@ -239,7 +268,7 @@ window.addEventListener('touchend', () => {
     }
 });
 
-// Attach first touch listeners to unlock video & accelerometer permissions
+// Attach first touch listeners to unlock video, audio & accelerometer permissions
 window.addEventListener('touchstart', handleFirstTouch, { once: true });
 window.addEventListener('click', handleFirstTouch, { once: true });
 
@@ -261,7 +290,7 @@ function updateCoinPosition() {
         }
     } else {
         if (!isDragging && gravityActivated) {
-            const deadzone = 1.5; // Lower deadzone for more responsiveness
+            const deadzone = 1.5;
             let forceX = 0;
             let forceY = 0;
 
