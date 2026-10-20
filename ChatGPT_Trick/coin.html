@@ -74,7 +74,7 @@ html, body {
     pointer-events: auto;
     will-change: transform;
     opacity: 0;
-    transition: opacity 0.1s ease;
+    transition: opacity 0.05s ease;
     filter: drop-shadow(0px 12px 20px rgba(0,0,0,0.35));
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -97,13 +97,15 @@ html, body {
     <img id="coinOverlay" src="coin.png" alt="Coin Overlay">
 </div>
 
-<!-- Audio Element for Coin Sound Effect -->
+<!-- Audio Elements -->
 <audio id="coinSound" src="coin.mp3" preload="auto"></audio>
+<audio id="clingSound" src="cling.mp3" preload="auto"></audio>
 
 <script>
 const video = document.getElementById('myVideo');
 const coin = document.getElementById('coinOverlay');
 const coinSound = document.getElementById('coinSound');
+const clingSound = document.getElementById('clingSound');
 const stage = document.getElementById('stage');
 
 let posX = 0, posY = 0;
@@ -112,19 +114,23 @@ let tiltX = 0, tiltY = 0;
 let isActivated = false;
 let gravityActivated = true;
 let isDismissing = false;
+let isUnlockedForExit = false;
 let permissionGranted = false;
 
-// Touch Dragging & Hold Variables
+// Interaction & Timer Variables
 let isDragging = false;
 let dragStartX = 0, dragStartY = 0;
 let initialCoinX = 0, initialCoinY = 0;
 let lastTouchX = 0, lastTouchY = 0;
 let lastTouchTime = 0;
-let holdTimer = null;
 let lastTapTime = 0;
+let revealDelayTimer = null;
+let isWaitingForReveal = false;
 
-// Request orientation permissions for iOS on first user gesture
-function requestOrientationPermission() {
+const SHAKE_THRESHOLD = 25; // Hard hit / shake sensitivity threshold
+
+// Request orientation and motion permissions for iOS on first user gesture
+function requestSensorsPermission() {
     if (permissionGranted) return;
 
     if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
@@ -132,11 +138,13 @@ function requestOrientationPermission() {
             if (response === 'granted') {
                 permissionGranted = true;
                 window.addEventListener('deviceorientation', handleOrientation);
+                window.addEventListener('devicemotion', handleMotion);
             }
         }).catch(console.error);
     } else {
         permissionGranted = true;
         window.addEventListener('deviceorientation', handleOrientation);
+        window.addEventListener('devicemotion', handleMotion);
     }
 }
 
@@ -145,38 +153,46 @@ function handleOrientation(e) {
     tiltY = e.beta || 0;  // Forward/Back tilt (-180 to 180)
 }
 
+function handleMotion(e) {
+    const acc = e.accelerationIncludingGravity;
+    if (!acc) return;
+
+    const totalAccel = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
+
+    // If phone is hit hard or shaken and coin is not currently active or waiting
+    if (totalAccel > SHAKE_THRESHOLD && !isActivated && !isWaitingForReveal) {
+        startMotion();
+    }
+}
+
 const handleFirstTouch = () => {
     if (video.paused) {
         video.muted = false;
         video.play().catch(error => console.log("Playback failed:", error));
     }
-    // Prepare audio for iOS touch unlock
-    coinSound.play().then(() => {
-        coinSound.pause();
-        coinSound.currentTime = 0;
-    }).catch(() => {});
+    // Unlock audio elements for iOS
+    coinSound.play().then(() => { coinSound.pause(); coinSound.currentTime = 0; }).catch(() => {});
+    clingSound.play().then(() => { clingSound.pause(); clingSound.currentTime = 0; }).catch(() => {});
 
-    requestOrientationPermission();
+    requestSensorsPermission();
 };
 
-// Play sound effect when coin appears
 function playCoinSound() {
     coinSound.currentTime = 0;
     coinSound.play().catch(error => console.log("Audio play blocked:", error));
 }
 
-// Reveal coin when video reaches 5 seconds (first pass)
-let coinTriggered = false;
-video.addEventListener('timeupdate', () => {
-    if (video.currentTime >= 5 && !coinTriggered && !isActivated) {
-        coinTriggered = true;
-        startMotion();
-    } else if (video.currentTime < 5) {
-        coinTriggered = false;
-    }
-});
+function playClingSound() {
+    clingSound.currentTime = 0;
+    clingSound.play().catch(error => console.log("Audio play blocked:", error));
+}
 
 function startMotion() {
+    if (isActivated) return;
+
+    clearTimeout(revealDelayTimer);
+    isWaitingForReveal = false;
+
     posX = (stage.clientWidth - coin.clientWidth) / 2;
     posY = (stage.clientHeight - coin.clientHeight) / 2;
 
@@ -186,21 +202,37 @@ function startMotion() {
     isActivated = true;
     gravityActivated = true;
     isDismissing = false;
-    coin.style.opacity = '1';
-
+    isUnlockedForExit = false; 
+    
+    // Play sound and show image synchronously with zero delay
     playCoinSound();
+    coin.style.opacity = '1';
 
     requestAnimationFrame(updateCoinPosition);
 }
 
-// Double-Tap Listener to Reveal Coin Unlimited Times
+// Tap & Double-Tap Handling
 window.addEventListener('touchend', (e) => {
+    if (isDragging) return;
+
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTapTime;
 
     if (tapLength < 300 && tapLength > 0) {
-        // Double-tap detected
-        startMotion();
+        // Double-tap detected -> Start 2-second delay before revealing coin
+        if (!isActivated && !isWaitingForReveal) {
+            isWaitingForReveal = true;
+            clearTimeout(revealDelayTimer);
+            revealDelayTimer = setTimeout(() => {
+                isWaitingForReveal = false;
+                startMotion();
+            }, 2000);
+        }
+    } else {
+        // Single tap detected -> Secretly activate exit mode for top, right, bottom walls
+        if (isActivated) {
+            isUnlockedForExit = true;
+        }
     }
     lastTapTime = currentTime;
 });
@@ -223,21 +255,9 @@ coin.addEventListener('touchstart', (e) => {
 
     velX = 0;
     velY = 0;
-
-    // Start 1-second hold timer (only triggers if finger stays still without dragging)
-    holdTimer = setTimeout(() => {
-        if (!isDragging) {
-            dismissCoin();
-        }
-    }, 1000);
 }, { passive: true });
 
 window.addEventListener('touchmove', (e) => {
-    if (holdTimer) {
-        clearTimeout(holdTimer);
-        holdTimer = null;
-    }
-
     if (!isDragging || !isActivated || isDismissing) return;
 
     const touch = e.touches[0];
@@ -258,11 +278,6 @@ window.addEventListener('touchmove', (e) => {
 }, { passive: true });
 
 window.addEventListener('touchend', () => {
-    if (holdTimer) {
-        clearTimeout(holdTimer);
-        holdTimer = null;
-    }
-
     if (isDragging) {
         isDragging = false;
     }
@@ -281,10 +296,17 @@ function dismissCoin() {
 function updateCoinPosition() {
     if (!isActivated) return;
 
+    const maxX = stage.clientWidth - coin.clientWidth;
+    const maxY = stage.clientHeight - coin.clientHeight;
+
     if (isDismissing) {
+        // Slide away with increasing speed
+        velX *= 1.04;
+        velY *= 1.04;
         posX += velX;
         posY += velY;
-        if (posX < -coin.clientWidth || posX > stage.clientWidth || posY < -coin.clientHeight || posY > stage.clientHeight) {
+
+        if (posX < -coin.clientWidth * 2 || posX > stage.clientWidth * 2 || posY < -coin.clientHeight * 2 || posY > stage.clientHeight * 2) {
             dismissCoin();
             return;
         }
@@ -311,15 +333,35 @@ function updateCoinPosition() {
             posX += velX;
             posY += velY;
 
-            // Left wall boundary (bounce back)
+            // Left Wall (Always bounces with cling sound)
             if (posX < 0) {
                 posX = 0;
-                velX *= -0.2;
+                if (Math.abs(velX) > 0.4) playClingSound();
+                velX *= -0.25;
             }
 
-            // Exit triggers for Right, Top (back tilt), and Bottom (front tilt)
-            if (posX > stage.clientWidth - coin.clientWidth/2 || posY < -coin.clientHeight/2 || posY > stage.clientHeight - coin.clientHeight/2) {
-                isDismissing = true;
+            if (!isUnlockedForExit) {
+                // Normal Mode: Bounces off all 4 walls with cling sound
+                if (posX > maxX) {
+                    posX = maxX;
+                    if (Math.abs(velX) > 0.4) playClingSound();
+                    velX *= -0.25;
+                }
+                if (posY < 0) {
+                    posY = 0;
+                    if (Math.abs(velY) > 0.4) playClingSound();
+                    velY *= -0.25;
+                }
+                if (posY > maxY) {
+                    posY = maxY;
+                    if (Math.abs(velY) > 0.4) playClingSound();
+                    velY *= -0.25;
+                }
+            } else {
+                // Secret Mode after single tap: Top, Right, and Bottom walls let the coin slide away
+                if (posX > maxX || posY < 0 || posY > maxY) {
+                    isDismissing = true;
+                }
             }
         }
     }
