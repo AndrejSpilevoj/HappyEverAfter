@@ -143,6 +143,17 @@ function playInstantCling() {
     src.start(0);
 }
 
+// Wall contact tracking: cling plays once per new touch, not while resting/sliding
+const contact = { l: false, r: false, t: false, b: false };
+const WALL_RELEASE = 4; // px the coin must move away before the wall "resets"
+
+function wallHit(side, vel) {
+    if (!contact[side]) {
+        contact[side] = true;
+        if (Math.abs(vel) > 0.4) playInstantCling();
+    }
+}
+
 // Request orientation and motion permissions for iOS on first user gesture
 function requestSensorsPermission() {
     if (permissionGranted) return;
@@ -203,6 +214,7 @@ function startMotion() {
 
     velX = 0;
     velY = 0;
+    contact.l = contact.r = contact.t = contact.b = false;
 
     isActivated = true;
     gravityActivated = true;
@@ -332,28 +344,36 @@ function updateCoinPosition() {
             posX += velX;
             posY += velY;
 
-            // Left Wall (Always bounces with instant cling sound)
+            // Left Wall (cling only on a NEW contact)
             if (posX < 0) {
                 posX = 0;
-                if (Math.abs(velX) > 0.4) playInstantCling();
+                wallHit('l', velX);
                 velX *= -0.25;
+            } else if (posX > WALL_RELEASE) {
+                contact.l = false;
             }
 
             if (!isUnlockedForExit) {
                 if (posX > maxX) {
                     posX = maxX;
-                    if (Math.abs(velX) > 0.4) playInstantCling();
+                    wallHit('r', velX);
                     velX *= -0.25;
+                } else if (posX < maxX - WALL_RELEASE) {
+                    contact.r = false;
                 }
                 if (posY < 0) {
                     posY = 0;
-                    if (Math.abs(velY) > 0.4) playInstantCling();
+                    wallHit('t', velY);
                     velY *= -0.25;
+                } else if (posY > WALL_RELEASE) {
+                    contact.t = false;
                 }
                 if (posY > maxY) {
                     posY = maxY;
-                    if (Math.abs(velY) > 0.4) playInstantCling();
+                    wallHit('b', velY);
                     velY *= -0.25;
+                } else if (posY < maxY - WALL_RELEASE) {
+                    contact.b = false;
                 }
             } else {
                 if (posX > maxX || posY < 0 || posY > maxY) {
