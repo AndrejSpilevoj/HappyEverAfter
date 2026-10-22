@@ -119,11 +119,11 @@
       <div class="dash">–</div>
       <label class="field"><span>Iki</span><input type="time" id="to" value="00:00"></label>
       <div class="dur">Trukmė<br><b id="dur">0:00</b></div>
-      <label class="field grow" id="volBox" style="display:none"><span>Savanorio vardas, pavardė</span>
+      <label class="field grow" id="volBox" style="display:none"><span id="volLabel">Savanorio vardas, pavardė</span>
         <input type="text" id="vol" maxlength="80" autocomplete="off" placeholder="Vardas Pavardė"></label>
     </div>
     <div class="row" style="margin-top:16px">
-      <label class="field grow"><span>Atlikti darbai (trumpai aprašykite veiklą)</span>
+      <label class="field grow"><span id="textLabel">Atlikti darbai (trumpai aprašykite veiklą)</span>
         <input type="text" id="text" maxlength="400" autocomplete="off" placeholder="Pvz.: Koordinavau susitikimą su projekto dalyviais"></label>
       <button class="submit" id="go">Pateikti</button>
     </div>
@@ -160,6 +160,28 @@ const $ = id => document.getElementById(id);
 const label = p => p.role ? `${p.name} <span class="role">(${p.role})</span>` : p.name;
 const plain = p => p.name + (p.role ? " (" + p.role + ")" : "");
 
+// ---- people that need a name field (+ their own texts) ----
+const DEFAULT_MODE = {
+  text:"Atlikti darbai (trumpai aprašykite veiklą)",
+  ph:"Pvz.: Koordinavau susitikimą su projekto dalyviais",
+  errText:"Aprašykite atliktus darbus."
+};
+const MODES = {
+  savanoriai:{
+    nameLabel:"Savanorio vardas, pavardė",
+    errName:"Įveskite savanorio vardą ir pavardę."
+  },
+  kuras:{
+    nameLabel:"Vairuotojo vardas, pavardė",
+    text:"Kelionės tikslas",
+    ph:"Vežiau daiktus iš ... iki ...",
+    errName:"Įveskite vairuotojo vardą ir pavardę.",
+    errText:"Nurodykite kelionės tikslą."
+  }
+};
+const modeOf = p => Object.assign({}, DEFAULT_MODE, (p && MODES[p.id]) || {});
+const needsName = p => !!(p && MODES[p.id]);
+
 // ---- demo backend (in memory) ----
 const demo = { people:[
     {id:"irina_admin",name:"Irina Burkauskienė",role:"Admin",code:"1.4.3"},
@@ -167,7 +189,8 @@ const demo = { people:[
     {id:"danguole",name:"Danguolė Juškevičienė",role:"",code:"1.3.2"},
     {id:"kristina_club",name:"Kristina Ulianskienė",role:"Club LT",code:"1.1.4"},
     {id:"kristina_soc",name:"Kristina Ulianskienė",role:"Soc.",code:"1.1.1"},
-    {id:"savanoriai",name:"Savanoriai",role:"",code:""}], log:[] };
+    {id:"savanoriai",name:"Savanoriai",role:"",code:""},
+    {id:"kuras",name:"Kuras",role:"",code:"1.1.1"}], log:[] };
 (function seed(){
   const ms = T.lastMonths(MONTHS_SHOWN, new Date());
   demo.people.forEach((p,pi)=>ms.forEach((m,mi)=>{
@@ -209,15 +232,25 @@ async function load(){
   renderNames(); renderTable();
 }
 
+// show/hide the name field and set labels for the selected person
+function applyMode(){
+  const p=people[sel], m=modeOf(p);
+  $("volBox").style.display=needsName(p)?"flex":"none";
+  $("volLabel").textContent=m.nameLabel||"";
+  $("textLabel").textContent=m.text;
+  $("text").placeholder=m.ph;
+}
+
 function renderNames(){
   const box=$("names"); box.innerHTML="";
   people.forEach((p,i)=>{
     const b=document.createElement("button");
     b.className="chip"+(i===sel?" on":"");
     b.innerHTML=`${p.name}<small>${p.role?"("+p.role+")":""}</small>`;
-    b.onclick=()=>{sel=i;renderNames();$("volBox").style.display=people[i].id==="savanoriai"?"flex":"none"};
+    b.onclick=()=>{sel=i;renderNames()};
     box.appendChild(b);
   });
+  applyMode();
 }
 function duration(){
   const d=T.toMin($("to").value)-T.toMin($("from").value);
@@ -258,10 +291,10 @@ $("go").onclick=async()=>{
   const d=duration(), msg=$("msg");
   if(d<=0){msg.style.color="#b08a7a";msg.textContent="Įveskite laiką: „Iki“ turi būti vėlesnis nei „Nuo“.";return}
   if(!$("d").value){msg.style.color="#b08a7a";msg.textContent="Pasirinkite datą.";return}
-  const p=people[sel], date=$("d").value, from=$("from").value, to=$("to").value;
-  const text=$("text").value.trim(), vol=$("vol").value.trim(), isVol=p.id==="savanoriai";
-  if(!text){msg.style.color="#b08a7a";msg.textContent="Aprašykite atliktus darbus.";return}
-  if(isVol&&!vol){msg.style.color="#b08a7a";msg.textContent="Įveskite savanorio vardą ir pavardę.";return}
+  const p=people[sel], m=modeOf(p), date=$("d").value, from=$("from").value, to=$("to").value;
+  const text=$("text").value.trim(), vol=$("vol").value.trim(), isVol=needsName(p);
+  if(!text){msg.style.color="#b08a7a";msg.textContent=m.errText;return}
+  if(isVol&&!vol){msg.style.color="#b08a7a";msg.textContent=m.errName;return}
   $("go").disabled=true; msg.style.color="#8d93a0"; msg.textContent="Saugoma…";
   try{
     const r=await call({action:"add",person:p.id,date,from,to,text,vol:isVol?vol:""});
