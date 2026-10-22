@@ -343,7 +343,7 @@ function renderStats(){
 (function(){
   const tip=$("tip"), box=$("statsBody");
   const show=(el,x,y)=>{
-    tip.innerHTML=`<b>${el.dataset.n}</b><br>${el.dataset.h} val. · ${el.dataset.p}% šio mėnesio`;
+    tip.innerHTML=`<b>${el.dataset.n}</b><br>${el.dataset.h} val.`;
     tip.classList.add("show"); move(x,y);
   };
   const move=(x,y)=>{ tip.style.left=Math.min(x+14,innerWidth-tip.offsetWidth-8)+"px"; tip.style.top=(y+14)+"px"; };
