@@ -89,6 +89,42 @@
   tfoot td{font-weight:600; background:rgba(255,255,255,.3)}
   tfoot td:first-child{border-radius:0 0 0 14px} tfoot td:last-child{border-radius:0 0 14px 0}
   .scroll{overflow-x:auto}
+  /* ---- statistics ---- */
+  .kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:8px}
+  .kpi{background:rgba(255,255,255,.5); border:1px solid var(--line); border-radius:20px; padding:16px 18px}
+  .kpi b{display:block; font-size:28px; font-weight:600; letter-spacing:-.02em; color:var(--text)}
+  .kpi span{font-size:12px; color:var(--muted)}
+  .kpi .up{color:#7f9a86} .kpi .down{color:#b08a7a}
+  .stitle{font-size:15px; font-weight:600; margin:26px 0 4px}
+  .shint{font-size:12px; color:var(--muted); margin-bottom:14px}
+  .cols{display:flex; align-items:flex-end; gap:10px; height:190px; padding-top:6px}
+  .col{flex:1; min-width:0; height:100%; display:flex; flex-direction:column; justify-content:flex-end; align-items:center}
+  .col .bar{width:100%; max-width:60px; border-radius:12px 12px 4px 4px; min-height:3px;
+            background:linear-gradient(180deg,#b7c4d2,#9fb0c2); box-shadow:0 4px 12px rgba(130,150,170,.25)}
+  .col.now .bar{background:linear-gradient(180deg,#a8c3b0,#8fae99)}
+  .col .val{font-size:12px; font-weight:600; margin-bottom:5px; white-space:nowrap}
+  .col .lbl{font-size:11px; color:var(--muted); margin-top:7px; text-align:center}
+  .hrow{display:grid; grid-template-columns:minmax(110px,180px) 1fr 96px; gap:12px; align-items:center; margin:10px 0; font-size:14px}
+  .hrow .track{height:14px; border-radius:99px; background:rgba(255,255,255,.55); box-shadow:inset 0 1px 3px rgba(120,130,145,.12)}
+  .hrow .fill{height:100%; border-radius:99px; background:linear-gradient(90deg,#b7c4d2,#9fb0c2)}
+  .hrow .num{text-align:right; font-weight:600}
+  .hrow .num small{font-weight:400; color:var(--muted)}
+  .col .lbl{line-height:1.25}
+  .dgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:16px 8px}
+  .dm{text-align:center}
+  .dm svg{display:block; margin:0 auto}
+  .dm b{display:block; font-size:13px; font-weight:600; margin-top:6px}
+  .dm i{font-style:normal; font-size:12px; color:var(--muted)}
+  .seg{cursor:pointer; transition:stroke-width .15s}
+  .seg:hover{stroke-width:17}
+  .dlegend{display:flex; flex-wrap:wrap; gap:6px 16px; margin-top:20px; padding-top:14px; border-top:1px solid rgba(255,255,255,.8); font-size:12px}
+  .dlegend i{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:-1px}
+  .dlegend .role{color:var(--muted)}
+  #tip{position:fixed; z-index:6; left:0; top:0; opacity:0; pointer-events:none; transition:opacity .12s;
+       background:rgba(255,255,255,.92); border:1px solid var(--line); border-radius:14px; padding:9px 13px;
+       -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+       box-shadow:0 8px 24px rgba(120,130,145,.22); font-size:13px; line-height:1.4; white-space:nowrap}
+  #tip.show{opacity:1}
   .note{font-size:12px; color:var(--muted); text-align:center; margin-top:8px}
   #toast{
     position:fixed; left:50%; bottom:28px; transform:translate(-50%,20px); opacity:0; z-index:5;
@@ -135,6 +171,10 @@
     <div class="hint">Spustelėkite valandas, kad atsisiųstumėte ataskaitą (.xlsx)</div>
     <div class="scroll"><table id="tbl"></table></div>
   </section>
+  <section class="card" id="stats">
+    <div class="label">Projekto apžvalga</div>
+    <div id="statsBody"></div>
+  </section>
   <div class="note" id="note"></div>
 </main>
 
@@ -144,6 +184,7 @@
   <button class="submit" id="pinOk" style="margin:0">Tęsti</button>
 </div></div>
 <div id="toast"></div>
+<div id="tip"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="report.js"></script>
@@ -174,7 +215,7 @@ const MODES = {
   kuras:{
     nameLabel:"Vairuotojo vardas, pavardė",
     text:"Kelionės tikslas",
-    ph:"Pavežimas į ...",
+    ph:"Vežiau daiktus iš ... iki ...",
     errName:"Įveskite vairuotojo vardą ir pavardę.",
     errText:"Nurodykite kelionės tikslą."
   }
@@ -229,8 +270,91 @@ async function load(){
   people = r.people; log = r.log;
   months = T.lastMonths(MONTHS_SHOWN, new Date());
   if(sel>=people.length) sel=0;
-  renderNames(); renderTable();
+  renderNames(); renderTable(); renderStats();
 }
+
+// ---- simple statistics for managers ----
+function colsHtml(items, fmtVal){
+  const max=Math.max(1,...items.map(i=>i.value));
+  return '<div class="cols">'+items.map((i,k)=>
+    `<div class="col${k===items.length-1?" now":""}"><div class="val">${i.value>0?fmtVal(i.value):"–"}</div>`+
+    `<div class="bar" style="height:${Math.round(i.value/max*135)}px"></div><div class="lbl">${i.label}</div></div>`).join("")+'</div>';
+}
+function renderStats(){
+  const box=$("statsBody"); if(!months.length){box.innerHTML=""; return}
+  const last=months[months.length-1], prev=months[months.length-2];
+  const inM=log.filter(e=>months.includes(e.date.slice(0,7)));
+  const sum=a=>a.reduce((s,e)=>s+e.min,0);
+  const cur=inM.filter(e=>e.date.startsWith(last)), pre=inM.filter(e=>e.date.startsWith(prev));
+  const diff=sum(cur)-sum(pre);
+  const nameOf=e=>{ if(e.vol) return e.vol; const p=people.find(x=>x.id===e.person); return p?p.name:e.person; };
+  const active=new Set(cur.map(nameOf)).size;
+  const mCap=m=>{ const n=T.MONTHS_LT[+m.slice(5)-1]; return n.charAt(0).toUpperCase()+n.slice(1); };
+  const mText=m=>mCap(m)+" "+m.slice(0,4);
+  const mLabel=m=>mCap(m)+"<br>"+m.slice(0,4);
+  const diffTxt=diff===0?"Tiek pat kaip praėjusį mėnesį":
+    `<span class="${diff>0?"up":"down"}">${diff>0?"▲ +":"▼ −"}${T.fmt(Math.abs(diff))} val.</span> nei praėjusį mėnesį`;
+
+  let h=`<div class="kpis">
+    <div class="kpi"><b>${T.fmt(sum(inM))}</b><span>Iš viso valandų (${months.length} mėn.)</span></div>
+    <div class="kpi"><b>${T.fmt(sum(cur))}</b><span>Šį mėnesį (${mText(last)})<br>${diffTxt}</span></div>
+    <div class="kpi"><b>${cur.length}</b><span>Įrašų šį mėnesį</span></div>
+    <div class="kpi"><b>${active}</b><span>Aktyvių žmonių šį mėnesį</span></div>
+  </div>`;
+
+  // hours per month
+  h+=`<div class="stitle">Valandos pagal mėnesius</div><div class="shint">Kiek valandų buvo dirbta kiekvieną mėnesį. Žalias stulpelis – šis mėnuo.</div>`;
+  h+=colsHtml(months.map(m=>({label:mLabel(m),value:sum(inM.filter(e=>e.date.startsWith(m)))})),T.fmt);
+
+  // hours per PĮP action
+  const byCode={};
+  inM.forEach(e=>{ const p=people.find(x=>x.id===e.person); const k=p&&p.code?"PĮP "+p.code:"Savanoriai (be PĮP kodo)"; byCode[k]=(byCode[k]||0)+e.min; });
+  const total=sum(inM), codes=Object.entries(byCode).sort((a,b)=>b[1]-a[1]), cmax=codes.length?codes[0][1]:1;
+  h+=`<div class="stitle">Valandos pagal PĮP veiksmą</div><div class="shint">Kaip valandos pasiskirsto tarp projekto veiksmų.</div>`;
+  h+=codes.map(([k,v])=>`<div class="hrow"><div>${k}</div><div class="track"><div class="fill" style="width:${Math.round(v/cmax*100)}%"></div></div>`+
+    `<div class="num">${T.fmt(v)} <small>${total?Math.round(v/total*100):0}%</small></div></div>`).join("");
+
+  // people per month (one ring per month)
+  const COLORS=["#9fb0c2","#a8c3b0","#d9c3a5","#c9b8d3","#e0b9b0","#b3ccd3","#cfcab8"];
+  const R=34, CI=2*Math.PI*R;
+  h+=`<div class="stitle">Veikla pagal žmones ir mėnesius</div><div class="shint">Kiekvienas apskritimas – vienas mėnuo. Spalvos rodo, kas tą mėnesį dirbo; užveskite pelę (ar paspauskite) ant spalvos. Skaičius viduryje – bendros mėnesio valandos.</div><div class="dgrid">`;
+  months.forEach(m=>{
+    const es=inM.filter(e=>e.date.startsWith(m)), t=sum(es);
+    let off=0, segs="";
+    people.forEach((p,pi)=>{
+      const v=sum(es.filter(e=>e.person===p.id)); if(!v) return;
+      const len=v/t*CI;
+      segs+=`<circle class="seg" cx="45" cy="45" r="${R}" fill="none" stroke="${COLORS[pi%COLORS.length]}" stroke-width="14" `+
+        `stroke-dasharray="${Math.max(len-1.5,0.5)} ${CI}" stroke-dashoffset="${-off}" `+
+        `data-n="${plain(p).replace(/"/g,"&quot;")}" data-h="${T.fmt(v)}" data-p="${Math.round(v/t*100)}"></circle>`;
+      off+=len;
+    });
+    if(!t) segs=`<circle cx="45" cy="45" r="${R}" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="14"></circle>`;
+    h+=`<div class="dm"><svg width="90" height="90" viewBox="0 0 90 90"><g transform="rotate(-90 45 45)">${segs}</g>`+
+       `<text x="45" y="50" text-anchor="middle" font-size="14" font-weight="600" fill="#5d6472">${t?T.fmt(t):"–"}</text></svg>`+
+       `<b>${mCap(m)}</b><i>${m.slice(0,4)}</i></div>`;
+  });
+  h+=`</div><div class="dlegend">`+people.map((p,pi)=>
+    inM.some(e=>e.person===p.id)?`<span><i style="background:${COLORS[pi%COLORS.length]}"></i>${label(p)}</span>`:"").join("")+`</div>`;
+  box.innerHTML=h;
+}
+
+// tooltip for the rings (hover on desktop, tap on phone)
+(function(){
+  const tip=$("tip"), box=$("statsBody");
+  const show=(el,x,y)=>{
+    tip.innerHTML=`<b>${el.dataset.n}</b><br>${el.dataset.h} val. · ${el.dataset.p}% šio mėnesio`;
+    tip.classList.add("show"); move(x,y);
+  };
+  const move=(x,y)=>{ tip.style.left=Math.min(x+14,innerWidth-tip.offsetWidth-8)+"px"; tip.style.top=(y+14)+"px"; };
+  box.addEventListener("mouseover",e=>{ if(e.target.classList&&e.target.classList.contains("seg")) show(e.target,e.clientX,e.clientY); });
+  box.addEventListener("mousemove",e=>{ if(tip.classList.contains("show")) move(e.clientX,e.clientY); });
+  box.addEventListener("mouseout",e=>{ if(e.target.classList&&e.target.classList.contains("seg")) tip.classList.remove("show"); });
+  box.addEventListener("click",e=>{
+    if(e.target.classList&&e.target.classList.contains("seg")) show(e.target,e.clientX,e.clientY);
+    else tip.classList.remove("show");
+  });
+})();
 
 // show/hide the name field and set labels for the selected person
 function applyMode(){
