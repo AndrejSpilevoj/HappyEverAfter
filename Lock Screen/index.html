@@ -160,8 +160,8 @@
         renderClock(shownTime);
         lastMinuteIndex = minutesBack;
       }
-      // Pulling the clock dismisses the card instead of revealing it.
-      cardEl.style.opacity = String(Math.max(0, cardOpacityAtDragStart - dragPixels / 220));
+      // Reveal the card progressively as the clock is pulled down.
+      cardEl.style.opacity = String(Math.min(1, dragPixels / 220));
       timeEl.style.transform = `translateY(${Math.min(dragPixels * 0.16, 58)}px)`;
     }
 
