@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Live iPhone Lock Screen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#000000">
+  <title>Magic Lock Screen</title>
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -16,21 +17,43 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      min-height: 100vh;
-      overflow-x: hidden;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      position: fixed;
+      inset: 0;
+      touch-action: none;
     }
     .lock-screen {
       position: relative;
       width: min(100vw, 46.43vh);
+      height: min(215.05vw, 100vh);
       aspect-ratio: 832 / 1792;
       flex: 0 0 auto;
       color: #fff;
+      overflow: hidden;
+      background: #000;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
     }
-    .wallpaper {
+    .wallpaper, .card-reveal {
+      position: absolute;
+      inset: 0;
       display: block;
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: fill;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+    .card-reveal {
+      opacity: 0;
+      z-index: 2;
+      transition: opacity 80ms linear;
     }
     .date, .time {
       position: absolute;
@@ -41,6 +64,7 @@
       pointer-events: none;
       text-shadow: 0 1px 2px rgba(0,0,0,.18);
       font-variant-numeric: tabular-nums;
+      z-index: 3;
     }
     .date {
       top: 8.85%;
@@ -54,41 +78,156 @@
       line-height: .98;
       font-weight: 300;
       letter-spacing: -.055em;
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
+      will-change: transform;
     }
+    .time:active { cursor: grabbing; }
     @media (min-width: 600px) {
-      .lock-screen { width: min(46.43vh, 100vw, 420px); }
+      .lock-screen { width: min(46.43vh, 100vw, 420px); height: auto; aspect-ratio: 832 / 1792; }
       .date { font-size: clamp(16px, 2.3vh, 22px); }
       .time { font-size: clamp(66px, 10.8vh, 96px); }
     }
   </style>
 </head>
 <body>
-  <main class="lock-screen" aria-label="Live lock screen">
+  <main class="lock-screen" aria-label="Magic lock screen">
     <img class="wallpaper" src="Minimalist Black iPhone Lock Screen blank.png" alt="">
+    <img class="card-reveal" id="cardReveal" src="card.png" alt="">
     <div class="date" id="date">Mon 26 Oct</div>
-    <div class="time" id="time">10:33</div>
+    <div class="time" id="time" role="button" aria-label="Touch and drag down to turn the time backwards">10:33</div>
   </main>
   <script>
     const timeEl = document.getElementById("time");
     const dateEl = document.getElementById("date");
+    const cardEl = document.getElementById("cardReveal");
 
-    function updateClock() {
-      const now = new Date();
-      timeEl.textContent = new Intl.DateTimeFormat("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hourCycle: "h23"
-      }).format(now);
+    let frozen = false;
+    let shownTime = new Date();
+    let dragging = false;
+    let startY = 0;
+    let startTime = null;
+    let lastMinuteIndex = 0;
+    let dragPixels = 0;
 
-      dateEl.textContent = new Intl.DateTimeFormat("en-GB", {
-        weekday: "short",
-        day: "2-digit",
-        month: "short"
-      }).format(now).replace(",", "");
+    function formatTime(date) {
+      return new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+      }).format(date);
     }
 
+    function formatDate(date) {
+      return new Intl.DateTimeFormat("en-GB", {
+        weekday: "short", day: "2-digit", month: "short"
+      }).format(date).replace(",", "");
+    }
+
+    function renderClock(date) {
+      timeEl.textContent = formatTime(date);
+      dateEl.textContent = formatDate(date);
+    }
+
+    function updateClock() {
+      if (!frozen && !dragging) {
+        shownTime = new Date();
+        renderClock(shownTime);
+      }
+    }
     updateClock();
     setInterval(updateClock, 1000);
+
+    // Drag down on the time: prevent the browser's pull-to-refresh gesture.
+    // Each 5 px moves the clock back one minute.
+    function beginDrag(clientY) {
+      dragging = true;
+      frozen = true;
+      startY = clientY;
+      startTime = new Date(shownTime);
+      lastMinuteIndex = 0;
+      dragPixels = 0;
+    }
+
+    function moveDrag(clientY) {
+      if (!dragging) return;
+      dragPixels = Math.max(0, clientY - startY);
+      const minutesBack = Math.floor(dragPixels / 5);
+      if (minutesBack !== lastMinuteIndex) {
+        shownTime = new Date(startTime.getTime() - minutesBack * 60 * 1000);
+        renderClock(shownTime);
+        lastMinuteIndex = minutesBack;
+      }
+      cardEl.style.opacity = String(Math.min(1, dragPixels / 420));
+      timeEl.style.transform = `translateY(${Math.min(dragPixels * 0.16, 58)}px)`;
+    }
+
+    function finishDrag() {
+      if (!dragging) return;
+      dragging = false;
+      frozen = true;
+      timeEl.style.transform = "";
+    }
+
+    // iPhone / iPad Safari: non-passive touch handlers are important here.
+    timeEl.addEventListener("touchstart", (event) => {
+      if (!event.touches.length) return;
+      beginDrag(event.touches[0].clientY);
+      event.preventDefault();
+    }, { passive: false });
+
+    timeEl.addEventListener("touchmove", (event) => {
+      if (!dragging || !event.touches.length) return;
+      moveDrag(event.touches[0].clientY);
+      event.preventDefault();
+    }, { passive: false });
+
+    timeEl.addEventListener("touchend", (event) => {
+      event.preventDefault();
+      finishDrag();
+    }, { passive: false });
+
+    timeEl.addEventListener("touchcancel", finishDrag, { passive: false });
+
+    // Mouse / pointer support for desktop browsers.
+    timeEl.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "touch") return; // handled above for iOS
+      beginDrag(event.clientY);
+      try { timeEl.setPointerCapture(event.pointerId); } catch (_) {}
+      event.preventDefault();
+    });
+
+    timeEl.addEventListener("pointermove", (event) => {
+      if (!dragging || event.pointerType === "touch") return;
+      moveDrag(event.clientY);
+      event.preventDefault();
+    });
+
+    timeEl.addEventListener("pointerup", (event) => {
+      if (event.pointerType !== "touch") finishDrag();
+    });
+    timeEl.addEventListener("pointercancel", (event) => {
+      if (event.pointerType !== "touch") finishDrag();
+    });
+
+    // Block any stray page-level touch movement while the clock is being dragged.
+    document.addEventListener("touchmove", (event) => {
+      if (dragging) event.preventDefault();
+    }, { passive: false });
+
+    // Keep the display awake where the browser supports Screen Wake Lock.
+    let wakeLock = null;
+    async function keepScreenAwake() {
+      if (!("wakeLock" in navigator) || document.visibilityState !== "visible") return;
+      try {
+        wakeLock = await navigator.wakeLock.request("screen");
+      } catch (error) {
+        console.info("Screen Wake Lock unavailable:", error);
+      }
+    }
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") keepScreenAwake();
+    });
+    keepScreenAwake();
   </script>
 </body>
 </html>
