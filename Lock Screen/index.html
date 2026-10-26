@@ -111,6 +111,7 @@
     let startTime = null;
     let lastMinuteIndex = 0;
     let dragPixels = 0;
+    let cardOpacityAtDragStart = 0;
 
     function formatTime(date) {
       return new Intl.DateTimeFormat("en-GB", {
@@ -147,6 +148,7 @@
       startTime = new Date(shownTime);
       lastMinuteIndex = 0;
       dragPixels = 0;
+      cardOpacityAtDragStart = Number.parseFloat(cardEl.style.opacity || getComputedStyle(cardEl).opacity) || 0;
     }
 
     function moveDrag(clientY) {
@@ -158,15 +160,19 @@
         renderClock(shownTime);
         lastMinuteIndex = minutesBack;
       }
-      cardEl.style.opacity = String(Math.min(1, dragPixels / 420));
+      // Pulling the clock dismisses the card instead of revealing it.
+      cardEl.style.opacity = String(Math.max(0, cardOpacityAtDragStart - dragPixels / 220));
       timeEl.style.transform = `translateY(${Math.min(dragPixels * 0.16, 58)}px)`;
     }
 
     function finishDrag() {
       if (!dragging) return;
       dragging = false;
-      frozen = true;
+      frozen = false;
+      cardEl.style.opacity = "0";
       timeEl.style.transform = "";
+      shownTime = new Date();
+      renderClock(shownTime);
     }
 
     // iPhone / iPad Safari: non-passive touch handlers are important here.
