@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live iPhone Lock Screen</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #000;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .lock-screen {
+      position: relative;
+      width: min(100vw, 46.43vh);
+      aspect-ratio: 832 / 1792;
+      flex: 0 0 auto;
+      color: #fff;
+    }
+    .wallpaper {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .date, .time {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      color: #fff;
+      pointer-events: none;
+      text-shadow: 0 1px 2px rgba(0,0,0,.18);
+      font-variant-numeric: tabular-nums;
+    }
+    .date {
+      top: 8.85%;
+      font-size: clamp(14px, 3.9vw, 4.2vh);
+      line-height: 1.2;
+      font-weight: 600;
+    }
+    .time {
+      top: 11.8%;
+      font-size: clamp(58px, 18vw, 19vh);
+      line-height: .98;
+      font-weight: 300;
+      letter-spacing: -.055em;
+    }
+    @media (min-width: 600px) {
+      .lock-screen { width: min(46.43vh, 100vw, 420px); }
+      .date { font-size: clamp(16px, 2.3vh, 22px); }
+      .time { font-size: clamp(66px, 10.8vh, 96px); }
+    }
+  </style>
+</head>
+<body>
+  <main class="lock-screen" aria-label="Live lock screen">
+    <img class="wallpaper" src="Minimalist Black iPhone Lock Screen blank.png" alt="">
+    <div class="date" id="date">Mon 26 Oct</div>
+    <div class="time" id="time">10:33</div>
+  </main>
+  <script>
+    const timeEl = document.getElementById("time");
+    const dateEl = document.getElementById("date");
+
+    function updateClock() {
+      const now = new Date();
+      timeEl.textContent = new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+      }).format(now);
+
+      dateEl.textContent = new Intl.DateTimeFormat("en-GB", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short"
+      }).format(now).replace(",", "");
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
