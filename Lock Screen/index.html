@@ -53,6 +53,7 @@
     .card-reveal {
       opacity: 0;
       z-index: 2;
+      object-fit: contain;
       transition: opacity 80ms linear;
     }
     .date, .time {
@@ -67,14 +68,14 @@
       z-index: 3;
     }
     .date {
-      top: 8.85%;
-      font-size: clamp(14px, 3.9vw, 4.2vh);
+      top: 4.8%;
+      font-size: clamp(17px, 4.5vw, 4.8vh);
       line-height: 1.2;
       font-weight: 600;
     }
     .time {
-      top: 11.8%;
-      font-size: clamp(58px, 18vw, 19vh);
+      top: 8.2%;
+      font-size: clamp(64px, 19.5vw, 20.5vh);
       line-height: .98;
       font-weight: 300;
       letter-spacing: -.055em;
@@ -86,14 +87,14 @@
     .time:active { cursor: grabbing; }
     @media (min-width: 600px) {
       .lock-screen { width: min(46.43vh, 100vw, 420px); height: auto; aspect-ratio: 832 / 1792; }
-      .date { font-size: clamp(16px, 2.3vh, 22px); }
-      .time { font-size: clamp(66px, 10.8vh, 96px); }
+      .date { top: 4.8%; font-size: clamp(18px, 2.7vh, 25px); }
+      .time { top: 8.2%; font-size: clamp(74px, 12vh, 108px); }
     }
   </style>
 </head>
 <body>
   <main class="lock-screen" aria-label="Magic lock screen">
-    <img class="wallpaper" src="Minimalist Black iPhone Lock Screen blank.png" alt="">
+    <img class="wallpaper" src="lock_screen_background_clean.png" alt="">
     <img class="card-reveal" id="cardReveal" src="card.png" alt="">
     <div class="date" id="date">Mon 26 Oct</div>
     <div class="time" id="time" role="button" aria-label="Touch and drag down to turn the time backwards">10:33</div>
