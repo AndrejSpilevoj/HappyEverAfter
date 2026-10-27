@@ -64,7 +64,7 @@ html, body {
     -webkit-appearance: none;
 }
 
-/* Overlay Image (Coin) - Centered, scaled 36% with physics & anti-select styling */
+/* Overlay Image (Coin) */
 #coinOverlay {
     position: absolute;
     width: 36%;
@@ -106,74 +106,41 @@ let posX = 0, posY = 0;
 let velX = 0, velY = 0;
 let tiltX = 0, tiltY = 0;
 let isActivated = false;
-let gravityActivated = true;
 let isDismissing = false;
-let isUnlockedForExit = false;
 let permissionGranted = false;
 
-// Interaction & Timer Variables
+// Drag variables
 let isDragging = false;
 let dragStartX = 0, dragStartY = 0;
 let initialCoinX = 0, initialCoinY = 0;
 let lastTouchX = 0, lastTouchY = 0;
 let lastTouchTime = 0;
-let lastTapTime = 0;
-let revealDelayTimer = null;
-let isWaitingForReveal = false;
+
+// Long press reveal variables
+let pressTimer = null;
+let pressStartX = 0, pressStartY = 0;
+let pressNowX = 0, pressNowY = 0;
 
 const SHAKE_THRESHOLD = 25;
-const HOLD_TO_RELEASE_MS = 1500; // hold the coin this long to "break the walls"
-const EXIT_SOUND_VISIBLE = 0.10; // play coin.mp3 when only this fraction is still visible
-let holdTimer = null;
-let exitSoundPlayed = false;
+const LONG_PRESS_MS = 1500;     // hold this long on an empty spot to reveal the coin
+const PRESS_MOVE_CANCEL = 10;   // px of finger movement that cancels the long press
+const MIN_EXIT_SPEED = 8;       // px per frame, minimum speed when leaving through the top
+const GRAVITY_STRENGTH = 0.055; // coin on glass: stronger than the card. Raise for faster sliding
+const FRICTION = 0.93;          // closer to 1 = slides longer
 
-// ---- Web Audio: cling.mp3 decoded once, plays with minimal latency ----
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-const audioCtx = new AudioCtx({ latencyHint: 'interactive' });
-let clingBuffer = null;
-
-fetch('cling.mp3')
-    .then(r => r.arrayBuffer())
-    .then(data => new Promise((res, rej) => audioCtx.decodeAudioData(data, res, rej)))
-    .then(buf => { clingBuffer = buf; })
-    .catch(err => console.error('cling.mp3 load failed:', err));
-
-let coinBuffer = null;
-
-fetch('coin.mp3')
-    .then(r => r.arrayBuffer())
-    .then(data => new Promise((res, rej) => audioCtx.decodeAudioData(data, res, rej)))
-    .then(buf => { coinBuffer = buf; })
-    .catch(err => console.error('coin.mp3 load failed:', err));
-
-function playBuffer(buffer) {
-    if (!buffer) return;
-    if (audioCtx.state !== 'running') audioCtx.resume();
-    const src = audioCtx.createBufferSource();
-    src.buffer = buffer;
-    src.connect(audioCtx.destination);
-    src.start(0);
-}
-
-function playInstantCling() { playBuffer(clingBuffer); }
-function playExitSound() { playBuffer(coinBuffer); }
-
-// Wall contact tracking: cling plays once per new touch, not while resting/sliding
-const contact = { l: false, r: false, t: false, b: false };
+// Wall contact tracking: a wall hit counts once per new touch, not while resting/sliding
+const contact = { l: false, r: false, b: false };
 const WALL_RELEASE = 4; // px the coin must move away before the wall "resets"
 
 // Rotation physics (degrees per frame)
 let angle = 0, angVel = 0;
-const SPIN_DAMPING = 0.96; // closer to 1 = spins longer
+const SPIN_DAMPING = 0.96;
 const MAX_SPIN = 4;
-const SPIN_DIR = { l: -1, r: 1, t: 1, b: -1 }; // wall friction spin direction
+const SPIN_DIR = { l: -1, r: 1, b: -1 };
 
 function wallHit(side, vel, tangent) {
     if (!contact[side]) {
         contact[side] = true;
-        const speed = Math.abs(vel);
-        if (speed > 0.4) playInstantCling();
-        // Hitting a wall stops most of the spin; only a tiny bit from sliding
         angVel *= 0.2;
         angVel += SPIN_DIR[side] * tangent * 0.03;
     }
@@ -199,80 +166,105 @@ function requestSensorsPermission() {
 }
 
 function handleOrientation(e) {
-    tiltX = e.gamma || 0; // Left/Right tilt (-90 to 90)
-    tiltY = e.beta || 0;  // Forward/Back tilt (-180 to 180)
+    tiltX = e.gamma || 0; // Left/Right tilt
+    tiltY = e.beta || 0;  // Forward/Back tilt
 }
 
+// Shake reveal: instant, centered
 function handleMotion(e) {
     const acc = e.accelerationIncludingGravity;
     if (!acc) return;
 
     const totalAccel = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
 
-    if (totalAccel > SHAKE_THRESHOLD && !isActivated && !isWaitingForReveal) {
+    if (totalAccel > SHAKE_THRESHOLD && !isActivated) {
+        cancelPress();
         startMotion();
     }
 }
 
 const handleFirstTouch = () => {
     if (video.paused) {
-        video.muted = false;
         video.play().catch(error => console.log("Playback failed:", error));
     }
-    audioCtx.resume(); // unlock Web Audio on iOS
 
     requestSensorsPermission();
 };
 
-function playCoinSound() {
-    playInstantCling(); // coin appearing now uses cling.mp3
-}
-
-function startMotion() {
+// Reveal the coin. With a finger position it appears under the finger and follows it.
+function startMotion(fingerX, fingerY) {
     if (isActivated) return;
 
-    clearTimeout(revealDelayTimer);
-    isWaitingForReveal = false;
-
-    posX = (stage.clientWidth - coin.clientWidth) / 2;
-    posY = (stage.clientHeight - coin.clientHeight) / 2;
+    const maxX = stage.clientWidth - coin.clientWidth;
+    const maxY = stage.clientHeight - coin.clientHeight;
 
     velX = 0;
     velY = 0;
-    contact.l = contact.r = contact.t = contact.b = false;
+    contact.l = contact.r = contact.b = false;
     angle = 0;
     angVel = 0;
+    isDismissing = false;
+
+    if (fingerX !== undefined) {
+        const rect = stage.getBoundingClientRect();
+        posX = fingerX - rect.left - coin.clientWidth / 2;
+        posY = fingerY - rect.top - coin.clientHeight / 2;
+        // Keep the coin inside the screen if the finger is near an edge
+        posX = Math.max(0, Math.min(posX, maxX));
+        posY = Math.max(0, Math.min(posY, maxY));
+
+        // Follow the finger right away
+        isDragging = true;
+        dragStartX = fingerX;
+        dragStartY = fingerY;
+        initialCoinX = posX;
+        initialCoinY = posY;
+        lastTouchX = fingerX;
+        lastTouchY = fingerY;
+        lastTouchTime = performance.now();
+    } else {
+        posX = maxX / 2;
+        posY = maxY / 2;
+    }
 
     isActivated = true;
-    gravityActivated = true;
-    isDismissing = false;
-    isUnlockedForExit = false;
-    exitSoundPlayed = false;
-
-    clearTimeout(holdTimer);
-
-    playCoinSound();
     coin.style.opacity = '1';
 
     requestAnimationFrame(updateCoinPosition);
 }
 
-// Tap & Double-Tap Handling
-window.addEventListener('touchend', (e) => {
-    if (isDragging) return;
+// ---- Long press reveal ----
+function cancelPress() {
+    clearTimeout(pressTimer);
+    pressTimer = null;
+}
 
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTapTime;
+window.addEventListener('touchstart', (e) => {
+    if (isActivated) return;
+    if (e.touches.length !== 1) { cancelPress(); return; }
 
-    if (tapLength < 300 && tapLength > 0) {
-        if (!isActivated) {
-            startMotion(); // reveal instantly on double tap
-        }
+    const t = e.touches[0];
+    pressStartX = pressNowX = t.clientX;
+    pressStartY = pressNowY = t.clientY;
+
+    cancelPress();
+    pressTimer = setTimeout(() => {
+        pressTimer = null;
+        startMotion(pressNowX, pressNowY);
+    }, LONG_PRESS_MS);
+}, { passive: true });
+
+window.addEventListener('touchmove', (e) => {
+    if (!pressTimer) return;
+    const t = e.touches[0];
+    pressNowX = t.clientX;
+    pressNowY = t.clientY;
+    if (Math.hypot(pressNowX - pressStartX, pressNowY - pressStartY) > PRESS_MOVE_CANCEL) {
+        cancelPress();
     }
-    lastTapTime = currentTime;
-});
+}, { passive: true });
 
-// Touch & Drag Events
+// ---- Touch & Drag on the coin ----
 coin.addEventListener('touchstart', (e) => {
     if (!isActivated || isDismissing) return;
 
@@ -290,10 +282,6 @@ coin.addEventListener('touchstart', (e) => {
 
     velX = 0;
     velY = 0;
-
-    // Holding the coin long enough breaks the walls
-    clearTimeout(holdTimer);
-    holdTimer = setTimeout(() => { isUnlockedForExit = true; }, HOLD_TO_RELEASE_MS);
 }, { passive: true });
 
 window.addEventListener('touchmove', (e) => {
@@ -303,8 +291,11 @@ window.addEventListener('touchmove', (e) => {
     const deltaX = touch.clientX - dragStartX;
     const deltaY = touch.clientY - dragStartY;
 
-    posX = initialCoinX + deltaX;
-    posY = initialCoinY + deltaY;
+    const maxX = stage.clientWidth - coin.clientWidth;
+    const maxY = stage.clientHeight - coin.clientHeight;
+
+    posX = Math.max(0, Math.min(initialCoinX + deltaX, maxX));
+    posY = Math.min(initialCoinY + deltaY, maxY); // top is open: dragging out dismisses
 
     const now = performance.now();
     const dt = (now - lastTouchTime) || 16;
@@ -317,11 +308,22 @@ window.addEventListener('touchmove', (e) => {
     lastTouchX = touch.clientX;
     lastTouchY = touch.clientY;
     lastTouchTime = now;
+
+    // Dragged past halfway off the top: auto exit
+    if (posY < -coin.clientHeight / 2) {
+        startDismiss();
+    }
 }, { passive: true });
 
 function releaseTouch() {
-    clearTimeout(holdTimer); // released before 1.5s: walls stay
-    isDragging = false;
+    cancelPress();
+    if (isDragging) {
+        isDragging = false;
+        // Released past halfway off the top: auto exit
+        if (isActivated && posY < -coin.clientHeight / 2) {
+            startDismiss();
+        }
+    }
 }
 window.addEventListener('touchend', releaseTouch);
 window.addEventListener('touchcancel', releaseTouch);
@@ -329,9 +331,17 @@ window.addEventListener('touchcancel', releaseTouch);
 window.addEventListener('touchstart', handleFirstTouch, { once: true });
 window.addEventListener('click', handleFirstTouch, { once: true });
 
+function startDismiss() {
+    isDragging = false;
+    isDismissing = true;
+    velX = 0;
+    velY = Math.min(velY, -MIN_EXIT_SPEED); // keep a faster flick, otherwise minimum push
+}
+
 function dismissCoin() {
     isActivated = false;
     isDismissing = false;
+    isDragging = false;
     coin.style.opacity = '0';
 }
 
@@ -342,101 +352,81 @@ function updateCoinPosition() {
     const maxY = stage.clientHeight - coin.clientHeight;
 
     if (isDismissing) {
-        velX *= 1.04;
-        velY *= 1.04;
-        posX += velX;
+        // Constant speed out through the top, no gravity or friction
         posY += velY;
 
-        // Play coin.mp3 once, when only the last 10% of the coin is visible
-        if (!exitSoundPlayed) {
-            const w = coin.clientWidth, h = coin.clientHeight;
-            const visW = Math.max(0, Math.min(posX + w, stage.clientWidth) - Math.max(posX, 0));
-            const visH = Math.max(0, Math.min(posY + h, stage.clientHeight) - Math.max(posY, 0));
-            if ((visW * visH) / (w * h) <= EXIT_SOUND_VISIBLE) {
-                exitSoundPlayed = true;
-                playExitSound();
-            }
-        }
-
-        if (posX < -coin.clientWidth * 2 || posX > stage.clientWidth * 2 || posY < -coin.clientHeight * 2 || posY > stage.clientHeight * 2) {
+        if (posY < -coin.clientHeight) {
             dismissCoin();
             return;
         }
-    } else {
-        if (!isDragging && gravityActivated) {
-            const deadzone = 1.5;
-            let forceX = 0;
-            let forceY = 0;
+    } else if (!isDragging) {
+        // Gravity is always on; the finger overrides it while dragging
+        const deadzone = 1.5;
+        let forceX = 0;
+        let forceY = 0;
 
-            if (Math.abs(tiltX) > deadzone) {
-                forceX = (Math.abs(tiltX) - deadzone) * Math.sign(tiltX) * 0.035;
-            }
-            if (Math.abs(tiltY) > deadzone) {
-                forceY = (Math.abs(tiltY) - deadzone) * Math.sign(tiltY) * 0.035;
-            }
+        if (Math.abs(tiltX) > deadzone) {
+            forceX = (Math.abs(tiltX) - deadzone) * Math.sign(tiltX) * GRAVITY_STRENGTH;
+        }
+        if (Math.abs(tiltY) > deadzone) {
+            forceY = (Math.abs(tiltY) - deadzone) * Math.sign(tiltY) * GRAVITY_STRENGTH;
+        }
 
-            velX += forceX;
-            velY += forceY;
+        velX += forceX;
+        velY += forceY;
 
-            velX *= 0.91;
-            velY *= 0.91;
+        velX *= FRICTION;
+        velY *= FRICTION;
 
-            posX += velX;
-            posY += velY;
+        posX += velX;
+        posY += velY;
 
-            // Continuous wall friction: sliding along a wall keeps nudging the spin
-            if (contact.l) angVel += SPIN_DIR.l * velY * 0.01;
-            if (contact.r) angVel += SPIN_DIR.r * velY * 0.01;
-            if (contact.t) angVel += SPIN_DIR.t * velX * 0.01;
-            if (contact.b) angVel += SPIN_DIR.b * velX * 0.01;
+        // Continuous wall friction: sliding along a wall keeps nudging the spin
+        if (contact.l) angVel += SPIN_DIR.l * velY * 0.01;
+        if (contact.r) angVel += SPIN_DIR.r * velY * 0.01;
+        if (contact.b) angVel += SPIN_DIR.b * velX * 0.01;
 
-            // Subtle spin only while flying free (not touching any wall)
-            if (!(contact.l || contact.r || contact.t || contact.b)) {
-                angVel += velX * 0.006;
-            }
+        // Subtle spin only while flying free
+        if (!(contact.l || contact.r || contact.b)) {
+            angVel += velX * 0.006;
+        }
 
-            // Left Wall (cling only on a NEW contact)
-            if (posX < 0) {
-                posX = 0;
-                wallHit('l', velX, velY);
-                velX *= -0.25;
-            } else if (posX > WALL_RELEASE) {
-                contact.l = false;
-            }
+        // Left wall
+        if (posX < 0) {
+            posX = 0;
+            wallHit('l', velX, velY);
+            velX *= -0.25;
+        } else if (posX > WALL_RELEASE) {
+            contact.l = false;
+        }
 
-            if (!isUnlockedForExit) {
-                if (posX > maxX) {
-                    posX = maxX;
-                    wallHit('r', velX, velY);
-                    velX *= -0.25;
-                } else if (posX < maxX - WALL_RELEASE) {
-                    contact.r = false;
-                }
-                if (posY < 0) {
-                    posY = 0;
-                    wallHit('t', velY, velX);
-                    velY *= -0.25;
-                } else if (posY > WALL_RELEASE) {
-                    contact.t = false;
-                }
-                if (posY > maxY) {
-                    posY = maxY;
-                    wallHit('b', velY, velX);
-                    velY *= -0.25;
-                } else if (posY < maxY - WALL_RELEASE) {
-                    contact.b = false;
-                }
-            } else {
-                if (posX > maxX || posY < 0 || posY > maxY) {
-                    isDismissing = true;
-                }
-            }
+        // Right wall
+        if (posX > maxX) {
+            posX = maxX;
+            wallHit('r', velX, velY);
+            velX *= -0.25;
+        } else if (posX < maxX - WALL_RELEASE) {
+            contact.r = false;
+        }
+
+        // Bottom wall
+        if (posY > maxY) {
+            posY = maxY;
+            wallHit('b', velY, velX);
+            velY *= -0.25;
+        } else if (posY < maxY - WALL_RELEASE) {
+            contact.b = false;
+        }
+
+        // Top is the exit: past halfway off the top starts the auto exit
+        if (posY < -coin.clientHeight / 2) {
+            startDismiss();
         }
     }
 
     // Spin momentum: decays slowly (glass friction)
-    const touchingWall = contact.l || contact.r || contact.t || contact.b;
-    angVel *= touchingWall ? 0.88 : SPIN_DAMPING; // wall friction kills spin fast
+    const touchingWall = contact.l || contact.r || contact.b;
+    angVel *= touchingWall ? 0.88 : SPIN_DAMPING;
     if (angVel > MAX_SPIN) angVel = MAX_SPIN;
     if (angVel < -MAX_SPIN) angVel = -MAX_SPIN;
     if (Math.abs(angVel) < 0.01) angVel = 0;
