@@ -251,6 +251,7 @@
       const cachedCard = cardImageCache.get(pendingCard);
       cardReady = Boolean(cachedCard && cachedCard.complete && cachedCard.naturalWidth > 0);
       if (cardReady) cardEl.src = pendingCard;
+      cardEl.style.transition = "none";
       cardEl.style.opacity = "0";
       startY = clientY;
       startTime = new Date();
@@ -274,12 +275,15 @@
         lastMinuteIndex = minutesBack;
       }
 
-      // Reveal the selected card as the time is pulled down.
-      cardEl.style.opacity = cardReady
-        ? String(Math.min(1, dragPixels / REVEAL_DISTANCE))
-        : "0";
-      timeEl.style.opacity = String(1 - 0.9 * Math.min(1, dragPixels / REVEAL_DISTANCE));
-      timeEl.style.transform = `translateY(${Math.min(dragPixels * 0.16, 58)}px)`;
+      applyPull(dragPixels);
+    }
+
+    // One function drives BOTH the time and the card, so they always stay in sync.
+    function applyPull(pixels) {
+      const progress = Math.min(1, pixels / REVEAL_DISTANCE);
+      cardEl.style.opacity = cardReady ? String(progress) : "0";
+      timeEl.style.opacity = String(1 - 0.9 * progress);
+      timeEl.style.transform = `translateY(${Math.min(pixels * 0.16, 58)}px)`;
     }
 
     function peekNextCard() {
@@ -312,12 +316,8 @@
       if (!dragging) return;
 
       dragging = false;
-      // Short pulls return quickly; a full pull gets the full two-second glide.
       const pullProgress = Math.min(1, dragPixels / REVEAL_DISTANCE);
-      const returnDuration = Math.round(250 + 1750 * pullProgress);
-      timeEl.style.transition = `transform ${returnDuration}ms ease-out, opacity ${returnDuration}ms ease-out`;
-      timeEl.style.transform = "";
-      timeEl.style.opacity = "0.1";
+      const returnDuration = Math.round(200 + 1000 * pullProgress);
 
       // Only a full pull reveals/consumes a card.
       if (dragPixels >= REVEAL_DISTANCE) {
@@ -329,20 +329,25 @@
         }
       }
 
-      cardEl.style.opacity = "0";
+      // Time and card are animated by JS together (no CSS transitions).
+      timeEl.style.transition = "none";
+      cardEl.style.transition = "none";
       isSpinningBack = true;
       const fromTime = new Date(shownTime);
+      const fromPixels = dragPixels;
       const start = performance.now();
-      const duration = returnDuration;
 
       function spinBackToRealTime(now) {
-        const progress = Math.min(1, (now - start) / duration);
+        if (dragging) { isSpinningBack = false; return; } // new pull started, stop
+        const progress = Math.min(1, (now - start) / returnDuration);
         const eased = 1 - Math.pow(1 - progress, 3);
+
+        // Clock numbers roll forward to the real time
         const realNow = new Date();
-        const intermediate = new Date(
-          fromTime.getTime() + (realNow.getTime() - fromTime.getTime()) * eased
-        );
-        renderClock(intermediate);
+        renderClock(new Date(fromTime.getTime() + (realNow.getTime() - fromTime.getTime()) * eased));
+
+        // Time slides up and fades in while the card fades out, in sync
+        applyPull(fromPixels * (1 - eased));
 
         if (progress < 1) {
           requestAnimationFrame(spinBackToRealTime);
@@ -350,8 +355,9 @@
           shownTime = new Date();
           renderClock(shownTime);
           isSpinningBack = false;
-          timeEl.style.transition = "opacity 350ms ease-out";
           timeEl.style.opacity = "1";
+          timeEl.style.transform = "";
+          cardEl.style.opacity = "0";
         }
       }
       requestAnimationFrame(spinBackToRealTime);
