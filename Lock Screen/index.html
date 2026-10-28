@@ -205,6 +205,13 @@
 
       pendingCard = peekNextCard();
       if (!pendingCard) {
+        // The trick has run out of cards. Restore the real date/time before
+        // locking the screen, otherwise the clock can remain in the past.
+        shownTime = new Date();
+        renderClock(shownTime);
+        cardEl.style.opacity = "0";
+        timeEl.style.transform = "";
+        timeEl.style.cursor = "default";
         magicLocked = true;
         frozen = true;
         timeEl.setAttribute("aria-label", "The magic has ended");
