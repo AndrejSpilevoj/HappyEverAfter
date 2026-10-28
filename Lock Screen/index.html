@@ -82,7 +82,8 @@
       pointer-events: auto;
       cursor: grab;
       touch-action: none;
-      will-change: transform;
+      will-change: transform, opacity;
+      transition: opacity 350ms ease-out;
     }
     .time:active { cursor: grabbing; }
     @media (min-width: 600px) {
@@ -128,8 +129,8 @@
     const PAUSE_MS = 120000;
     const REVEAL_DISTANCE = 220;
 
-    let frozen = false;
     let shownTime = new Date();
+    let isSpinningBack = false;
     let dragging = false;
     let startY = 0;
     let startTime = null;
@@ -143,7 +144,7 @@
     let secondDeck = [];
     let sequenceStarted = false;
     let pendingCard = null;
-    let magicLocked = false;
+    let magicLocked = false; // kept for event-handler compatibility; the live clock is never locked
     let lockTimer = null;
 
     function shuffle(items) {
@@ -179,59 +180,54 @@
     }
 
     function updateClock() {
-      if (!frozen && !dragging && !magicLocked) {
+      // The real clock always runs whenever the user is not actively pulling
+      // the time or watching the brief rewind animation.
+      if (!dragging && !isSpinningBack) {
         shownTime = new Date();
         renderClock(shownTime);
       }
     }
     updateClock();
-    setInterval(updateClock, 1000);
+    setInterval(updateClock, 250);
 
     function beginDrag(clientY) {
       if (magicLocked) return;
 
       const now = Date.now();
 
-      // A two-minute pause after the first sequence switches to the special
-      // second phase. This happens on the next pull, not while the screen is idle.
+      // After two minutes without a completed pull, the next pull starts phase 2.
       if (
         lastCompletedPullAt !== null &&
         sequenceMode === "first" &&
-        now - lastCompletedPullAt >= PAUSE_MS
+        now - lastCompletedPullAt >= PAUSE_MS &&
+        firstCardCount >= 2 && firstDeck.length === 0
       ) {
         sequenceMode = "second";
         secondPhaseCardCount = 0;
-        // Starting the second round must unlock and refresh the live clock.
-        magicLocked = false;
-        frozen = false;
-        shownTime = new Date();
-        renderClock(shownTime);
-        timeEl.style.cursor = "grab";
-        timeEl.setAttribute("aria-label", "Touch and drag down to turn the time backwards");
       }
 
       pendingCard = peekNextCard();
       if (!pendingCard) {
-        // The trick has run out of cards. Restore the real date/time before
-        // locking the screen, otherwise the clock can remain in the past.
+        // No card is available yet (usually because phase 1 is waiting for its
+        // two-minute pause). Do not freeze or lock the clock; just ignore this pull.
+        dragging = false;
+        isSpinningBack = false;
         shownTime = new Date();
         renderClock(shownTime);
-        cardEl.style.opacity = "0";
+        timeEl.style.opacity = "1";
         timeEl.style.transform = "";
-        timeEl.style.cursor = "default";
-        magicLocked = true;
-        frozen = true;
-        timeEl.setAttribute("aria-label", "The magic has ended");
         return;
       }
-      cardEl.src = pendingCard;
 
+      clearTimeout(lockTimer);
+      cardEl.src = pendingCard;
       dragging = true;
-      frozen = true;
       startY = clientY;
-      startTime = new Date(shownTime);
+      startTime = new Date();
+      shownTime = new Date(startTime);
       lastMinuteIndex = 0;
       dragPixels = 0;
+      timeEl.style.opacity = "1";
     }
 
     function moveDrag(clientY) {
@@ -248,6 +244,7 @@
 
       // Reveal the selected card as the time is pulled down.
       cardEl.style.opacity = String(Math.min(1, dragPixels / REVEAL_DISTANCE));
+      timeEl.style.opacity = String(1 - 0.7 * Math.min(1, dragPixels / REVEAL_DISTANCE));
       timeEl.style.transform = `translateY(${Math.min(dragPixels * 0.16, 58)}px)`;
     }
 
@@ -277,74 +274,53 @@
     }
 
     function startInactivityLockTimer() {
+      // Intentionally do not lock the clock after inactivity. The live clock
+      // and the card-sequence timing are independent.
       clearTimeout(lockTimer);
-
-      // After the second-phase card has appeared twice, the trick ends if
-      // there is no further pull for two minutes.
-      if (sequenceMode === "second" && secondPhaseCardCount >= 2) {
-        lockTimer = setTimeout(() => {
-          magicLocked = true;
-          dragging = false;
-          frozen = true;
-          cardEl.style.opacity = "0";
-          timeEl.style.transform = "";
-          timeEl.style.cursor = "default";
-          timeEl.setAttribute("aria-label", "The magic has ended");
-        }, PAUSE_MS);
-      }
     }
 
     function finishDrag() {
       if (!dragging) return;
 
       dragging = false;
-      frozen = false;
       timeEl.style.transform = "";
+      timeEl.style.opacity = "0.3";
 
-      // Count a pull only when it was long enough to reveal the card.
-      if (dragPixels >= REVEAL_DISTANCE && !magicLocked) {
+      // Only a full pull reveals/consumes a card.
+      if (dragPixels >= REVEAL_DISTANCE) {
         const card = chooseNextCard();
-
         if (card) {
           sequenceStarted = true;
           lastCompletedPullAt = Date.now();
           startInactivityLockTimer();
-        } else {
-          // This phase's cards are finished. Keep the clock live during the
-          // two-minute pause so the next pull can start the second phase.
-          shownTime = new Date();
-          renderClock(shownTime);
-          frozen = false;
         }
       }
 
       cardEl.style.opacity = "0";
+      isSpinningBack = true;
+      const fromTime = new Date(shownTime);
+      const start = performance.now();
+      const duration = 650;
 
-      // Spin the displayed clock back to the real time, then keep it live.
-      if (!magicLocked) {
-        const fromTime = new Date(shownTime);
-        const toTime = new Date();
-        const duration = 900;
-        const start = performance.now();
+      function spinBackToRealTime(now) {
+        const progress = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const realNow = new Date();
+        const intermediate = new Date(
+          fromTime.getTime() + (realNow.getTime() - fromTime.getTime()) * eased
+        );
+        renderClock(intermediate);
 
-        function spinBackToRealTime(now) {
-          if (magicLocked) return;
-          const progress = Math.min(1, (now - start) / duration);
-          const eased = 1 - Math.pow(1 - progress, 3);
-          const intermediate = new Date(
-            fromTime.getTime() + (toTime.getTime() - fromTime.getTime()) * eased
-          );
-          renderClock(intermediate);
-
-          if (progress < 1) {
-            requestAnimationFrame(spinBackToRealTime);
-          } else {
-            shownTime = new Date();
-            renderClock(shownTime);
-          }
+        if (progress < 1) {
+          requestAnimationFrame(spinBackToRealTime);
+        } else {
+          shownTime = new Date();
+          renderClock(shownTime);
+          isSpinningBack = false;
+          timeEl.style.opacity = "1";
         }
-        requestAnimationFrame(spinBackToRealTime);
       }
+      requestAnimationFrame(spinBackToRealTime);
     }
 
     // iPhone / iPad Safari: non-passive touch handlers are important here.
