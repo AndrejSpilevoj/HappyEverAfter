@@ -145,6 +145,7 @@
     let secondDeck = [];
     let sequenceStarted = false;
     let pendingCard = null;
+    let cardReady = false;
     let magicLocked = false; // kept for event-handler compatibility; the live clock is never locked
     let lockTimer = null;
 
@@ -162,6 +163,25 @@
       secondDeck = [...SECOND_PHASE_ORDER];
     }
     resetDecks();
+
+    // Preload every card before it is needed, so a slow image request cannot
+    // make the next card appear late or cause a visible jump during a pull.
+    const cardImageCache = new Map();
+    const ALL_CARD_IMAGES = [...new Set([
+      FIRST_CARD, SECOND_PHASE_CARD, ...FIRST_PHASE_ORDER, ...SECOND_PHASE_ORDER
+    ])];
+    for (const src of ALL_CARD_IMAGES) {
+      const image = new Image();
+      cardImageCache.set(src, image);
+      image.onload = () => {
+        if (dragging && pendingCard === src && !cardReady) {
+          cardReady = true;
+          cardEl.src = src;
+          cardEl.style.opacity = String(Math.min(1, dragPixels / REVEAL_DISTANCE));
+        }
+      };
+      image.src = src;
+    }
 
     function formatTime(date) {
       return new Intl.DateTimeFormat("en-GB", {
@@ -224,8 +244,11 @@
       }
 
       clearTimeout(lockTimer);
-      cardEl.src = pendingCard;
       dragging = true;
+      const cachedCard = cardImageCache.get(pendingCard);
+      cardReady = Boolean(cachedCard && cachedCard.complete && cachedCard.naturalWidth > 0);
+      if (cardReady) cardEl.src = pendingCard;
+      cardEl.style.opacity = "0";
       startY = clientY;
       startTime = new Date();
       shownTime = new Date(startTime);
@@ -249,7 +272,9 @@
       }
 
       // Reveal the selected card as the time is pulled down.
-      cardEl.style.opacity = String(Math.min(1, dragPixels / REVEAL_DISTANCE));
+      cardEl.style.opacity = cardReady
+        ? String(Math.min(1, dragPixels / REVEAL_DISTANCE))
+        : "0";
       timeEl.style.opacity = String(1 - 0.9 * Math.min(1, dragPixels / REVEAL_DISTANCE));
       timeEl.style.transform = `translateY(${Math.min(dragPixels * 0.16, 58)}px)`;
     }
@@ -289,7 +314,10 @@
       if (!dragging) return;
 
       dragging = false;
-      timeEl.style.transition = "transform 2000ms ease-out, opacity 2000ms ease-out";
+      // Short pulls return quickly; a full pull gets the full two-second glide.
+      const pullProgress = Math.min(1, dragPixels / REVEAL_DISTANCE);
+      const returnDuration = Math.round(250 + 1750 * pullProgress);
+      timeEl.style.transition = `transform ${returnDuration}ms ease-out, opacity ${returnDuration}ms ease-out`;
       timeEl.style.transform = "";
       timeEl.style.opacity = "0.1";
 
@@ -307,7 +335,7 @@
       isSpinningBack = true;
       const fromTime = new Date(shownTime);
       const start = performance.now();
-      const duration = 2000;
+      const duration = returnDuration;
 
       function spinBackToRealTime(now) {
         const progress = Math.min(1, (now - start) / duration);
