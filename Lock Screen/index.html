@@ -118,6 +118,8 @@
     ];
 
     const SECOND_PHASE_ORDER = [
+      "cardAH.png",
+      "cardAH.png",
       "cardAS.png",
       "card2H.png",
       "cardJC.png",
@@ -284,7 +286,6 @@
         if (firstCardCount < 2) return FIRST_CARD;
         return firstDeck.length ? firstDeck[0] : null;
       }
-      if (secondPhaseCardCount < 2) return SECOND_PHASE_CARD;
       return secondDeck.length ? secondDeck[0] : null;
     }
 
@@ -297,10 +298,6 @@
         return firstDeck.length ? firstDeck.shift() : null;
       }
 
-      if (secondPhaseCardCount < 2) {
-        secondPhaseCardCount++;
-        return SECOND_PHASE_CARD;
-      }
       return secondDeck.length ? secondDeck.shift() : null;
     }
 
