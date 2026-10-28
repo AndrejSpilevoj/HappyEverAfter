@@ -201,6 +201,13 @@
       ) {
         sequenceMode = "second";
         secondPhaseCardCount = 0;
+        // Starting the second round must unlock and refresh the live clock.
+        magicLocked = false;
+        frozen = false;
+        shownTime = new Date();
+        renderClock(shownTime);
+        timeEl.style.cursor = "grab";
+        timeEl.setAttribute("aria-label", "Touch and drag down to turn the time backwards");
       }
 
       pendingCard = peekNextCard();
@@ -303,11 +310,11 @@
           lastCompletedPullAt = Date.now();
           startInactivityLockTimer();
         } else {
-          // All cards in this sequence have been used.
-          magicLocked = true;
-          frozen = true;
-          timeEl.style.cursor = "default";
-          timeEl.setAttribute("aria-label", "The magic has ended");
+          // This phase's cards are finished. Keep the clock live during the
+          // two-minute pause so the next pull can start the second phase.
+          shownTime = new Date();
+          renderClock(shownTime);
+          frozen = false;
         }
       }
 
