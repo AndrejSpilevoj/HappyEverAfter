@@ -106,15 +106,27 @@
 
     const FIRST_CARD = "card.png";
     const SECOND_PHASE_CARD = "cardAH.png";
-    const ALL_CARDS = [
-      "card.png",
-      "card2H.png",
-      "card4C.png",
-      "cardAD.png",
-      "cardAH.png",
+    // Exact reveal sequences for the trick.
+    // First phase: card.png twice, then the remaining cards in this order.
+    const FIRST_PHASE_ORDER = [
       "cardAS.png",
+      "card2H.png",
       "cardJC.png",
-      "cardKH.png"
+      "cardAH.png",
+      "card4C.png",
+      "cardKH.png",
+      "cardAD.png"
+    ];
+
+    // Second phase: cardAH.png twice, then the remaining cards in this order.
+    const SECOND_PHASE_ORDER = [
+      "cardAS.png",
+      "card2H.png",
+      "cardJC.png",
+      "card.png",
+      "card4C.png",
+      "cardKH.png",
+      "cardAD.png"
     ];
     const PAUSE_MS = 120000;
     const REVEAL_DISTANCE = 220;
@@ -146,28 +158,11 @@
       return result;
     }
 
-    // Suit order for revealed cards: Hearts, Diamonds, Clubs, Spades.
-    // The final character in each filename identifies its suit (H/D/C/S).
-    // Cards without a suit suffix (such as card.png) are kept at the end.
-    const SUIT_ORDER = { H: 0, D: 1, C: 2, S: 3 };
-
-    function suitOrder(card) {
-      const match = card.match(/([HDCS])\.png$/i);
-      return match ? (SUIT_ORDER[match[1].toUpperCase()] ?? 4) : 4;
-    }
-
-    function sortCardsBySuit(cards) {
-      return [...cards].sort((a, b) => {
-        const suitDifference = suitOrder(a) - suitOrder(b);
-        return suitDifference || a.localeCompare(b, undefined, { numeric: true });
-      });
-    }
-
     function resetDecks() {
-      firstDeck = sortCardsBySuit(ALL_CARDS.filter(card => card !== FIRST_CARD));
+      firstDeck = shuffle(ALL_CARDS.filter(card => card !== FIRST_CARD));
       // In the second phase, neither of the two special cards appears again
       // after its two planned reveals.
-      secondDeck = sortCardsBySuit(
+      secondDeck = shuffle(
         ALL_CARDS.filter(card => card !== FIRST_CARD && card !== SECOND_PHASE_CARD)
       );
     }
