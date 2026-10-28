@@ -83,7 +83,7 @@
       cursor: grab;
       touch-action: none;
       will-change: transform, opacity;
-      transition: opacity 350ms ease-out;
+      transition: transform 2000ms ease-out, opacity 350ms ease-out;
     }
     .time:active { cursor: grabbing; }
     @media (min-width: 600px) {
@@ -126,7 +126,7 @@
       "cardKH.png",
       "cardAD.png"
     ];
-    const PAUSE_MS = 120000;
+    const PAUSE_MS = 60000;
     const REVEAL_DISTANCE = 220;
 
     let shownTime = new Date();
@@ -137,6 +137,7 @@
     let lastMinuteIndex = 0;
     let dragPixels = 0;
     let lastCompletedPullAt = null;
+    let lastActivityAt = Date.now();
     let sequenceMode = "first"; // "first" or "second"
     let firstCardCount = 0;
     let secondPhaseCardCount = 0;
@@ -195,21 +196,24 @@
 
       const now = Date.now();
 
-      // After two minutes without a completed pull, the next pull starts phase 2.
+      // Phase 2 becomes available after one minute since the final card, or one minute of inactivity.
       if (
-        lastCompletedPullAt !== null &&
         sequenceMode === "first" &&
-        now - lastCompletedPullAt >= PAUSE_MS &&
-        firstCardCount >= 2 && firstDeck.length === 0
+        firstCardCount >= 2 && firstDeck.length === 0 &&
+        (
+          (lastCompletedPullAt !== null && now - lastCompletedPullAt >= PAUSE_MS) ||
+          now - lastActivityAt >= PAUSE_MS
+        )
       ) {
         sequenceMode = "second";
         secondPhaseCardCount = 0;
       }
 
+      lastActivityAt = now;
       pendingCard = peekNextCard();
       if (!pendingCard) {
         // No card is available yet (usually because phase 1 is waiting for its
-        // two-minute pause). Do not freeze or lock the clock; just ignore this pull.
+        // one-minute wait). Do not freeze or lock the clock; just ignore this pull.
         dragging = false;
         isSpinningBack = false;
         shownTime = new Date();
@@ -227,7 +231,9 @@
       shownTime = new Date(startTime);
       lastMinuteIndex = 0;
       dragPixels = 0;
+      timeEl.style.transition = "none";
       timeEl.style.opacity = "1";
+      timeEl.style.transform = "";
     }
 
     function moveDrag(clientY) {
@@ -244,7 +250,7 @@
 
       // Reveal the selected card as the time is pulled down.
       cardEl.style.opacity = String(Math.min(1, dragPixels / REVEAL_DISTANCE));
-      timeEl.style.opacity = String(1 - 0.7 * Math.min(1, dragPixels / REVEAL_DISTANCE));
+      timeEl.style.opacity = String(1 - 0.9 * Math.min(1, dragPixels / REVEAL_DISTANCE));
       timeEl.style.transform = `translateY(${Math.min(dragPixels * 0.16, 58)}px)`;
     }
 
@@ -283,8 +289,9 @@
       if (!dragging) return;
 
       dragging = false;
+      timeEl.style.transition = "transform 2000ms ease-out, opacity 2000ms ease-out";
       timeEl.style.transform = "";
-      timeEl.style.opacity = "0.3";
+      timeEl.style.opacity = "0.1";
 
       // Only a full pull reveals/consumes a card.
       if (dragPixels >= REVEAL_DISTANCE) {
@@ -300,7 +307,7 @@
       isSpinningBack = true;
       const fromTime = new Date(shownTime);
       const start = performance.now();
-      const duration = 650;
+      const duration = 2000;
 
       function spinBackToRealTime(now) {
         const progress = Math.min(1, (now - start) / duration);
@@ -317,6 +324,7 @@
           shownTime = new Date();
           renderClock(shownTime);
           isSpinningBack = false;
+          timeEl.style.transition = "opacity 350ms ease-out";
           timeEl.style.opacity = "1";
         }
       }
@@ -365,6 +373,10 @@
     timeEl.addEventListener("pointercancel", (event) => {
       if (event.pointerType !== "touch" && !magicLocked) finishDrag();
     });
+
+    // Any screen interaction resets the inactivity clock used to unlock phase 2.
+    document.addEventListener("touchstart", () => { lastActivityAt = Date.now(); }, { passive: true });
+    document.addEventListener("pointerdown", () => { lastActivityAt = Date.now(); }, { passive: true });
 
     // Block stray page-level touch movement while the clock is being dragged.
     document.addEventListener("touchmove", (event) => {
