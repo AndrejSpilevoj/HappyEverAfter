@@ -138,6 +138,7 @@
     let startTime = null;
     let lastMinuteIndex = 0;
     let dragPixels = 0;
+    let cardConsumed = false;
     let lastCompletedPullAt = null;
     let lastActivityAt = Date.now();
     let sequenceMode = "first"; // "first" or "second"
@@ -258,6 +259,7 @@
       shownTime = new Date(startTime);
       lastMinuteIndex = 0;
       dragPixels = 0;
+      cardConsumed = false;
       timeEl.style.transition = "none";
       timeEl.style.opacity = "1";
       timeEl.style.transform = "";
@@ -267,6 +269,14 @@
       if (!dragging || magicLocked) return;
 
       dragPixels = Math.max(0, clientY - startY);
+
+      // Every touch that starts pulling counts as one reveal, straight away.
+      if (!cardConsumed && dragPixels >= 3) {
+        cardConsumed = true;
+        chooseNextCard();
+        sequenceStarted = true;
+        lastCompletedPullAt = Date.now();
+      }
       const minutesBack = Math.floor(dragPixels / 5);
 
       if (minutesBack !== lastMinuteIndex) {
@@ -318,16 +328,6 @@
       dragging = false;
       const pullProgress = Math.min(1, dragPixels / REVEAL_DISTANCE);
       const returnDuration = Math.round(200 + 1000 * pullProgress);
-
-      // Only a full pull reveals/consumes a card.
-      if (dragPixels >= REVEAL_DISTANCE) {
-        const card = chooseNextCard();
-        if (card) {
-          sequenceStarted = true;
-          lastCompletedPullAt = Date.now();
-          startInactivityLockTimer();
-        }
-      }
 
       // Time and card are animated by JS together (no CSS transitions).
       timeEl.style.transition = "none";
@@ -405,10 +405,6 @@
     timeEl.addEventListener("pointercancel", (event) => {
       if (event.pointerType !== "touch" && !magicLocked) finishDrag();
     });
-
-    // Any screen interaction resets the inactivity clock used to unlock phase 2.
-    document.addEventListener("touchstart", () => { lastActivityAt = Date.now(); }, { passive: true });
-    document.addEventListener("pointerdown", () => { lastActivityAt = Date.now(); }, { passive: true });
 
     // Block stray page-level touch movement while the clock is being dragged.
     document.addEventListener("touchmove", (event) => {
