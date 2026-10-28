@@ -104,6 +104,21 @@
     const dateEl = document.getElementById("date");
     const cardEl = document.getElementById("cardReveal");
 
+    const FIRST_CARD = "card.png";
+    const SECOND_PHASE_CARD = "cardAH.png";
+    const ALL_CARDS = [
+      "card.png",
+      "card2H.png",
+      "card4C.png",
+      "cardAD.png",
+      "cardAH.png",
+      "cardAS.png",
+      "cardJC.png",
+      "cardKH.png"
+    ];
+    const PAUSE_MS = 120000;
+    const REVEAL_DISTANCE = 220;
+
     let frozen = false;
     let shownTime = new Date();
     let dragging = false;
@@ -111,7 +126,52 @@
     let startTime = null;
     let lastMinuteIndex = 0;
     let dragPixels = 0;
-    let cardOpacityAtDragStart = 0;
+    let lastCompletedPullAt = null;
+    let sequenceMode = "first"; // "first" or "second"
+    let firstCardCount = 0;
+    let secondPhaseCardCount = 0;
+    let firstDeck = [];
+    let secondDeck = [];
+    let sequenceStarted = false;
+    let pendingCard = null;
+    let magicLocked = false;
+    let lockTimer = null;
+
+    function shuffle(items) {
+      const result = [...items];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    // Suit order for revealed cards: Hearts, Diamonds, Clubs, Spades.
+    // The final character in each filename identifies its suit (H/D/C/S).
+    // Cards without a suit suffix (such as card.png) are kept at the end.
+    const SUIT_ORDER = { H: 0, D: 1, C: 2, S: 3 };
+
+    function suitOrder(card) {
+      const match = card.match(/([HDCS])\.png$/i);
+      return match ? (SUIT_ORDER[match[1].toUpperCase()] ?? 4) : 4;
+    }
+
+    function sortCardsBySuit(cards) {
+      return [...cards].sort((a, b) => {
+        const suitDifference = suitOrder(a) - suitOrder(b);
+        return suitDifference || a.localeCompare(b, undefined, { numeric: true });
+      });
+    }
+
+    function resetDecks() {
+      firstDeck = sortCardsBySuit(ALL_CARDS.filter(card => card !== FIRST_CARD));
+      // In the second phase, neither of the two special cards appears again
+      // after its two planned reveals.
+      secondDeck = sortCardsBySuit(
+        ALL_CARDS.filter(card => card !== FIRST_CARD && card !== SECOND_PHASE_CARD)
+      );
+    }
+    resetDecks();
 
     function formatTime(date) {
       return new Intl.DateTimeFormat("en-GB", {
@@ -131,7 +191,7 @@
     }
 
     function updateClock() {
-      if (!frozen && !dragging) {
+      if (!frozen && !dragging && !magicLocked) {
         shownTime = new Date();
         renderClock(shownTime);
       }
@@ -139,78 +199,167 @@
     updateClock();
     setInterval(updateClock, 1000);
 
-    // Drag down on the time: prevent the browser's pull-to-refresh gesture.
-    // Each 5 px moves the clock back one minute.
     function beginDrag(clientY) {
+      if (magicLocked) return;
+
+      const now = Date.now();
+
+      // A two-minute pause after the first sequence switches to the special
+      // second phase. This happens on the next pull, not while the screen is idle.
+      if (
+        lastCompletedPullAt !== null &&
+        sequenceMode === "first" &&
+        now - lastCompletedPullAt >= PAUSE_MS
+      ) {
+        sequenceMode = "second";
+        secondPhaseCardCount = 0;
+      }
+
+      pendingCard = peekNextCard();
+      if (!pendingCard) {
+        magicLocked = true;
+        frozen = true;
+        timeEl.setAttribute("aria-label", "The magic has ended");
+        return;
+      }
+      cardEl.src = pendingCard;
+
       dragging = true;
       frozen = true;
       startY = clientY;
       startTime = new Date(shownTime);
       lastMinuteIndex = 0;
       dragPixels = 0;
-      cardOpacityAtDragStart = Number.parseFloat(cardEl.style.opacity || getComputedStyle(cardEl).opacity) || 0;
     }
 
     function moveDrag(clientY) {
-      if (!dragging) return;
+      if (!dragging || magicLocked) return;
+
       dragPixels = Math.max(0, clientY - startY);
       const minutesBack = Math.floor(dragPixels / 5);
+
       if (minutesBack !== lastMinuteIndex) {
         shownTime = new Date(startTime.getTime() - minutesBack * 60 * 1000);
         renderClock(shownTime);
         lastMinuteIndex = minutesBack;
       }
-      // Reveal the card progressively as the clock is pulled down.
-      cardEl.style.opacity = String(Math.min(1, dragPixels / 220));
+
+      // Reveal the selected card as the time is pulled down.
+      cardEl.style.opacity = String(Math.min(1, dragPixels / REVEAL_DISTANCE));
       timeEl.style.transform = `translateY(${Math.min(dragPixels * 0.16, 58)}px)`;
+    }
+
+    function peekNextCard() {
+      if (sequenceMode === "first") {
+        if (firstCardCount < 2) return FIRST_CARD;
+        return firstDeck.length ? firstDeck[0] : null;
+      }
+      if (secondPhaseCardCount < 2) return SECOND_PHASE_CARD;
+      return secondDeck.length ? secondDeck[0] : null;
+    }
+
+    function chooseNextCard() {
+      if (sequenceMode === "first") {
+        if (firstCardCount < 2) {
+          firstCardCount++;
+          return FIRST_CARD;
+        }
+        return firstDeck.length ? firstDeck.shift() : null;
+      }
+
+      if (secondPhaseCardCount < 2) {
+        secondPhaseCardCount++;
+        return SECOND_PHASE_CARD;
+      }
+      return secondDeck.length ? secondDeck.shift() : null;
+    }
+
+    function startInactivityLockTimer() {
+      clearTimeout(lockTimer);
+
+      // After the second-phase card has appeared twice, the trick ends if
+      // there is no further pull for two minutes.
+      if (sequenceMode === "second" && secondPhaseCardCount >= 2) {
+        lockTimer = setTimeout(() => {
+          magicLocked = true;
+          dragging = false;
+          frozen = true;
+          cardEl.style.opacity = "0";
+          timeEl.style.transform = "";
+          timeEl.style.cursor = "default";
+          timeEl.setAttribute("aria-label", "The magic has ended");
+        }, PAUSE_MS);
+      }
     }
 
     function finishDrag() {
       if (!dragging) return;
+
       dragging = false;
       frozen = false;
-      cardEl.style.opacity = "0";
+      timeEl.style.transform = "";
 
-      // Spin the displayed clock forward to the real time, then keep it live.
-      const fromTime = new Date(shownTime);
-      const toTime = new Date();
-      const duration = 900;
-      const start = performance.now();
+      // Count a pull only when it was long enough to reveal the card.
+      if (dragPixels >= REVEAL_DISTANCE && !magicLocked) {
+        const card = chooseNextCard();
 
-      function spinBackToRealTime(now) {
-        const progress = Math.min(1, (now - start) / duration);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const intermediate = new Date(
-          fromTime.getTime() + (toTime.getTime() - fromTime.getTime()) * eased
-        );
-        renderClock(intermediate);
-
-        if (progress < 1) {
-          requestAnimationFrame(spinBackToRealTime);
+        if (card) {
+          sequenceStarted = true;
+          lastCompletedPullAt = Date.now();
+          startInactivityLockTimer();
         } else {
-          shownTime = new Date();
-          renderClock(shownTime);
+          // All cards in this sequence have been used.
+          magicLocked = true;
+          frozen = true;
+          timeEl.style.cursor = "default";
+          timeEl.setAttribute("aria-label", "The magic has ended");
         }
       }
 
-      requestAnimationFrame(spinBackToRealTime);
-      timeEl.style.transform = "";
+      cardEl.style.opacity = "0";
+
+      // Spin the displayed clock back to the real time, then keep it live.
+      if (!magicLocked) {
+        const fromTime = new Date(shownTime);
+        const toTime = new Date();
+        const duration = 900;
+        const start = performance.now();
+
+        function spinBackToRealTime(now) {
+          if (magicLocked) return;
+          const progress = Math.min(1, (now - start) / duration);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const intermediate = new Date(
+            fromTime.getTime() + (toTime.getTime() - fromTime.getTime()) * eased
+          );
+          renderClock(intermediate);
+
+          if (progress < 1) {
+            requestAnimationFrame(spinBackToRealTime);
+          } else {
+            shownTime = new Date();
+            renderClock(shownTime);
+          }
+        }
+        requestAnimationFrame(spinBackToRealTime);
+      }
     }
 
     // iPhone / iPad Safari: non-passive touch handlers are important here.
     timeEl.addEventListener("touchstart", (event) => {
-      if (!event.touches.length) return;
+      if (!event.touches.length || magicLocked) return;
       beginDrag(event.touches[0].clientY);
       event.preventDefault();
     }, { passive: false });
 
     timeEl.addEventListener("touchmove", (event) => {
-      if (!dragging || !event.touches.length) return;
+      if (!dragging || !event.touches.length || magicLocked) return;
       moveDrag(event.touches[0].clientY);
       event.preventDefault();
     }, { passive: false });
 
     timeEl.addEventListener("touchend", (event) => {
+      if (magicLocked) return;
       event.preventDefault();
       finishDrag();
     }, { passive: false });
@@ -219,26 +368,27 @@
 
     // Mouse / pointer support for desktop browsers.
     timeEl.addEventListener("pointerdown", (event) => {
-      if (event.pointerType === "touch") return; // handled above for iOS
+      if (event.pointerType === "touch" || magicLocked) return;
       beginDrag(event.clientY);
       try { timeEl.setPointerCapture(event.pointerId); } catch (_) {}
       event.preventDefault();
     });
 
     timeEl.addEventListener("pointermove", (event) => {
-      if (!dragging || event.pointerType === "touch") return;
+      if (!dragging || event.pointerType === "touch" || magicLocked) return;
       moveDrag(event.clientY);
       event.preventDefault();
     });
 
     timeEl.addEventListener("pointerup", (event) => {
-      if (event.pointerType !== "touch") finishDrag();
-    });
-    timeEl.addEventListener("pointercancel", (event) => {
-      if (event.pointerType !== "touch") finishDrag();
+      if (event.pointerType !== "touch" && !magicLocked) finishDrag();
     });
 
-    // Block any stray page-level touch movement while the clock is being dragged.
+    timeEl.addEventListener("pointercancel", (event) => {
+      if (event.pointerType !== "touch" && !magicLocked) finishDrag();
+    });
+
+    // Block stray page-level touch movement while the clock is being dragged.
     document.addEventListener("touchmove", (event) => {
       if (dragging) event.preventDefault();
     }, { passive: false });
