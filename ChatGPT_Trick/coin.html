@@ -82,6 +82,17 @@ html, body {
     -webkit-user-drag: none;
     touch-action: none;
 }
+
+/* Debug status (delete this block and the statusBox div when everything works) */
+#statusBox {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 9;
+    font: 12px sans-serif;
+    color: red;
+    pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -95,12 +106,16 @@ html, body {
 
     <!-- Coin Image Overlay -->
     <img id="coinOverlay" src="coin.png" alt="Coin Overlay">
+
+    <!-- Debug status -->
+    <div id="statusBox">v3 motion: not asked</div>
 </div>
 
 <script>
 const video = document.getElementById('myVideo');
 const coin = document.getElementById('coinOverlay');
 const stage = document.getElementById('stage');
+const statusBox = document.getElementById('statusBox');
 
 let posX = 0, posY = 0;
 let velX = 0, velY = 0;
@@ -146,22 +161,28 @@ function wallHit(side, vel, tangent) {
     }
 }
 
-// Request orientation and motion permissions for iOS on first user gesture
+// ---- Sensors (iOS needs the permission request from a real tap: touchend or click) ----
+function startSensors() {
+    if (permissionGranted) return;
+    permissionGranted = true;
+    window.addEventListener('deviceorientation', handleOrientation);
+    window.addEventListener('devicemotion', handleMotion);
+    statusBox.textContent = 'v3 motion: granted';
+}
+
 function requestSensorsPermission() {
     if (permissionGranted) return;
 
-    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        DeviceOrientationEvent.requestPermission().then(response => {
-            if (response === 'granted') {
-                permissionGranted = true;
-                window.addEventListener('deviceorientation', handleOrientation);
-                window.addEventListener('devicemotion', handleMotion);
-            }
-        }).catch(console.error);
+    if (typeof DeviceMotionEvent !== 'undefined' &&
+        typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission().then(response => {
+            if (response === 'granted') startSensors();
+            else statusBox.textContent = 'v3 motion: ' + response;
+        }).catch(err => {
+            statusBox.textContent = 'v3 motion error: ' + err.name;
+        });
     } else {
-        permissionGranted = true;
-        window.addEventListener('deviceorientation', handleOrientation);
-        window.addEventListener('devicemotion', handleMotion);
+        startSensors();
     }
 }
 
@@ -328,8 +349,9 @@ function releaseTouch() {
 window.addEventListener('touchend', releaseTouch);
 window.addEventListener('touchcancel', releaseTouch);
 
-window.addEventListener('touchstart', handleFirstTouch, { once: true });
-window.addEventListener('click', handleFirstTouch, { once: true });
+// Retry on every tap until permission is granted (touchend/click count as real gestures on iOS)
+window.addEventListener('touchend', handleFirstTouch);
+window.addEventListener('click', handleFirstTouch);
 
 function startDismiss() {
     isDragging = false;
