@@ -218,17 +218,18 @@
 
       const now = Date.now();
 
-      // Phase 2 becomes available after one minute since the final card, or one minute of inactivity.
-      if (
-        sequenceMode === "first" &&
-        firstCardCount >= 2 && firstDeck.length === 0 &&
-        (
-          (lastCompletedPullAt !== null && now - lastCompletedPullAt >= PAUSE_MS) ||
-          now - lastActivityAt >= PAUSE_MS
-        )
-      ) {
-        sequenceMode = "second";
-        secondPhaseCardCount = 0;
+      // After 1 minute of no touching, switch rounds (even if round 1 was not finished).
+      const idle = now - lastActivityAt >= PAUSE_MS;
+      if (idle && sequenceStarted) {
+        if (sequenceMode === "first") {
+          sequenceMode = "second";
+          secondDeck = [...SECOND_PHASE_ORDER];
+        } else {
+          // Round 2 done (or abandoned): start over with round 1.
+          sequenceMode = "first";
+          firstCardCount = 0;
+          firstDeck = [...FIRST_PHASE_ORDER];
+        }
       }
 
       lastActivityAt = now;
