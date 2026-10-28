@@ -106,8 +106,6 @@
 
     const FIRST_CARD = "card.png";
     const SECOND_PHASE_CARD = "cardAH.png";
-    // Exact reveal sequences for the trick.
-    // First phase: card.png twice, then the remaining cards in this order.
     const FIRST_PHASE_ORDER = [
       "cardAS.png",
       "card2H.png",
@@ -118,7 +116,6 @@
       "cardAD.png"
     ];
 
-    // Second phase: cardAH.png twice, then the remaining cards in this order.
     const SECOND_PHASE_ORDER = [
       "cardAS.png",
       "card2H.png",
@@ -159,12 +156,8 @@
     }
 
     function resetDecks() {
-      firstDeck = shuffle(ALL_CARDS.filter(card => card !== FIRST_CARD));
-      // In the second phase, neither of the two special cards appears again
-      // after its two planned reveals.
-      secondDeck = shuffle(
-        ALL_CARDS.filter(card => card !== FIRST_CARD && card !== SECOND_PHASE_CARD)
-      );
+      firstDeck = [...FIRST_PHASE_ORDER];
+      secondDeck = [...SECOND_PHASE_ORDER];
     }
     resetDecks();
 
