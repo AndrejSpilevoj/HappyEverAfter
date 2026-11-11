@@ -57,9 +57,22 @@
 
     .card-reveal {
       opacity: 0;
-      z-index: 2;
+      z-index: 4;
       object-fit: contain;
       transition: opacity 700ms ease-out;
+    }
+
+    /* Covers the two circular health widgets baked into the wallpaper image.
+       The live No Alarm label remains above this clean black area. */
+    .widget-cleanup {
+      position: absolute;
+      z-index: 2;
+      top: 24.5%;
+      left: 47%;
+      width: 50%;
+      height: 13%;
+      background: #000;
+      pointer-events: none;
     }
 
     .date, .time {
@@ -172,6 +185,7 @@
   <main class="lock-screen" aria-label="Magic lock screen">
     <img class="wallpaper" src="lock_screen_background_clean.png" alt="">
     <img class="card-reveal" id="cardReveal" src="card.png" alt="">
+    <div class="widget-cleanup" aria-hidden="true"></div>
     <div class="date" id="date">Thu 12 Nov</div>
     <div class="time" id="time" role="button" aria-label="Touch and drag the hours or minutes down to reveal cards"><span id="hoursText">00</span><span class="time-colon">:</span><span id="minutesText">00</span></div>
     <div class="alarm-line" aria-label="No Alarm">
