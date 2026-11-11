@@ -87,10 +87,64 @@
       line-height: .98;
       font-weight: 300;
       letter-spacing: -.055em;
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
       will-change: transform, opacity;
       transition: transform 2000ms ease-out, opacity 350ms ease-out;
       white-space: nowrap;
+
+      /* Silver glass treatment inspired by sample 2. */
+      color: #87939c;
+      background: linear-gradient(
+        180deg,
+        #e0e7eb 0%,
+        #9caab3 13%,
+        #46545e 37%,
+        #26323a 54%,
+        #7b8992 76%,
+        #34414a 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      -webkit-text-stroke: .65px rgba(205, 218, 226, .34);
+      text-shadow:
+        0 1px 0 rgba(255,255,255,.22),
+        0 -1px 0 rgba(0,0,0,.65),
+        0 3px 7px rgba(0,0,0,.42),
+        0 0 13px rgba(183,201,213,.10);
+    }
+
+    .alarm-line {
+      position: absolute;
+      top: 26.7%;
+      left: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: rgba(205, 211, 216, .66);
+      font-size: clamp(20px, 3.6vw, 2.8vh);
+      line-height: 1.2;
+      font-weight: 400;
+      letter-spacing: -.025em;
+      z-index: 3;
+      pointer-events: none;
+      text-shadow: 0 1px 2px rgba(0,0,0,.35);
+    }
+
+    .alarm-icon {
+      width: 1em;
+      height: 1em;
+      flex: 0 0 auto;
+      opacity: .82;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     /* Raise the colon so its two dots sit optically halfway up the digits. */
@@ -110,6 +164,7 @@
       }
       .date { top: 4.8%; font-size: clamp(18px, 2.7vh, 25px); }
       .time { top: 8.2%; font-size: clamp(74px, 12vh, 108px); }
+      .alarm-line { top: 26.7%; font-size: clamp(17px, 2.5vh, 22px); }
     }
   </style>
 </head>
@@ -119,6 +174,13 @@
     <img class="card-reveal" id="cardReveal" src="card.png" alt="">
     <div class="date" id="date">Thu 12 Nov</div>
     <div class="time" id="time" role="button" aria-label="Touch and drag the hours or minutes down to reveal cards"><span id="hoursText">00</span><span class="time-colon">:</span><span id="minutesText">00</span></div>
+    <div class="alarm-line" aria-label="No Alarm">
+      <svg class="alarm-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="13" r="8"></circle>
+        <path d="M8 3 5 5M16 3l3 2M12 9v4l2.5 1.5M4 11H2M22 11h-2"></path>
+      </svg>
+      <span>No Alarm</span>
+    </div>
   </main>
 
   <script>
