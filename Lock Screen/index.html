@@ -7,12 +7,14 @@
   <title>Magic Lock Screen</title>
   <style>
     * { box-sizing: border-box; }
+
     html, body {
       margin: 0;
       min-height: 100%;
       background: #000;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
     }
+
     body {
       display: flex;
       justify-content: center;
@@ -27,6 +29,7 @@
       inset: 0;
       touch-action: none;
     }
+
     .lock-screen {
       position: relative;
       width: min(100vw, 46.43vh);
@@ -40,6 +43,7 @@
       -webkit-user-select: none;
       touch-action: pan-y;
     }
+
     .wallpaper, .card-reveal {
       position: absolute;
       inset: 0;
@@ -50,12 +54,14 @@
       -webkit-user-drag: none;
       pointer-events: none;
     }
+
     .card-reveal {
       opacity: 0;
       z-index: 2;
       object-fit: contain;
       transition: opacity 700ms ease-out;
     }
+
     .date, .time {
       position: absolute;
       left: 0;
@@ -67,27 +73,54 @@
       font-variant-numeric: tabular-nums;
       z-index: 3;
     }
+
     .date {
       top: 4.8%;
       font-size: clamp(25px, 4.5vw, 4.8vh);
       line-height: 1.2;
       font-weight: 600;
     }
+
     .time {
       top: 8.2%;
+      display: flex;
+      justify-content: center;
+      align-items: baseline;
+      width: 100%;
       font-size: clamp(120px, 19.5vw, 20.5vh);
       line-height: .98;
       font-weight: 300;
       letter-spacing: -.055em;
+      pointer-events: none;
+      will-change: transform, opacity;
+      transition: transform 2000ms ease-out, opacity 350ms ease-out;
+      white-space: nowrap;
+    }
+
+    .time-part {
+      display: inline-block;
+      color: inherit;
+      opacity: 1;
       pointer-events: auto;
       cursor: grab;
       touch-action: none;
-      will-change: transform, opacity;
-      transition: transform 2000ms ease-out, opacity 350ms ease-out;
+      -webkit-user-select: none;
+      user-select: none;
     }
-    .time:active { cursor: grabbing; }
+
+    .time-part:active { cursor: grabbing; }
+
+    .time-colon {
+      display: inline-block;
+      pointer-events: none;
+    }
+
     @media (min-width: 600px) {
-      .lock-screen { width: min(46.43vh, 100vw, 420px); height: auto; aspect-ratio: 832 / 1792; }
+      .lock-screen {
+        width: min(46.43vh, 100vw, 420px);
+        height: auto;
+        aspect-ratio: 832 / 1792;
+      }
       .date { top: 4.8%; font-size: clamp(18px, 2.7vh, 25px); }
       .time { top: 8.2%; font-size: clamp(74px, 12vh, 108px); }
     }
@@ -97,17 +130,23 @@
   <main class="lock-screen" aria-label="Magic lock screen">
     <img class="wallpaper" src="lock_screen_background_clean.png" alt="">
     <img class="card-reveal" id="cardReveal" src="card.png" alt="">
-    <div class="date" id="date">Mon 26 Oct</div>
-    <div class="time" id="time" role="button" aria-label="Touch and drag down to turn the time backwards">10:33</div>
+    <div class="date" id="date">Thu 12 Nov</div>
+    <div class="time" id="time" aria-label="Drag the minutes or hours down to reveal cards">
+      <span class="time-part" id="hours" data-sequence="hours">00</span><span class="time-colon">:</span><span class="time-part" id="minutes" data-sequence="minutes">00</span>
+    </div>
   </main>
+
   <script>
     const timeEl = document.getElementById("time");
     const dateEl = document.getElementById("date");
     const cardEl = document.getElementById("cardReveal");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
 
-    const FIRST_CARD = "card.png";
-    const SECOND_PHASE_CARD = "cardAH.png";
-    const FIRST_PHASE_ORDER = [
+    // Pulling the MINUTES runs phase 1.
+    const MINUTES_SEQUENCE = [
+      "card.png",
+      "card.png",
       "cardAS.png",
       "card2H.png",
       "cardJC.png",
@@ -117,7 +156,8 @@
       "cardAD.png"
     ];
 
-    const SECOND_PHASE_ORDER = [
+    // Pulling the HOURS runs phase 2.
+    const HOURS_SEQUENCE = [
       "cardAH.png",
       "cardAH.png",
       "cardAS.png",
@@ -128,167 +168,152 @@
       "cardKH.png",
       "cardAD.png"
     ];
-    const PAUSE_MS = 60000;
+
     const REVEAL_DISTANCE = 220;
+    const PIXELS_PER_TIME_STEP = 5;
+
+    // Each sequence has its own independent position.
+    const sequencePositions = {
+      minutes: 0,
+      hours: 0
+    };
 
     let shownTime = new Date();
-    let isSpinningBack = false;
     let dragging = false;
+    let isSpinningBack = false;
+    let activeSequence = null;
+    let activePointerId = null;
     let startY = 0;
     let startTime = null;
-    let lastMinuteIndex = 0;
     let dragPixels = 0;
-    let cardConsumed = false;
-    let lastCompletedPullAt = null;
-    let lastActivityAt = Date.now();
-    let sequenceMode = "first"; // "first" or "second"
-    let firstCardCount = 0;
-    let secondPhaseCardCount = 0;
-    let firstDeck = [];
-    let secondDeck = [];
-    let sequenceStarted = false;
     let pendingCard = null;
     let cardReady = false;
-    let magicLocked = false; // kept for event-handler compatibility; the live clock is never locked
-    let lockTimer = null;
+    let cardConsumed = false;
 
-    function shuffle(items) {
-      const result = [...items];
-      for (let i = result.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [result[i], result[j]] = [result[j], result[i]];
-      }
-      return result;
-    }
-
-    function resetDecks() {
-      firstDeck = [...FIRST_PHASE_ORDER];
-      secondDeck = [...SECOND_PHASE_ORDER];
-    }
-    resetDecks();
-
-    // Preload every card before it is needed, so a slow image request cannot
-    // make the next card appear late or cause a visible jump during a pull.
-    const cardImageCache = new Map();
-    const ALL_CARD_IMAGES = [...new Set([
-      FIRST_CARD, SECOND_PHASE_CARD, ...FIRST_PHASE_ORDER, ...SECOND_PHASE_ORDER
-    ])];
-    for (const src of ALL_CARD_IMAGES) {
-      const image = new Image();
-      cardImageCache.set(src, image);
-      image.onload = () => {
-        if (dragging && pendingCard === src && !cardReady) {
-          cardReady = true;
-          cardEl.src = src;
-          cardEl.style.opacity = String(Math.min(1, dragPixels / REVEAL_DISTANCE));
-        }
-      };
-      image.src = src;
-    }
-
-    function formatTime(date) {
-      return new Intl.DateTimeFormat("en-GB", {
-        hour: "2-digit", minute: "2-digit", hourCycle: "h23"
-      }).format(date);
+    function getSequence(name) {
+      return name === "minutes" ? MINUTES_SEQUENCE : HOURS_SEQUENCE;
     }
 
     function formatDate(date) {
       return new Intl.DateTimeFormat("en-GB", {
-        weekday: "short", day: "2-digit", month: "short"
+        weekday: "short",
+        day: "2-digit",
+        month: "short"
       }).format(date).replace(",", "");
     }
 
     function renderClock(date) {
-      timeEl.textContent = formatTime(date);
+      hoursEl.textContent = new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        hourCycle: "h23"
+      }).format(date);
+
+      minutesEl.textContent = new Intl.DateTimeFormat("en-GB", {
+        minute: "2-digit"
+      }).format(date);
+
       dateEl.textContent = formatDate(date);
     }
 
     function updateClock() {
-      // The real clock always runs whenever the user is not actively pulling
-      // the time or watching the brief rewind animation.
       if (!dragging && !isSpinningBack) {
         shownTime = new Date();
         renderClock(shownTime);
       }
     }
+
     updateClock();
     setInterval(updateClock, 250);
 
-    function beginDrag(clientY) {
-      if (magicLocked) return;
+    // Preload all card files so they are ready before a reveal.
+    const cardImageCache = new Map();
+    const ALL_CARD_IMAGES = [...new Set([
+      ...MINUTES_SEQUENCE,
+      ...HOURS_SEQUENCE
+    ])];
 
-      const now = Date.now();
+    for (const src of ALL_CARD_IMAGES) {
+      const image = new Image();
+      cardImageCache.set(src, image);
 
-      // After 1 minute of no touching, switch rounds (even if round 1 was not finished).
-      const idle = now - lastActivityAt >= PAUSE_MS;
-      if (idle && sequenceStarted) {
-        if (sequenceMode === "first") {
-          sequenceMode = "second";
-          secondDeck = [...SECOND_PHASE_ORDER];
-        } else {
-          // Round 2 done (or abandoned): start over with round 1.
-          sequenceMode = "first";
-          firstCardCount = 0;
-          firstDeck = [...FIRST_PHASE_ORDER];
+      image.onload = () => {
+        if (dragging && pendingCard === src && !cardReady) {
+          cardReady = true;
+          cardEl.src = src;
+          applyPull(dragPixels);
         }
-      }
+      };
 
-      lastActivityAt = now;
-      pendingCard = peekNextCard();
-      if (!pendingCard) {
-        // No card is available yet (usually because phase 1 is waiting for its
-        // one-minute wait). Do not freeze or lock the clock; just ignore this pull.
-        dragging = false;
-        isSpinningBack = false;
-        shownTime = new Date();
-        renderClock(shownTime);
-        timeEl.style.opacity = "1";
-        timeEl.style.transform = "";
-        return;
-      }
+      image.src = src;
+    }
 
-      clearTimeout(lockTimer);
+    function beginDrag(event, sequenceName) {
+      // Ignore a second pointer while a gesture is already in progress.
+      if (dragging) return;
+
+      const sequence = getSequence(sequenceName);
+      const position = sequencePositions[sequenceName];
+
+      // A completed sequence stays completed until the page is refreshed.
+      if (position >= sequence.length) return;
+
+      event.preventDefault();
+
+      activeSequence = sequenceName;
+      pendingCard = sequence[position];
+      activePointerId = event.pointerId;
+
       dragging = true;
-      const cachedCard = cardImageCache.get(pendingCard);
-      cardReady = Boolean(cachedCard && cachedCard.complete && cachedCard.naturalWidth > 0);
-      if (cardReady) cardEl.src = pendingCard;
-      cardEl.style.transition = "none";
-      cardEl.style.opacity = "0";
-      startY = clientY;
+      isSpinningBack = false;
+      cardConsumed = false;
+      dragPixels = 0;
+      startY = event.clientY;
       startTime = new Date();
       shownTime = new Date(startTime);
-      lastMinuteIndex = 0;
-      dragPixels = 0;
-      cardConsumed = false;
+
+      const cachedCard = cardImageCache.get(pendingCard);
+      cardReady = Boolean(cachedCard && cachedCard.complete && cachedCard.naturalWidth > 0);
+
+      if (cardReady) {
+        cardEl.src = pendingCard;
+      }
+
+      cardEl.style.transition = "none";
+      cardEl.style.opacity = "0";
+
       timeEl.style.transition = "none";
       timeEl.style.opacity = "1";
       timeEl.style.transform = "";
+
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch (_) {}
     }
 
-    function moveDrag(clientY) {
-      if (!dragging || magicLocked) return;
+    function moveDrag(event) {
+      if (!dragging || event.pointerId !== activePointerId) return;
 
-      dragPixels = Math.max(0, clientY - startY);
+      event.preventDefault();
+      dragPixels = Math.max(0, event.clientY - startY);
 
-      // Every touch that starts pulling counts as one reveal, straight away.
+      // Consume exactly one card per meaningful pull.
       if (!cardConsumed && dragPixels >= 3) {
         cardConsumed = true;
-        chooseNextCard();
-        sequenceStarted = true;
-        lastCompletedPullAt = Date.now();
-      }
-      const minutesBack = Math.floor(dragPixels / 5);
-
-      if (minutesBack !== lastMinuteIndex) {
-        shownTime = new Date(startTime.getTime() - minutesBack * 60 * 1000);
-        renderClock(shownTime);
-        lastMinuteIndex = minutesBack;
+        sequencePositions[activeSequence]++;
       }
 
+      const stepsBack = Math.floor(dragPixels / PIXELS_PER_TIME_STEP);
+
+      if (activeSequence === "minutes") {
+        shownTime = new Date(startTime.getTime() - stepsBack * 60 * 1000);
+      } else {
+        shownTime = new Date(startTime.getTime() - stepsBack * 60 * 60 * 1000);
+      }
+
+      renderClock(shownTime);
       applyPull(dragPixels);
     }
 
-    // One function drives BOTH the time and the card, so they always stay in sync.
     function applyPull(pixels) {
       const progress = Math.min(1, pixels / REVEAL_DISTANCE);
       cardEl.style.opacity = cardReady ? String(progress) : "0";
@@ -296,57 +321,42 @@
       timeEl.style.transform = `translateY(${Math.min(pixels * 0.16, 58)}px)`;
     }
 
-    function peekNextCard() {
-      if (sequenceMode === "first") {
-        if (firstCardCount < 2) return FIRST_CARD;
-        return firstDeck.length ? firstDeck[0] : null;
-      }
-      return secondDeck.length ? secondDeck[0] : null;
-    }
-
-    function chooseNextCard() {
-      if (sequenceMode === "first") {
-        if (firstCardCount < 2) {
-          firstCardCount++;
-          return FIRST_CARD;
-        }
-        return firstDeck.length ? firstDeck.shift() : null;
-      }
-
-      return secondDeck.length ? secondDeck.shift() : null;
-    }
-
-    function startInactivityLockTimer() {
-      // Intentionally do not lock the clock after inactivity. The live clock
-      // and the card-sequence timing are independent.
-      clearTimeout(lockTimer);
-    }
-
-    function finishDrag() {
+    function finishDrag(event) {
       if (!dragging) return;
+      if (event && activePointerId !== null && event.pointerId !== activePointerId) return;
+
+      if (event) event.preventDefault();
 
       dragging = false;
+      activePointerId = null;
+
       const pullProgress = Math.min(1, dragPixels / REVEAL_DISTANCE);
       const returnDuration = Math.round(200 + 1000 * pullProgress);
 
-      // Time and card are animated by JS together (no CSS transitions).
       timeEl.style.transition = "none";
       cardEl.style.transition = "none";
-      isSpinningBack = true;
+
       const fromTime = new Date(shownTime);
       const fromPixels = dragPixels;
-      const start = performance.now();
+      const animationStart = performance.now();
+
+      isSpinningBack = true;
 
       function spinBackToRealTime(now) {
-        if (dragging) { isSpinningBack = false; return; } // new pull started, stop
-        const progress = Math.min(1, (now - start) / returnDuration);
+        if (dragging) {
+          isSpinningBack = false;
+          return;
+        }
+
+        const progress = Math.min(1, (now - animationStart) / returnDuration);
         const eased = 1 - Math.pow(1 - progress, 3);
-
-        // Clock numbers roll forward to the real time
         const realNow = new Date();
-        renderClock(new Date(fromTime.getTime() + (realNow.getTime() - fromTime.getTime()) * eased));
 
-        // Time slides up and fades in while the card fades out, in sync
+        // Roll the displayed clock smoothly back to the actual current time.
+        renderClock(new Date(
+          fromTime.getTime() + (realNow.getTime() - fromTime.getTime()) * eased
+        ));
+
         applyPull(fromPixels * (1 - eased));
 
         if (progress < 1) {
@@ -355,75 +365,47 @@
           shownTime = new Date();
           renderClock(shownTime);
           isSpinningBack = false;
+          activeSequence = null;
+          pendingCard = null;
+          cardReady = false;
+
           timeEl.style.opacity = "1";
           timeEl.style.transform = "";
           cardEl.style.opacity = "0";
         }
       }
+
       requestAnimationFrame(spinBackToRealTime);
     }
 
-    // iPhone / iPad Safari: non-passive touch handlers are important here.
-    timeEl.addEventListener("touchstart", (event) => {
-      if (!event.touches.length || magicLocked) return;
-      beginDrag(event.touches[0].clientY);
-      event.preventDefault();
-    }, { passive: false });
+    // Pointer events support touch, Apple Pencil, trackpads and desktop mouse.
+    for (const part of [hoursEl, minutesEl]) {
+      part.addEventListener("pointerdown", (event) => {
+        beginDrag(event, part.dataset.sequence);
+      });
 
-    timeEl.addEventListener("touchmove", (event) => {
-      if (!dragging || !event.touches.length || magicLocked) return;
-      moveDrag(event.touches[0].clientY);
-      event.preventDefault();
-    }, { passive: false });
-
-    timeEl.addEventListener("touchend", (event) => {
-      if (magicLocked) return;
-      event.preventDefault();
-      finishDrag();
-    }, { passive: false });
-
-    timeEl.addEventListener("touchcancel", finishDrag, { passive: false });
-
-    // Mouse / pointer support for desktop browsers.
-    timeEl.addEventListener("pointerdown", (event) => {
-      if (event.pointerType === "touch" || magicLocked) return;
-      beginDrag(event.clientY);
-      try { timeEl.setPointerCapture(event.pointerId); } catch (_) {}
-      event.preventDefault();
-    });
-
-    timeEl.addEventListener("pointermove", (event) => {
-      if (!dragging || event.pointerType === "touch" || magicLocked) return;
-      moveDrag(event.clientY);
-      event.preventDefault();
-    });
-
-    timeEl.addEventListener("pointerup", (event) => {
-      if (event.pointerType !== "touch" && !magicLocked) finishDrag();
-    });
-
-    timeEl.addEventListener("pointercancel", (event) => {
-      if (event.pointerType !== "touch" && !magicLocked) finishDrag();
-    });
-
-    // Block stray page-level touch movement while the clock is being dragged.
-    document.addEventListener("touchmove", (event) => {
-      if (dragging) event.preventDefault();
-    }, { passive: false });
+      part.addEventListener("pointermove", moveDrag);
+      part.addEventListener("pointerup", finishDrag);
+      part.addEventListener("pointercancel", finishDrag);
+    }
 
     // Keep the display awake where the browser supports Screen Wake Lock.
     let wakeLock = null;
+
     async function keepScreenAwake() {
       if (!("wakeLock" in navigator) || document.visibilityState !== "visible") return;
+
       try {
         wakeLock = await navigator.wakeLock.request("screen");
       } catch (error) {
         console.info("Screen Wake Lock unavailable:", error);
       }
     }
+
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible") keepScreenAwake();
     });
+
     keepScreenAwake();
   </script>
 </body>
