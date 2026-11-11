@@ -83,10 +83,6 @@
 
     .time {
       top: 8.2%;
-      display: flex;
-      justify-content: center;
-      align-items: baseline;
-      width: 100%;
       font-size: clamp(120px, 19.5vw, 20.5vh);
       line-height: .98;
       font-weight: 300;
@@ -97,23 +93,14 @@
       white-space: nowrap;
     }
 
-    .time-part {
-      display: inline-block;
-      color: inherit;
-      opacity: 1;
-      pointer-events: auto;
-      cursor: grab;
-      touch-action: none;
-      -webkit-user-select: none;
-      user-select: none;
-    }
-
-    .time-part:active { cursor: grabbing; }
-
+    /* Raise the colon so its two dots sit optically halfway up the digits. */
     .time-colon {
       display: inline-block;
-      pointer-events: none;
+      position: relative;
+      top: -.09em;
     }
+
+
 
     @media (min-width: 600px) {
       .lock-screen {
@@ -131,17 +118,15 @@
     <img class="wallpaper" src="lock_screen_background_clean.png" alt="">
     <img class="card-reveal" id="cardReveal" src="card.png" alt="">
     <div class="date" id="date">Thu 12 Nov</div>
-    <div class="time" id="time" aria-label="Drag the minutes or hours down to reveal cards">
-      <span class="time-part" id="hours" data-sequence="hours">00</span><span class="time-colon">:</span><span class="time-part" id="minutes" data-sequence="minutes">00</span>
-    </div>
+    <div class="time" id="time" role="button" aria-label="Touch and drag the hours or minutes down to reveal cards"><span id="hoursText">00</span><span class="time-colon">:</span><span id="minutesText">00</span></div>
   </main>
 
   <script>
     const timeEl = document.getElementById("time");
     const dateEl = document.getElementById("date");
     const cardEl = document.getElementById("cardReveal");
-    const hoursEl = document.getElementById("hours");
-    const minutesEl = document.getElementById("minutes");
+    const hoursTextEl = document.getElementById("hoursText");
+    const minutesTextEl = document.getElementById("minutesText");
 
     // Pulling the MINUTES runs phase 1.
     const MINUTES_SEQUENCE = [
@@ -203,24 +188,34 @@
     }
 
     function renderClock(date) {
-      hoursEl.textContent = new Intl.DateTimeFormat("en-GB", {
+      const hours = new Intl.DateTimeFormat("en-GB", {
         hour: "2-digit",
         hourCycle: "h23"
       }).format(date);
 
-      minutesEl.textContent = new Intl.DateTimeFormat("en-GB", {
+      const minutes = new Intl.DateTimeFormat("en-GB", {
         minute: "2-digit"
       }).format(date);
 
-      dateEl.textContent = formatDate(date);
+      // Inline spans preserve the original font and natural text layout.
+      hoursTextEl.textContent = hours;
+      minutesTextEl.textContent = minutes;
     }
 
     function updateClock() {
       if (!dragging && !isSpinningBack) {
         shownTime = new Date();
         renderClock(shownTime);
+        dateEl.textContent = formatDate(shownTime);
       }
     }
+
+    function getSequenceFromPointer(clientX) {
+      const rect = timeEl.getBoundingClientRect();
+      const midpoint = rect.left + rect.width / 2;
+      return clientX < midpoint ? "hours" : "minutes";
+    }
+
 
     updateClock();
     setInterval(updateClock, 250);
@@ -302,14 +297,8 @@
         sequencePositions[activeSequence]++;
       }
 
-      const stepsBack = Math.floor(dragPixels / PIXELS_PER_TIME_STEP);
-
-      if (activeSequence === "minutes") {
-        shownTime = new Date(startTime.getTime() - stepsBack * 60 * 1000);
-      } else {
-        shownTime = new Date(startTime.getTime() - stepsBack * 60 * 60 * 1000);
-      }
-
+      const minutesBack = Math.floor(dragPixels / PIXELS_PER_TIME_STEP);
+      shownTime = new Date(startTime.getTime() - minutesBack * 60 * 1000);
       renderClock(shownTime);
       applyPull(dragPixels);
     }
@@ -364,6 +353,7 @@
         } else {
           shownTime = new Date();
           renderClock(shownTime);
+          dateEl.textContent = formatDate(shownTime);
           isSpinningBack = false;
           activeSequence = null;
           pendingCard = null;
@@ -379,15 +369,15 @@
     }
 
     // Pointer events support touch, Apple Pencil, trackpads and desktop mouse.
-    for (const part of [hoursEl, minutesEl]) {
-      part.addEventListener("pointerdown", (event) => {
-        beginDrag(event, part.dataset.sequence);
-      });
+    // The touched half is detected from the rendered text, not separate spans.
+    timeEl.addEventListener("pointerdown", (event) => {
+      const sequenceName = getSequenceFromPointer(event.clientX);
+      beginDrag(event, sequenceName);
+    });
 
-      part.addEventListener("pointermove", moveDrag);
-      part.addEventListener("pointerup", finishDrag);
-      part.addEventListener("pointercancel", finishDrag);
-    }
+    timeEl.addEventListener("pointermove", moveDrag);
+    timeEl.addEventListener("pointerup", finishDrag);
+    timeEl.addEventListener("pointercancel", finishDrag);
 
     // Keep the display awake where the browser supports Screen Wake Lock.
     let wakeLock = null;
