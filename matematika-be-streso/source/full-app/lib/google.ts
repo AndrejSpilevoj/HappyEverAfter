@@ -40,7 +40,7 @@ export async function verifyGoogleIdToken(jwt: string,e: GoogleEnv,nonce: string
  const header=JSON.parse(new TextDecoder().decode(from64(parts[0])));
  if(header.alg!=='RS256'||typeof header.kid!=='string')throw new Error('Invalid Google signature');
  if(!certCache || certCache.expires<Date.now() || !certCache.keys.some(k=>k.kid===header.kid)){
-  const r=await fetch('https://www.googleapis.com/oauth2/v3/certs',{redirect:'error'});
+  const r=await fetch('https://www.googleapis.com/oauth2/v3/certs',{redirect:'manual'});
   if(!r.ok)throw new Error('Google identity unavailable');
   const data=await r.json() as {keys:(JsonWebKey & {kid?:string})[]};
   certCache={keys:data.keys,expires:Date.now()+300000};
@@ -74,7 +74,7 @@ async function accessToken(e: GoogleEnv) {
  const s=await settings(e,'google_drive');if(!s)failure('Mokytojas turi prijungti Google Drive.');
  if(cached?.connection===s.value && cached.expires>Date.now())return cached.token;
  const c=JSON.parse(await unseal(e,s.value)) as Connection;
- const r=await fetch('https://oauth2.googleapis.com/token',{method:'POST',redirect:'error',body:new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,client_secret:e.GOOGLE_CLIENT_SECRET!,grant_type:'refresh_token',refresh_token:c.refresh})});
+ const r=await fetch('https://oauth2.googleapis.com/token',{method:'POST',redirect:'manual',body:new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,client_secret:e.GOOGLE_CLIENT_SECRET!,grant_type:'refresh_token',refresh_token:c.refresh})});
  if(!r.ok)failure('Reikia iš naujo prijungti mokytojo Google Drive.');
  const data=await r.json() as {access_token:string;expires_in:number};
  if(!data.access_token)failure('Google Drive laikinai nepasiekiamas.');
@@ -82,7 +82,7 @@ async function accessToken(e: GoogleEnv) {
 }
 async function googleFetch(e: GoogleEnv,url: string,init: RequestInit={}) {
  const h=new Headers(init.headers);h.set('Authorization','Bearer '+await accessToken(e));
- return fetch(url,{...init,headers:h,redirect:'error'});
+ return fetch(url,{...init,headers:h,redirect:'manual'});
 }
 export async function driveReady(e: GoogleEnv) {return config(e)&&Boolean(await settings(e,'google_drive'));}
 export async function drivePut(e: GoogleEnv,f: {id:string;name:string;mime:string;size:number;bytes:Uint8Array}) {
@@ -142,7 +142,7 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
  try{
   const code=url.searchParams.get('code');if(!code||url.searchParams.has('error'))throw new Error('Authorization declined');
   stage='token_exchange';
-  const exchange=await fetch('https://oauth2.googleapis.com/token',{method:'POST',redirect:'error',body:new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,client_secret:e.GOOGLE_CLIENT_SECRET!,redirect_uri:callback,grant_type:'authorization_code',code,code_verifier:attempt.verifier})});
+  const exchange=await fetch('https://oauth2.googleapis.com/token',{method:'POST',redirect:'manual',body:new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,client_secret:e.GOOGLE_CLIENT_SECRET!,redirect_uri:callback,grant_type:'authorization_code',code,code_verifier:attempt.verifier})});
   if(!exchange.ok){
    const error=await exchange.json().catch(()=>({})) as {error?:string};
    stage=['invalid_client','invalid_grant','unauthorized_client'].includes(error.error||'')?'token_'+error.error:'token_http_'+exchange.status;
@@ -161,7 +161,7 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
   let folder=existing?.folder;
   if(!folder){
    stage='drive_folder';
-   const r=await fetch('https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+tokens.access_token,'Content-Type':'application/json'},body:JSON.stringify({name:'Matematika be streso – private uploads',mimeType:'application/vnd.google-apps.folder'})});
+   const r=await fetch('https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',redirect:'manual',headers:{Authorization:'Bearer '+tokens.access_token,'Content-Type':'application/json'},body:JSON.stringify({name:'Matematika be streso – private uploads',mimeType:'application/vnd.google-apps.folder'})});
    if(!r.ok){stage='drive_folder_http_'+r.status;throw new Error('Drive folder creation failed');}
    folder=(await r.json() as {id:string}).id;if(!folder)throw new Error('Folder unavailable');
   }
