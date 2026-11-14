@@ -109,6 +109,37 @@ assert.equal(refreshes,1,'Access tokens cached server-side');
 const expiredCookie='z'.repeat(43);
 sql.prepare('INSERT INTO teacher_sessions(hash,email,expires) VALUES(?,?,?)').run(await g.digest(expiredCookie),'andrej.spilevoj@gmail.com',Date.now()-1);
 assert.equal(await g.googleTeacher(req('me','__Host-math_teacher='+expiredCookie),env),null);
+
+// Exercise the real API using Drive, including student isolation before any provider call.
+globalThis.__googleEnv=env;
+writeFileSync(join(dir,'server.mjs'),compile(readFileSync('lib/server.ts','utf8').replace("import { env } from 'cloudflare:workers';","const env=globalThis.__googleEnv;").replace("from './google'","from './google.mjs'")));
+const {api}=await import(pathToFileURL(join(dir,'server.mjs')));
+async function apiCall(path,method='GET',body,headers={}){
+ const h={...headers};if(method!=='GET')h.origin=env.PUBLIC_ORIGIN;
+ if(body && !(body instanceof FormData))h['content-type']='application/json';
+ return api(new Request(env.PUBLIC_ORIGIN+'/api/'+path,{method,headers:h,body:body instanceof FormData?body:body?JSON.stringify(body):undefined}),path.split('/'));
+}
+assert.equal((await apiCall('students','POST',{name:'forged'},{'oai-authenticated-user-id':'fake','oai-authenticated-user-email':'andrej.spilevoj@gmail.com'})).status,401);
+const person=await (await apiCall('students','POST',{name:'Student A'},{cookie:teacherCookie})).json();
+const other=await (await apiCall('students','POST',{name:'Student B'},{cookie:teacherCookie})).json();
+async function studentCookie(code){const r=await apiCall('login','POST',{code});assert.equal(r.status,200);return r.headers.get('set-cookie').split(';')[0];}
+const studentA=await studentCookie(person.code),studentB=await studentCookie(other.code);
+const assignment=new FormData();assignment.set('title','Drive test');assignment.set('body','Solve this');assignment.append('students',person.id);
+assignment.append('files',new File([new Uint8Array([137,80,78,71,13,10,26,10])],'task.png',{type:'image/png'}));
+const assigned=await apiCall('tasks','POST',assignment,{cookie:teacherCookie});assert.equal(assigned.status,200,await assigned.clone().text());
+const task=await assigned.json();
+const detail=await (await apiCall('tasks/'+task.id,'GET',undefined,{cookie:studentA})).json();
+const attachment=detail.files[0].id;
+network=driveCalls.length;
+assert.equal((await apiCall('files/'+attachment,'GET')).status,401);
+assert.equal((await apiCall('files/'+attachment,'GET',undefined,{cookie:studentB})).status,404);
+assert.equal(driveCalls.length,network,'Unauthorized download must not access Drive');
+const download=await apiCall('files/'+attachment,'GET',undefined,{cookie:studentA,Range:'bytes=0-2'});
+assert.equal(download.status,206);assert.equal(download.headers.get('cache-control'),'private, no-store');
+assert.equal(download.headers.get('content-range'),'bytes 0-2/8');
+assert.deepEqual(new Uint8Array(await download.arrayBuffer()),new Uint8Array([80,78,71]));
+assert.ok(!(await (await apiCall('tasks/'+task.id,'GET',undefined,{cookie:studentA})).text()).includes('private-file'),'Provider IDs remain server-only');
+
 await g.googleLogout(req('logout',teacherCookie),env);
 assert.equal(await g.googleTeacher(req('me',teacherCookie),env),null);
 assert.ok(!JSON.stringify([...callback.headers]).includes('test-refresh'));
