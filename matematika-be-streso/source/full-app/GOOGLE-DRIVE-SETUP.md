@@ -1,10 +1,10 @@
-# Google Drive uploads and teacher sign-in
+# Google Drive uploads, teacher sign-in and Gmail notifications
 
 The standalone Cloudflare app uses the owner's Google account for private Drive uploads and teacher sign-in. Student codes remain unchanged; students do not need Google accounts.
 
 ## Configuration
 - Google Cloud project: matematika-be-streso (640040081927).
-- Drive API: verified enabled.
+- Drive and Gmail APIs: verified enabled.
 - Create an OAuth web application client.
 - Authorized redirect URI: https://matematika-be-streso.andrej-spilevoj.workers.dev/api/google/callback
 - Required runtime settings: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.
@@ -35,5 +35,14 @@ The owner authorizes Drive once; the server can refresh its access afterward to 
 ## Validation
 The isolated CI branch checks TypeScript, existing teacher/student workflows, the standalone header boundary, Google signatures/claims, OAuth CSRF and replay, encryption, refresh caching, private file upload/download, byte ranges, logout and failures. Network calls are mocked in automated checks; the final owner consent and a live file upload must still be verified.
 
-## Current setup gate
-Google Auth Platform branding is filled in and paused before accepting the Google API Services User Data Policy. No OAuth client or runtime Google credentials have been created. Uploads are not connected until owner authorization is complete.
+## Gmail notifications
+The teacher connects Gmail separately from the notification settings, using only openid, email and https://www.googleapis.com/auth/gmail.send. A teacher session is required to start this connection. Its encrypted refresh credential is stored separately from Drive; it cannot replace the working storage connection. The backend never requests inbox read or delete access.
+
+Cloudflare notifications use the authenticated owner's Gmail as sender. Student submissions notify andrej.spilevoj@gmail.com; assignments and teacher replies notify the student's saved email address. Messages contain a task link, not login codes or attachments. Sites/local deployments retain the optional Resend configuration.
+
+Delivery atomically claims a pending/failed message before contacting Gmail. Known rejected requests can be retried up to five attempts. If the connection drops during a send, status becomes unknown and is excluded from automatic retry to avoid duplicate mail. A Worker interruption may similarly leave status sending; inspect Sent before manually requeueing either status. Gmail acceptance does not prove delivery to an external recipient's inbox.
+
+## Live setup status
+Cloudflare runtime OAuth credentials are configured, and the owner has authorized both Drive and Gmail. The owner reports successful website/file testing. The two initial queued notifications were accepted by Gmail on 2026-11-14, and the owner's incoming notification was verified in the inbox.
+
+Google Auth Platform is In production rather than Testing, which removes the Testing-only seven-day grant limit for new authorization. To renew Drive explicitly, open /api/google/start?reconnect=1 while using the live origin. To renew Gmail, use notification settings. Google can still revoke or expire authorization under its normal policies. Only the configured owner can obtain a teacher session.
