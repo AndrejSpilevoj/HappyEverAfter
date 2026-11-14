@@ -28,11 +28,18 @@ async function idToken(nonce,overrides={}){
  const sig=await crypto.subtle.sign('RSASSA-PKCS1-v1_5',kp.privateKey,new TextEncoder().encode(h+'.'+p));
  return h+'.'+p+'.'+b64(Buffer.from(sig));
 }
+let gmailStatus=200,gmailNetworkFailure=false,gmailMessages=[];
 let identityOverrides={},scope='openid email https://www.googleapis.com/auth/drive.file',uploadFail=false,evilLocation=false,driveCalls=[],nonce,refreshes=0;
 const json=(v,status=200,headers={})=>Response.json(v,{status,headers});
 globalThis.fetch=async (url,init={})=>{
  assert.equal(init.redirect,'manual','Google requests must use the redirect mode supported by Cloudflare Workers');
  url=String(url);driveCalls.push({url,init});
+ if(url==='https://gmail.googleapis.com/gmail/v1/users/me/messages/send'){
+  assert.equal(init.method,'POST');assert.equal(init.headers.Authorization,'Bearer test-access');
+  gmailMessages.push(Buffer.from(JSON.parse(init.body).raw,'base64url').toString('utf8'));
+  if(gmailNetworkFailure)throw new Error('network lost');
+  return json(gmailStatus===200?{id:'sent-message'}:{error:'denied'},gmailStatus);
+ }
  if(url.endsWith('/oauth2/v3/certs'))return json({keys:[jwk]});
  if(url==='https://oauth2.googleapis.com/token'){
   const p=new URLSearchParams(init.body);
@@ -56,13 +63,15 @@ globalThis.fetch=async (url,init={})=>{
  throw new Error('Unexpected network call '+url);
 };
 const req=(path,cookie)=>new Request(env.PUBLIC_ORIGIN+'/api/'+path,{headers:cookie?{cookie}:{}});
-async function start(){
- const r=await g.googleRoute(req('google/start'),'google/start',env);assert.equal(r.status,302);
+async function start(mail=false,teacher){
+ const path=mail?'google/email/start':'google/start';
+ const r=await g.googleRoute(req(path,teacher),path,env);assert.equal(r.status,302);
  const u=new URL(r.headers.get('location'));nonce=u.searchParams.get('nonce');
  assert.equal(u.origin,'https://accounts.google.com');
  assert.equal(u.searchParams.get('code_challenge_method'),'S256');
  assert.equal(u.searchParams.get('access_type'),'offline');
- assert.equal(u.searchParams.get('scope'),'openid email https://www.googleapis.com/auth/drive.file');
+ assert.equal(u.searchParams.get('scope'),'openid email https://www.googleapis.com/auth/'+(mail?'gmail.send':'drive.file'));
+ if(mail)assert.equal(u.searchParams.get('prompt'),'consent');
  const cookie=r.headers.get('set-cookie').split(';')[0];
  assert.match(r.headers.get('set-cookie'),/HttpOnly; Secure; SameSite=Lax/);
  return {state:u.searchParams.get('state'),cookie};
@@ -140,6 +149,58 @@ assert.equal(download.status,206);assert.equal(download.headers.get('cache-contr
 assert.equal(download.headers.get('content-range'),'bytes 0-2/8');
 assert.deepEqual(new Uint8Array(await download.arrayBuffer()),new Uint8Array([80,78,71]));
 assert.ok(!(await (await apiCall('tasks/'+task.id,'GET',undefined,{cookie:studentA})).text()).includes('private-file'),'Provider IDs remain server-only');
+
+
+assert.equal(await g.gmailReady(env),false);
+assert.equal((await g.googleRoute(req('google/email/start'),'google/email/start',env)).status,403);
+let mailStart=await start(true,teacherCookie);
+assert.equal((await g.googleRoute(req('google/callback?state='+mailStart.state+'&code=test',mailStart.cookie),'google/callback',env)).status,403,'Drive grant cannot enable email');
+assert.equal(await g.gmailReady(env),false);
+scope='openid email https://www.googleapis.com/auth/gmail.send';
+mailStart=await start(true,teacherCookie);
+const mailCallback=await g.googleRoute(req('google/callback?state='+mailStart.state+'&code=test',mailStart.cookie),'google/callback',env);
+assert.equal(mailCallback.status,303);assert.equal(await g.gmailReady(env),true);
+assert.equal(sql.prepare("SELECT value FROM app_settings WHERE key='google_drive'").get().value,stored,'Email connection preserves Drive authorization');
+assert.ok(!sql.prepare("SELECT value FROM app_settings WHERE key='google_gmail'").get().value.includes('test-refresh'));
+assert.ok(!JSON.stringify([...mailCallback.headers]).includes('test-refresh'));
+const notification={id:'mail-test-1',recipient:'student@example.test',subject:'Žinutė mokiniui – ąčęėįšųūž'.repeat(8),body:'Labas, mokiny!\nUžduotis: žąsis.'};
+assert.equal(await g.gmailSend(env,notification),true);
+const mime=gmailMessages.at(-1);
+assert.match(mime,/From: Matematika be streso <andrej.spilevoj@gmail.com>/);
+assert.match(mime,/To: student@example.test\r\n/);
+assert.ok(mime.split('\r\n').every(l=>l.length<=998));
+const subjectHeader=mime.split('Subject: ')[1].split('\r\nMessage-ID:')[0];
+assert.equal([...subjectHeader.matchAll(/=\?UTF-8\?B\?([^?]+)\?=/g)].map(x=>Buffer.from(x[1],'base64').toString('utf8')).join(''),notification.subject);
+assert.equal(Buffer.from(mime.split('\r\n\r\n')[1].replace(/\r\n/g,''),'base64').toString('utf8'),notification.body);
+let sentCount=gmailMessages.length;
+await assert.rejects(()=>g.gmailSend(env,{...notification,recipient:'x@test.com\r\nBcc: victim@test.com'}));
+assert.equal(gmailMessages.length,sentCount,'Header injection blocked before network');
+gmailStatus=403;assert.equal(await g.gmailSend(env,notification),false);gmailStatus=200;
+
+// Real API notification flows, including both recipients, retries and concurrency.
+await apiCall('students/'+person.id,'PATCH',{name:'Student A',email:'student@example.test'},{cookie:teacherCookie});
+const mailTask=new FormData();mailTask.set('title','Email test');mailTask.set('body','Solve');mailTask.append('students',person.id);
+const mailAssigned=await (await apiCall('tasks','POST',mailTask,{cookie:teacherCookie})).json();assert.equal(mailAssigned.sent,1);assert.equal(mailAssigned.queued,0);
+const studentReply=new FormData();studentReply.set('task',mailAssigned.id);studentReply.set('body','My solution');
+assert.equal((await (await apiCall('messages','POST',studentReply,{cookie:studentA})).json()).queued,0);
+assert.match(gmailMessages.at(-1),/To: andrej.spilevoj@gmail.com/);
+const teacherReply=new FormData();teacherReply.set('task',mailAssigned.id);teacherReply.set('student',person.id);teacherReply.set('body','Correct');
+assert.equal((await (await apiCall('messages','POST',teacherReply,{cookie:teacherCookie})).json()).queued,0);
+assert.match(gmailMessages.at(-1),/To: student@example.test/);
+gmailStatus=403;
+const questionMail=new FormData();questionMail.set('body','Question');
+assert.equal((await (await apiCall('questions','POST',questionMail,{cookie:studentA})).json()).queued,1);
+gmailStatus=200;sentCount=gmailMessages.length;
+const retryResults=await Promise.all([apiCall('notifications/retry','POST',{}, {cookie:teacherCookie}),apiCall('notifications/retry','POST',{}, {cookie:teacherCookie})]);
+assert.equal(gmailMessages.length,sentCount+1,'Concurrent retries send queued email once');
+assert.equal((await (await apiCall('notifications','GET',undefined,{cookie:teacherCookie})).json()).pending.count,0);
+gmailNetworkFailure=true;
+const uncertain=new FormData();uncertain.set('body','Uncertain send');
+await apiCall('questions','POST',uncertain,{cookie:studentA});
+assert.equal(sql.prepare("SELECT COUNT(*) AS n FROM notifications WHERE status='unknown'").get().n,1);
+gmailNetworkFailure=false;sentCount=gmailMessages.length;
+await apiCall('notifications/retry','POST',{}, {cookie:teacherCookie});
+assert.equal(gmailMessages.length,sentCount,'Unknown delivery is not automatically duplicated');
 
 await g.googleLogout(req('logout',teacherCookie),env);
 assert.equal(await g.googleTeacher(req('me',teacherCookie),env),null);

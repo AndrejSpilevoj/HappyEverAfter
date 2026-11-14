@@ -14,7 +14,7 @@ export default function PrivacyPage() {
   <h2>Prisijungimo slapukai</h2>
   <p>Mokinio prisijungimas prisimenamas iki 90 dienų, mokytojo – iki 7 dienų. Google prisijungimo patvirtinimo slapukas galioja iki 10 minučių. Šie slapukai reikalingi prisijungimui; jie nenaudojami reklamai. Viešame ar bendrame įrenginyje baigę darbą atsijunkite.</p>
   <h2>El. paštas ir vaizdo pamokos</h2>
-  <p>Jei pranešimų siuntimas įjungtas, apie naują užduotį ar atsakymą gali būti pranešta pateiktu el. pašto adresu per Resend. Prisijungimo kodai ir sprendimų failai el. laiškuose nesiunčiami. Pamokų vaizdo įrašus teikia YouTube; paleidus įrašą duomenis taip pat tvarko Google / YouTube pagal savo privatumo taisykles.</p>
+  <p>Jei pranešimų siuntimas įjungtas, apie naują užduotį ar atsakymą gali būti pranešta pateiktu el. pašto adresu per mokytojo Gmail paskyrą. Pranešimų siuntimui mokytojas atskirai suteikia Gmail leidimą siųsti laiškus; svetainė neskaito ir netrina pašto dėžutės laiškų. Siuntimo prieigos raktas serveryje laikomas užšifruotas. Prisijungimo kodai ir sprendimų failai el. laiškuose nesiunčiami. Pamokų vaizdo įrašus teikia YouTube; paleidus įrašą duomenis taip pat tvarko Google / YouTube pagal savo privatumo taisykles.</p>
   <h2>Duomenų tvarkymas</h2>
   <p>Užduočių ir pokalbių duomenys naudojami mokymui bei svetainės veikimui. Jie neparduodami ir nenaudojami reklamai. Cloudflare gali saugoti techninius užklausų žurnalus. Dėl duomenų peržiūros, patikslinimo ar pašalinimo parašykite mokytojui aukščiau nurodytu adresu.</p>
   <p style={{fontSize:14}}>Atnaujinta 2026-11-14.</p>

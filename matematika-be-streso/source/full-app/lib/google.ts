@@ -6,6 +6,7 @@ export type GoogleEnv = {
 const DEFAULT_ORIGIN = 'https://matematika-be-streso.andrej-spilevoj.workers.dev';
 const OWNER = 'andrej.spilevoj@gmail.com';
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+const GMAIL_SCOPE = 'https://www.googleapis.com/auth/gmail.send';
 const enc = new TextEncoder();
 const bytes64 = (b: Uint8Array) => btoa(String.fromCharCode(...b)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const from64 = (s: string) => Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/') + '='.repeat((4-s.length%4)%4)), c=>c.charCodeAt(0));
@@ -69,9 +70,9 @@ async function connection(e: GoogleEnv):Promise<Connection|null>{
  const s=await settings(e,'google_drive');return s?JSON.parse(await unseal(e,s.value)):null;
 }
 let cached: {connection:string;token:string;expires:number}|undefined;
-async function accessToken(e: GoogleEnv) {
+async function accessToken(e: GoogleEnv,setting='google_drive') {
  if(!config(e))failure('Google Drive dar neprijungtas.');
- const s=await settings(e,'google_drive');if(!s)failure('Mokytojas turi prijungti Google Drive.');
+ const s=await settings(e,setting);if(!s)failure('Mokytojas turi prijungti Google paslaugą.');
  if(cached?.connection===s.value && cached.expires>Date.now())return cached.token;
  const c=JSON.parse(await unseal(e,s.value)) as Connection;
  const r=await fetch('https://oauth2.googleapis.com/token',{method:'POST',redirect:'manual',body:new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,client_secret:e.GOOGLE_CLIENT_SECRET!,grant_type:'refresh_token',refresh_token:c.refresh})});
@@ -115,23 +116,53 @@ export async function driveTrash(e: GoogleEnv,key: string){
  if(!r.ok&&r.status!==404)failure('Nepavyko pašalinti nebaigto įkėlimo.');
  await db(e).prepare('DELETE FROM drive_objects WHERE key=?').bind(key).run();
 }
+
+export async function gmailReady(e: GoogleEnv) {return config(e)&&Boolean(await settings(e,'google_gmail'));}
+// Only this fixed Gmail send endpoint is used; inbox access is never requested.
+export async function gmailSend(e: GoogleEnv,n: {id:string;recipient:string;subject:string;body:string}) {
+ if(!/^[^\s@<>;,]+@[^\s@<>;,]+\.[^\s@<>;,]+$/.test(n.recipient)||/[\r\n]/.test(n.recipient)||!/^[a-zA-Z0-9-]+$/.test(n.id))throw new Error('Invalid email envelope');
+ const base64=(text:string)=>btoa(String.fromCharCode(...enc.encode(text)));
+ // Fold encoded words to meet MIME header limits while preserving Lithuanian text.
+ const subject=Array.from(n.subject).reduce<string[]>((parts,c)=>{
+  if(!parts.length||enc.encode(parts[parts.length-1]+c).length>42)parts.push(c);
+  else parts[parts.length-1]+=c;return parts;
+ },[]).map(s=>'=?UTF-8?B?'+base64(s)+'?=').join('\r\n ');
+ const body=base64(n.body).match(/.{1,76}/g)?.join('\r\n')||'';
+ const raw=['From: Matematika be streso <'+owner(e)+'>','To: '+n.recipient,'Subject: '+subject,
+  'Message-ID: <'+n.id+'@matematika-be-streso.andrej-spilevoj.workers.dev>','MIME-Version: 1.0',
+  'Content-Type: text/plain; charset=UTF-8','Content-Transfer-Encoding: base64','',''+body].join('\r\n');
+ const token=await accessToken(e,'google_gmail');
+ let r:Response;
+ try{r=await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send',{method:'POST',redirect:'manual',
+  headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({raw:bytes64(enc.encode(raw))})});}
+ catch{throw Object.assign(new Error('Gmail delivery outcome unknown'),{uncertain:true});}
+ if(!r.ok){
+  console.error('Gmail send rejected with HTTP',r.status);
+  if(r.status===401)cached=undefined;
+  return false;
+ }
+ return true;
+}
+
 export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promise<Response|null>{
- if(!['google/start','google/callback'].includes(path))return null;
+ if(!['google/start','google/email/start','google/callback'].includes(path))return null;
  if(req.method!=='GET')return response('Method not allowed',405);
  if(!config(e))return response('Google prisijungimas dar nesukonfigūruotas.',503);
  const url=new URL(req.url);
  if(url.origin!==origin(e))return response('Neteisingas svetainės adresas.',403);
  const callback=origin(e)+'/api/google/callback';
- if(path==='google/start'){
+ if(path==='google/start'||path==='google/email/start'){
+  const mail=path==='google/email/start';
+  if(mail&&!await googleTeacher(req,e))return response('Reikia mokytojo prisijungimo.',403);
   const ip=await digest('google:'+ (req.headers.get('cf-connecting-ip')||'local'));
   const stamp=Date.now();
   const attempt=await db(e).prepare('INSERT INTO auth_attempts(key,count,reset) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=CASE WHEN reset<? THEN 1 ELSE count+1 END,reset=CASE WHEN reset<? THEN excluded.reset ELSE reset END RETURNING count').bind(ip,stamp+900000,stamp,stamp).first<{count:number}>();
   if((attempt?.count||0)>20)return response('Pabandyk po 15 minučių.',429);
   await db(e).batch([db(e).prepare('DELETE FROM oauth_states WHERE expires<?').bind(stamp),db(e).prepare('DELETE FROM teacher_sessions WHERE expires<?').bind(stamp)]);
-  const state=random(),verifier=random(),nonce=random();
+  const state=random(),verifier=random(),nonce=(mail?'mail:':'')+random();
   await db(e).prepare('INSERT INTO oauth_states(hash,verifier,nonce,expires) VALUES(?,?,?,?)').bind(await digest(state),verifier,nonce,stamp+600000).run();
-  const params=new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,redirect_uri:callback,response_type:'code',scope:'openid email '+DRIVE_SCOPE,access_type:'offline',state,nonce,code_challenge:await digest(verifier),code_challenge_method:'S256',login_hint:owner(e)});
-  if(!await settings(e,'google_drive'))params.set('prompt','consent');
+  const params=new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,redirect_uri:callback,response_type:'code',scope:'openid email '+(mail?GMAIL_SCOPE:DRIVE_SCOPE),access_type:'offline',state,nonce,code_challenge:await digest(verifier),code_challenge_method:'S256',login_hint:owner(e)});
+  if(mail||!await settings(e,'google_drive'))params.set('prompt','consent');
   return new Response(null,{status:302,headers:{Location:'https://accounts.google.com/o/oauth2/v2/auth?'+params,'Set-Cookie':cookieValue('__Host-math_oauth',state,600),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
  }
  const state=url.searchParams.get('state'),browserState=cookie(req,'__Host-math_oauth');
@@ -151,6 +182,15 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
   const tokens=await exchange.json() as {id_token:string;access_token:string;refresh_token?:string;scope:string};
   stage='identity';
   const identity=await verifyGoogleIdToken(tokens.id_token,e,attempt.nonce);
+  if(attempt.nonce.startsWith('mail:')){
+   stage='gmail_scope';
+   if(!tokens.scope?.split(' ').includes(GMAIL_SCOPE))throw new Error('Send-only permission required');
+   stage='gmail_offline_access';
+   if(!tokens.refresh_token)throw new Error('Offline Gmail authorization required');
+   await save(e,'google_gmail',await seal(e,JSON.stringify({refresh:tokens.refresh_token,sub:identity.sub})));
+   cached=undefined;
+   return new Response(null,{status:303,headers:{Location:origin(e)+'/?area=teacher','Set-Cookie':cookieValue('__Host-math_oauth','',0),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
+  }
   stage='drive_scope';
   if(!tokens.scope?.split(' ').includes(DRIVE_SCOPE))throw new Error('Drive permission required');
   stage='stored_connection';

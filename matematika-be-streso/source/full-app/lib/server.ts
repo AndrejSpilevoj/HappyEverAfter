@@ -1,5 +1,5 @@
 import { env } from 'cloudflare:workers';
-import { googleRoute, googleTeacher, googleLogout, drivePut, driveGet, driveTrash } from './google';
+import { googleRoute, googleTeacher, googleLogout, drivePut, driveGet, driveTrash, gmailReady, gmailSend } from './google';
 import type { GoogleEnv } from './google';
 const OWNER = 'andrej.spilevoj@gmail.com';
 type Bindings = Cloudflare.Env & GoogleEnv & { RESEND_API_KEY?:string; EMAIL_FROM?:string; TEACHER_EMAIL?:string };
@@ -30,13 +30,23 @@ async function assigned(a:Actor,task:string,sid:string){
  if(a.role==='student' && a.id!==sid)fail('Ši užduotis tau nepriskirta.',403);
  if(!await db().prepare('SELECT 1 FROM assignments WHERE task_id=? AND student_id=?').bind(task,sid).first())fail('Užduotis nerasta.',404);
 }
-const emailReady=()=>Boolean(e.RESEND_API_KEY&&e.EMAIL_FROM);
+const emailReady=()=>e.DEPLOYMENT_TARGET==='cloudflare'?gmailReady(e):Promise.resolve(Boolean(e.RESEND_API_KEY&&e.EMAIL_FROM));
 async function deliver(n:any){
- if(!emailReady())return false;
+ if(!await emailReady())return false;
+ // Atomically claim a queued message so simultaneous retries cannot send it twice.
+ const claimed=await db().prepare("UPDATE notifications SET status='sending',attempts=attempts+1 WHERE id=? AND status IN ('pending','failed') AND attempts<5 RETURNING id").bind(n.id).first();
+ if(!claimed)return false;
+ let ok=false;
  try{
- const res=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${e.RESEND_API_KEY}`,'Content-Type':'application/json','Idempotency-Key':n.id},body:JSON.stringify({from:e.EMAIL_FROM,to:[n.recipient],subject:n.subject,text:n.body})});
- await db().prepare('UPDATE notifications SET status=?,attempts=attempts+1 WHERE id=?').bind(res.ok?'sent':'failed',n.id).run();return res.ok;
- }catch {await db().prepare("UPDATE notifications SET status='failed',attempts=attempts+1 WHERE id=?").bind(n.id).run();return false;}
+  if(e.DEPLOYMENT_TARGET==='cloudflare')ok=await gmailSend(e,n);
+  else{
+   const res=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${e.RESEND_API_KEY}`,'Content-Type':'application/json','Idempotency-Key':n.id},body:JSON.stringify({from:e.EMAIL_FROM,to:[n.recipient],subject:n.subject,text:n.body})});ok=res.ok;
+  }
+ }catch(err:any){
+  await db().prepare('UPDATE notifications SET status=? WHERE id=?').bind(err.uncertain?'unknown':'failed',n.id).run();
+  return false;
+ }
+ await db().prepare('UPDATE notifications SET status=? WHERE id=?').bind(ok?'sent':'failed',n.id).run();return ok;
 }
 async function notify(to:string,subject:string,body:string){
  const n={id:uid(),recipient:to,subject,body,status:'pending',created:now()};
@@ -111,7 +121,7 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   return result;
  }
  const a=await actor(req);
- if(key==='me')return json({user:a,emailReady:a?.role==='teacher'?emailReady():undefined});
+ if(key==='me')return json({user:a,emailReady:a?.role==='teacher'?await emailReady():undefined});
  if(!a)fail('Prisijunk, kad atidarytum savo erdvę.',401);
  if(key==='tasks'&&method==='GET')return json(await listTasks(a));
  if(key==='students'&&method==='GET'){teacher(a);return json((await db().prepare('SELECT id,name,email,active,created FROM students ORDER BY name COLLATE NOCASE').all()).results);}
@@ -177,9 +187,9 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   if('headers' in object){for(const name of ['content-range','content-length','accept-ranges']){const v=object.headers.get(name);if(v)rangeHeaders[name]=v;}}
   return new Response(object.body,{status:'status' in object?object.status:200,headers:{...rangeHeaders,'Content-Type':f.mime,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Disposition':`inline; filename*=UTF-8''${encodeURIComponent(f.name)}`}});
  }
- if(key==='notifications'&&method==='GET'){teacher(a);return json({ready:emailReady(),pending:await db().prepare("SELECT COUNT(*) AS count FROM notifications WHERE status!='sent'").first()});}
+ if(key==='notifications'&&method==='GET'){teacher(a);return json({ready:await emailReady(),pending:await db().prepare("SELECT COUNT(*) AS count FROM notifications WHERE status!='sent'").first()});}
  if(key==='notifications/retry'&&method==='POST'){
-  teacher(a);if(!emailReady())fail('Pirmiausia prijunk el. pašto siuntimo paslaugą.');const rows=(await db().prepare("SELECT * FROM notifications WHERE status!='sent' AND attempts<5 ORDER BY created LIMIT 20").all()).results;let sent=0;for(const n of rows)if(await deliver(n))sent++;return json({sent});
+  teacher(a);if(!await emailReady())fail('Pirmiausia prijunk el. pašto siuntimo paslaugą.');const rows=(await db().prepare("SELECT * FROM notifications WHERE status IN ('pending','failed') AND attempts<5 ORDER BY created LIMIT 20").all()).results;let sent=0;for(const n of rows)if(await deliver(n))sent++;return json({sent});
  }
  return json({error:'Nerasta.'},404);
  }catch(err:any){const status=err.status||500;if(status===500)console.error('Math API failed:',err.message);return json({error:status===500?'Nepavyko atlikti veiksmo. Bandyk dar kartą.':err.message},status);}
