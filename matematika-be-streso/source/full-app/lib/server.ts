@@ -1,6 +1,8 @@
 import { env } from 'cloudflare:workers';
+import { googleRoute, googleTeacher, googleLogout, drivePut, driveGet, driveTrash } from './google';
+import type { GoogleEnv } from './google';
 const OWNER = 'andrej.spilevoj@gmail.com';
-type Bindings = Cloudflare.Env & { RESEND_API_KEY?:string; EMAIL_FROM?:string; TEACHER_EMAIL?:string };
+type Bindings = Cloudflare.Env & GoogleEnv & { RESEND_API_KEY?:string; EMAIL_FROM?:string; TEACHER_EMAIL?:string };
 type Actor = {role:'teacher';name:string} | {role:'student';id:string;name:string};
 const e = env as Bindings;
 const db = () => { if(!e.DB) throw new Error('Duomenų bazė dar neprijungta.'); return e.DB; };
@@ -13,8 +15,11 @@ function fail(message:string,status=400):never {throw Object.assign(new Error(me
 const json = (data:unknown,status=200,headers:Record<string,string>={})=>Response.json(data,{status,headers:{'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff',...headers}});
 const clean = (s:unknown,max=5000)=> typeof s==='string'?s.trim().slice(0,max):'';
 async function actor(req:Request):Promise<Actor|null>{
+ if(e.DEPLOYMENT_TARGET==='cloudflare'){
+  const owner=await googleTeacher(req,e);if(owner)return owner;
+ }
  const email=req.headers.get('oai-authenticated-user-email');
- if(req.headers.get('oai-authenticated-user-id') && email?.toLowerCase()===(e.TEACHER_EMAIL||OWNER).toLowerCase())return {role:'teacher',name:'Andrius'};
+ if(e.DEPLOYMENT_TARGET!=='cloudflare' && req.headers.get('oai-authenticated-user-id') && email?.toLowerCase()===(e.TEACHER_EMAIL||OWNER).toLowerCase())return {role:'teacher',name:'Andrius'};
  const cookie=req.headers.get('cookie')?.match(/(?:^|;\s*)math_session=([a-f0-9]{48})(?:;|$)/)?.[1];
  if(!cookie)return null;
  const s=await db().prepare('SELECT s.id,s.name FROM sessions x JOIN students s ON s.id=x.student_id WHERE x.hash=? AND x.expires>? AND s.active=1').bind(await hash(cookie),Date.now()).first<{id:string;name:string}>();
@@ -60,8 +65,19 @@ async function collectFiles(form:FormData,media:boolean){
  }
  return result;
 }
-async function upload(items:any[]){if(!items.length)return;if(!e.BUCKET)fail('Failų saugykla dar neprijungta.',503);for(const f of items)await e.BUCKET!.put(f.id,f.bytes,{httpMetadata:{contentType:f.mime}});}
-async function cleanup(items:any[]){if(e.BUCKET)await Promise.all(items.map(f=>e.BUCKET!.delete(f.id)));}
+async function upload(items:any[]){
+ if(!items.length)return;
+ try{
+  for(const f of items){
+   if(e.DEPLOYMENT_TARGET==='cloudflare')await drivePut(e,f);
+   else {if(!e.BUCKET)fail('Failų saugykla dar neprijungta.',503);await e.BUCKET!.put(f.id,f.bytes,{httpMetadata:{contentType:f.mime}});}
+  }
+ }catch(err){await cleanup(items).catch(()=>{});throw err;}
+}
+async function cleanup(items:any[]){
+ const results=await Promise.allSettled(items.map(f=>e.DEPLOYMENT_TARGET==='cloudflare'?driveTrash(e,f.id):e.BUCKET?.delete(f.id)));
+ if(results.some(r=>r.status==='rejected'))console.error('Failed to clean up an incomplete attachment upload');
+}
 function fileInsert(f:any,task:string,msg:string|null,sid:string|null){return db().prepare('INSERT INTO files(id,task_id,message_id,student_id,name,mime,size) VALUES(?,?,?,?,?,?,?)').bind(f.id,task,msg,sid,f.name,f.mime,f.size);}
 async function listTasks(a:Actor){
  const q=a.role==='teacher'?db().prepare(`SELECT t.*,COUNT(DISTINCT a.student_id) AS recipients,(SELECT COUNT(DISTINCT student_id) FROM messages m WHERE m.task_id=t.id AND m.author='student') AS replies,(SELECT author FROM messages m WHERE m.task_id=t.id ORDER BY m.created DESC LIMIT 1) AS last_author FROM tasks t JOIN assignments a ON a.task_id=t.id GROUP BY t.id ORDER BY t.created DESC`):db().prepare(`SELECT t.*,a.seen,(SELECT COUNT(*) FROM messages m WHERE m.task_id=t.id AND m.student_id=? AND m.author='student') AS replies,(SELECT author FROM messages m WHERE m.task_id=t.id AND m.student_id=? ORDER BY m.created DESC LIMIT 1) AS last_author FROM tasks t JOIN assignments a ON a.task_id=t.id WHERE a.student_id=? ORDER BY t.created DESC`).bind(a.id,a.id,a.id);
@@ -70,6 +86,9 @@ async function listTasks(a:Actor){
 export async function api(req:Request,path:string[]):Promise<Response>{
  try{
  const url=new URL(req.url); const method=req.method; const key=path.join('/');
+ if(e.DEPLOYMENT_TARGET==='cloudflare'){
+  const google=await googleRoute(req,key,e);if(google)return google;
+ }
  if(!['GET','HEAD'].includes(method)){
   if(req.headers.get('origin')!==url.origin || req.headers.get('sec-fetch-site')==='cross-site')fail('Neteisinga užklausos kilmė.',403);
   if(Number(req.headers.get('content-length')||0)>27*1024*1024)fail('Failai per dideli.',413);
@@ -85,8 +104,11 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   return json({ok:true},200,{'Set-Cookie':`math_session=${t}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=7776000`});
  }
  if(key==='logout'&&method==='POST'){
+  const teacherCookie=e.DEPLOYMENT_TARGET==='cloudflare'?await googleLogout(req,e):null;
   const t=req.headers.get('cookie')?.match(/(?:^|;\s*)math_session=([a-f0-9]{48})(?:;|$)/)?.[1];if(t)await db().prepare('DELETE FROM sessions WHERE hash=?').bind(await hash(t)).run();
-  return json({ok:true},200,{'Set-Cookie':'math_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0'});
+  const result=json({ok:true},200,{'Set-Cookie':'math_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0'});
+  if(teacherCookie)result.headers.append('Set-Cookie',teacherCookie);
+  return result;
  }
  const a=await actor(req);
  if(key==='me')return json({user:a,emailReady:a?.role==='teacher'?emailReady():undefined});
@@ -150,8 +172,10 @@ export async function api(req:Request,path:string[]):Promise<Response>{
  if(path[0]==='files'&&path.length===2&&method==='GET'){
   const f=await db().prepare('SELECT * FROM files WHERE id=?').bind(path[1]).first<any>();if(!f)fail('Failas nerastas.',404);
   if(a.role==='student'){if(f.student_id && f.student_id!==a.id)fail('Failas nepasiekiamas.',403);await assigned(a,f.task_id,a.id);}
-  const object=await e.BUCKET?.get(f.id);if(!object)fail('Failas nerastas.',404);
-  return new Response(object.body,{headers:{'Content-Type':f.mime,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Disposition':`inline; filename*=UTF-8''${encodeURIComponent(f.name)}`}});
+  const object=e.DEPLOYMENT_TARGET==='cloudflare'?await driveGet(e,f.id,req.headers.get('range')):await e.BUCKET?.get(f.id);if(!object)fail('Failas nerastas.',404);
+  const rangeHeaders:Record<string,string>={};
+  if('headers' in object){for(const name of ['content-range','content-length','accept-ranges']){const v=object.headers.get(name);if(v)rangeHeaders[name]=v;}}
+  return new Response(object.body,{status:'status' in object?object.status:200,headers:{...rangeHeaders,'Content-Type':f.mime,'Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff','Content-Disposition':`inline; filename*=UTF-8''${encodeURIComponent(f.name)}`}});
  }
  if(key==='notifications'&&method==='GET'){teacher(a);return json({ready:emailReady(),pending:await db().prepare("SELECT COUNT(*) AS count FROM notifications WHERE status!='sent'").first()});}
  if(key==='notifications/retry'&&method==='POST'){

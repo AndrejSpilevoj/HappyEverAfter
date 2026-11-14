@@ -27,9 +27,9 @@ assert.equal(headers["oai-authenticated-user-full-name"], undefined);
 assert.equal(headers.cookie, "math_session=student-cookie");
 for (const path of ["/signin-with-chatgpt", "/signout-with-chatgpt"]) {
   const response = await worker.fetch(new Request("https://example.com" + path), { DEPLOYMENT_TARGET: "cloudflare" }, {});
-  assert.equal(response.status, 503);
-  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), path==="/signin-with-chatgpt"?"https://example.com/api/google/start":"https://example.com/");
 }
 const sites = await worker.fetch(request(), {}, {});
 assert.equal((await sites.json())["oai-authenticated-user-id"], "forged-owner");
-console.log("Cloudflare boundary: forged identity stripped, student cookies preserved, teacher sign-in fails closed, Sites path preserved.");
+console.log("Cloudflare boundary: forged identity stripped, student cookies preserved, teacher sign-in redirects to server-side Google authorization, Sites path preserved.");

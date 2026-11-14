@@ -1,7 +1,7 @@
 name: Check Matematika Cloudflare backend
 on:
   push:
-    branches: [cloudflare-backend]
+    branches: [cloudflare-backend, google-drive-uploads]
     paths:
       - 'matematika-be-streso/source/full-app/**'
       - '.github/workflows/matematika-cloudflare-check.yml'
@@ -25,6 +25,7 @@ jobs:
       - run: npx tsc --noEmit
       - run: node scripts/check-workflow.mjs
       - run: node scripts/check-cloudflare-boundary.mjs
+      - run: node scripts/check-google-drive.mjs
       - run: npx vite build
       - run: node scripts/prepare-cloudflare.mjs
       - name: Check Worker bundle

@@ -13,11 +13,11 @@ const worker = {
       }
       request = new Request(request, { headers });
       const pathname = new URL(request.url).pathname;
-      if (pathname === "/signin-with-chatgpt" || pathname === "/signout-with-chatgpt") {
-        return new Response("Mokytojo prisijungimas dar ruošiamas. Viešos vaizdo pamokos veikia.", {
-          status: 503,
-          headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
-        });
+      if (pathname === "/signin-with-chatgpt") {
+        return Response.redirect(new URL("/api/google/start", request.url).href, 302);
+      }
+      if (pathname === "/signout-with-chatgpt") {
+        return Response.redirect(new URL("/", request.url).href, 302);
       }
     }
     let binding = ctx.props?.CONNECTORS;

@@ -6,6 +6,7 @@ config.name = "matematika-be-streso";
 config.account_id = "a018d05a961f4c8e0293cd139ec781eb";
 config.workers_dev = true;
 config.preview_urls = false;
+config.keep_vars = true;
 config.vars = { ...config.vars, DEPLOYMENT_TARGET: "cloudflare" };
 config.d1_databases = [{
   binding: "DB",
@@ -17,4 +18,4 @@ config.d1_databases = [{
 config.r2_buckets = [];
 config.services = [];
 await writeFile(path, JSON.stringify(config, null, 2) + "\n");
-console.log("Prepared matematika-be-streso with its EU D1 database; R2 and teacher sign-in pending.");
+console.log("Prepared matematika-be-streso with its EU D1 database; private uploads and teacher sign-in use Google OAuth when configured.");
