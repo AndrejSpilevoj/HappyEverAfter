@@ -24,6 +24,7 @@ jobs:
       - run: npm ci
       - run: npx tsc --noEmit
       - run: node scripts/check-workflow.mjs
+      - run: node scripts/check-cloudflare-boundary.mjs
       - run: npx vite build
       - run: node scripts/prepare-cloudflare.mjs
       - name: Check Worker bundle
