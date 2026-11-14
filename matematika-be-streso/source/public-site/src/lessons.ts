@@ -20,4 +20,4 @@ export const lessons = [
  ['WYedoxoey48','3.5. Mažėjančios palūkanos','05:59',3],
  ['fh4HFf6SIzY','Matematika: 10 auksinių patarimų!','04:31',4]
 ] as const;
-export const chapters = ['','Šaknys','Skaičių aibės','Finansiniai skaičiavimai','Dar šiek tiek matematikos'];
+export const chapters = ['','Šaknys','Skaičių aibės','Finansiniai skaičiavimai','Pradėk čia'];
