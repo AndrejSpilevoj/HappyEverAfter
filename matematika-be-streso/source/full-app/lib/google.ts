@@ -162,7 +162,7 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
   const state=random(),verifier=random(),nonce=(mail?'mail:':'')+random();
   await db(e).prepare('INSERT INTO oauth_states(hash,verifier,nonce,expires) VALUES(?,?,?,?)').bind(await digest(state),verifier,nonce,stamp+600000).run();
   const params=new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,redirect_uri:callback,response_type:'code',scope:'openid email '+(mail?GMAIL_SCOPE:DRIVE_SCOPE),access_type:'offline',state,nonce,code_challenge:await digest(verifier),code_challenge_method:'S256',login_hint:owner(e)});
-  if(mail||!await settings(e,'google_drive'))params.set('prompt','consent');
+  if(mail||url.searchParams.get('reconnect')==='1'||!await settings(e,'google_drive'))params.set('prompt','consent');
   return new Response(null,{status:302,headers:{Location:'https://accounts.google.com/o/oauth2/v2/auth?'+params,'Set-Cookie':cookieValue('__Host-math_oauth',state,600),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
  }
  const state=url.searchParams.get('state'),browserState=cookie(req,'__Host-math_oauth');
