@@ -6,7 +6,7 @@ export default function PrivacyPage() {
   <h1>Privatumo informacija</h1>
   <p>Ši svetainė skirta vaizdo pamokoms ir privačiam mokinio bendravimui su mokytoju. Kontaktas dėl duomenų: <a href="mailto:andrej.spilevoj@gmail.com">andrej.spilevoj@gmail.com</a>.</p>
   <h2>Mokinio erdvė</h2>
-  <p>Mokytojas įrašo mokinio vardą ir, jei pateikiamas, mokinio arba vieno iš tėvų el. pašto adresą. Svetainė saugo paskirtas užduotis, žinutes, atsakymus ir įkeltų failų informaciją. Kiekvienas mokinys gali pasiekti tik jam priskirtas užduotis ir savo pokalbius.</p>
+  <p>Mokytojas įrašo mokinio vardą ir, jei pateikiamas, mokinio arba vieno iš tėvų el. pašto adresą. Svetainė saugo paskirtas užduotis, žinutes, atsakymus, įkeltų failų informaciją ir nuotolinės pagalbos taškų naudojimą. Mokytojas sukuria prisijungimo vardą bei slaptažodį. Serveryje saugoma tik pasūdyta slaptažodžio maiša, ne pats slaptažodis. Kiekvienas mokinys gali pasiekti tik jam priskirtas užduotis ir savo pokalbius.</p>
   <h2>Kur laikomi failai</h2>
   <p>Nuotraukos, garso ir vaizdo įrašai laikomi privačiame mokytojo Google Drive aplanke. Įkeliant ir atidarant failus, duomenys perduodami per svetainės Cloudflare serverį. Svetainė nesukuria viešų Google Drive nuorodų. Mokiniui nereikia Google paskyros.</p>
   <h2>Mokytojo Google prisijungimas</h2>
