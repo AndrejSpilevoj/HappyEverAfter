@@ -9,7 +9,7 @@ const sqlite=new DatabaseSync(':memory:');
 for(const file of readdirSync('drizzle').filter(f=>f.endsWith('.sql')).sort())sqlite.exec(readFileSync('drizzle/'+file,'utf8'));
 class Statement {constructor(sql,args=[]){this.sql=sql;this.args=args;}bind(...args){return new Statement(this.sql,args);}async first(){return sqlite.prepare(this.sql).get(...this.args)||null;}async all(){return {results:sqlite.prepare(this.sql).all(...this.args)};}async run(){return sqlite.prepare(this.sql).run(...this.args);}}
 const bucket=new Map();globalThis.__testBindings={DB:{prepare:s=>new Statement(s),batch:async list=>{sqlite.exec('BEGIN');try{const out=[];for(const s of list)out.push(await s.run());sqlite.exec('COMMIT');return out;}catch(e){sqlite.exec('ROLLBACK');throw e;}}},BUCKET:{put:async(id,b)=>bucket.set(id,b),get:async id=>bucket.has(id)?{body:bucket.get(id)}:null,delete:async id=>bucket.delete(id)}};
-const source=readFileSync('lib/server.ts','utf8').replace("import { env } from 'cloudflare:workers';","const env = globalThis.__testBindings;");const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;const dir=mkdtempSync(join(tmpdir(),'math-test-'));writeFileSync(join(dir,'server.mjs'),compiled);const {api}=await import(pathToFileURL(join(dir,'server.mjs')));
+const source=readFileSync('lib/server.ts','utf8').replace("import { env } from 'cloudflare:workers';","const env = globalThis.__testBindings;").replace("from './google'","from './google.mjs'");const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText;const dir=mkdtempSync(join(tmpdir(),'math-test-'));writeFileSync(join(dir,'server.mjs'),compiled);writeFileSync(join(dir,'google.mjs'),ts.transpileModule(readFileSync('lib/google.ts','utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ES2022}}).outputText);const {api}=await import(pathToFileURL(join(dir,'server.mjs')));
 const origin='https://math.test';const teacher={'oai-authenticated-user-id':'owner','oai-authenticated-user-email':'andrej.spilevoj@gmail.com'};
 async function call(path,method='GET',body,headers={},expected=200){const h={...headers};if(method!=='GET')h.origin=origin;if(body&&!(body instanceof FormData))h['Content-Type']='application/json';const r=await api(new Request(origin+'/api/'+path,{method,headers:h,body:body instanceof FormData?body:body?JSON.stringify(body):undefined}),path.split('?')[0].split('/'));assert.equal(r.status,expected,await r.clone().text());return r;}
 async function data(...args){return (await call(...args)).json();}
@@ -27,4 +27,95 @@ const bad=new FormData();bad.set('task',task.id);bad.append('files',new File(['<
 const cross=new Request(origin+'/api/students',{method:'POST',headers:{...teacher,origin:'https://evil.test','Content-Type':'application/json'},body:'{"name":"bad"}'});assert.equal((await api(cross,['students'])).status,403);
 const question=new FormData();question.set('body','Kaip spręsti kitą uždavinį?');const q=await data('questions','POST',question,a);assert.equal((await data('tasks/'+q.id,'GET',null,a)).task.kind,'question');await call('tasks/'+q.id,'GET',null,b,404);assert.equal((await data('notifications','GET',null,teacher)).pending.count,3);
 const updated=await data('students/'+A.id,'PATCH',{rotate:true},teacher);await call('tasks','GET',null,a,401);await call('login','POST',{code:A.code},{},401);const newA=await login(updated.code);await data('students/'+A.id,'PATCH',{active:false},teacher);await call('tasks','GET',null,newA,401);
+
+const oldList=await data('students','GET',null,teacher);
+assert.ok(oldList.every(s=>s.student_group==='regular'),'Existing students default to the regular list');
+await call('students','POST',{name:'Remote no email',student_group:'remote'},teacher,400);
+await call('students','POST',{name:'Wrong package',email:'remote@example.test',student_group:'remote',service_plan:'invalid'},teacher,400);
+await call('students','POST',{name:'Anonymous remote',email:'remote@example.test',student_group:'remote'},{},401);
+const H=await data('students','POST',{name:'Remote homework',email:'homework@example.test',student_group:'remote',service_plan:'homework'},teacher);
+const T=await data('students','POST',{name:'Remote topics',email:'topics@example.test',student_group:'remote',service_plan:'topics'},teacher);
+const h=await login(H.code),topics=await login(T.code);
+assert.equal((await data('me','GET',null,h)).user.student_group,'remote');
+assert.equal((await data('me','GET',null,topics)).user.service_plan,'topics');
+assert.equal((await data('tasks','GET',null,h)).length,0,'Remote student can start without an assignment');
+const request=new FormData();request.set('body','Patikrink mano sprendimą');
+request.append('files',new File([new Uint8Array([137,80,78,71,13,10,26,10])],'homework.png',{type:'image/png'}));
+const help=await data('questions','POST',request,h);
+const helpDetail=await data('tasks/'+help.id,'GET',null,h);
+assert.equal(helpDetail.task.kind,'homework');assert.equal(helpDetail.studentGroup,'remote');
+await call('tasks/'+help.id,'GET',null,b,404);await call('tasks/'+help.id,'GET',null,topics,404);
+await call('files/'+helpDetail.files[0].id,'GET',null,b,403);
+const topicRequest=new FormData();topicRequest.set('body','Paaiškink lygtis');
+const topicHelp=await data('questions','POST',topicRequest,topics);
+assert.equal((await data('tasks/'+topicHelp.id,'GET',null,topics)).task.kind,'topic');
+const grouped=await data('tasks','GET',null,teacher);
+assert.equal(grouped.find(x=>x.id===help.id).student_group,'remote');
+assert.equal(grouped.find(x=>x.id===task.id).student_group,'regular');
+const mixed=new FormData();mixed.set('body','Do not mix');mixed.append('students',B.id);mixed.append('students',H.id);
+await call('tasks','POST',mixed,teacher,400);
+const answer=new FormData();answer.set('task',help.id);answer.set('student',H.id);answer.set('body','Vaizdo paaiškinimas');
+answer.append('files',new File([new Uint8Array([0,0,0,20,102,116,121,112,105,115,111,109])],'explanation.mp4',{type:'video/mp4'}));
+await data('messages','POST',answer,teacher);
+assert.equal((await data('tasks','GET',null,h))[0].last_author,'teacher');
+const video=(await data('tasks/'+help.id,'GET',null,h)).files.find(x=>x.mime==='video/mp4');
+assert.ok(video);await call('files/'+video.id,'GET',null,h);await call('files/'+video.id,'GET',null,topics,403);
+await call('students/'+H.id,'PATCH',{name:'Remote homework',email:'',service_plan:'homework'},teacher,400);
+await call('students/'+H.id,'PATCH',{name:'Remote homework',email:'homework@example.test',student_group:'regular'},teacher,400);
+await data('students/'+H.id,'PATCH',{name:'Remote homework',email:'homework@example.test',student_group:'remote',service_plan:'topics'},teacher);
+assert.equal((await data('me','GET',null,h)).user.service_plan,'topics');
+assert.equal((await data('tasks/'+help.id,'GET',null,h)).task.kind,'homework','Historical request type preserved after package change');
+console.log('PASS: separate remote accounts, packages, student-led requests, teacher video replies, email validation, unchanged regular workflow and private files.');
+
 console.log('PASS: creation, remembered sessions, multi-recipient tasks, image uploads, private replies/files, role checks, CSRF, queued email, code rotation and deactivation.');
+
+// Passwords and credits exercise the real standalone API with synthetic test credentials.
+sqlite.exec('DELETE FROM auth_attempts');
+Object.assign(globalThis.__testBindings,{DEPLOYMENT_TARGET:'cloudflare',GOOGLE_CLIENT_SECRET:'test-only-password-pepper',GOOGLE_CLIENT_ID:'test-client'});
+const google=await import(pathToFileURL(join(dir,'google.mjs')));
+const ownerSession='t'.repeat(43);
+sqlite.prepare('INSERT INTO teacher_sessions(hash,email,expires) VALUES(?,?,?)').run(await google.digest(ownerSession),'andrej.spilevoj@gmail.com',Date.now()+60000);
+let owner={cookie:'__Host-math_teacher='+ownerSession};
+assert.equal((await data('login/options')).teacherPasswordReady,false);
+await call('teacher/password','POST',{password:'FixtureTeacherPass1!'},{},401);
+const setup=await call('teacher/password','POST',{password:'FixtureTeacherPass1!'},owner);owner={cookie:setup.headers.get('set-cookie').split(';')[0]};
+assert.equal((await data('login/options')).teacherPasswordReady,true);
+assert.equal((await data('me','GET',null,owner)).user.role,'teacher');
+assert.ok(!sqlite.prepare("SELECT value FROM app_settings WHERE key='teacher_password'").get().value.includes('FixtureTeacherPass1!'));
+await call('teacher/login','POST',{email:'andrej.spilevoj@gmail.com',password:'wrong'},{},401);
+const teacherLogin=await call('teacher/login','POST',{email:'andrej.spilevoj@gmail.com',password:'FixtureTeacherPass1!'});owner={cookie:teacherLogin.headers.get('set-cookie').split(';')[0]};
+await call('students','POST',{name:'Short pass',username:'short.pass',password:'short'},owner,400);
+const account=await data('students','POST',{name:'Petras',email:'petras@example.test',username:'Petras.J',password:'FixtureStudentPass1',student_group:'remote'},owner);
+assert.equal(account.username,'petras.j');assert.equal(account.code,undefined);
+await call('students','POST',{name:'Duplicate',username:'PETRAS.J',password:'FixtureStudentPass2'},owner,400);
+await call('login','POST',{username:'petras.j',password:'incorrect'},{},401);
+await call('login','POST',{username:'missing.user',password:'incorrect'},{},401);
+const r=await call('login','POST',{username:'PETRAS.J',password:'FixtureStudentPass1'});const pupil={cookie:r.headers.get('set-cookie').split(';')[0]};
+assert.equal((await data('me','GET',null,pupil)).user.name,'Petras');
+assert.ok(!JSON.stringify(await data('students','GET',null,owner)).includes('password_hash'));
+assert.ok(!sqlite.prepare('SELECT password_hash FROM students WHERE id=?').get(account.id).password_hash.includes('FixtureStudentPass1'));
+await call('teacher/password','POST',{password:'FixtureNewTeacherPass1!'},pupil,403);
+async function points(){return (await data('students','GET',null,owner)).find(s=>s.id===account.id).credits_used;}
+async function requestHelp(kind){const f=new FormData();f.set('body','Help with this topic');f.set('help_type',kind);return data('questions','POST',f,pupil);}
+assert.equal(await points(),0);
+const thread=await requestHelp('homework');assert.equal(await points(),1);
+const followup=new FormData();followup.set('task',thread.id);followup.set('body','Can you explain this part again?');
+await data('messages','POST',followup,pupil);await data('messages','POST',followup,pupil);assert.equal(await points(),1,'Follow-ups never consume points');
+await requestHelp('topic');assert.equal(await points(),3);
+await requestHelp('homework');assert.equal(await points(),4);
+const {creditProgress}=await import(pathToFileURL(join(dir,'server.mjs')));assert.equal(creditProgress(await points()),4);
+await requestHelp('homework');assert.equal(await points(),5);assert.equal(creditProgress(await points()),1,'Next request starts the next four-point cycle');
+const invalidType=new FormData();invalidType.set('body','invalid');invalidType.set('help_type','free');await call('questions','POST',invalidType,pupil,400);assert.equal(await points(),5);
+await data('students/'+account.id,'PATCH',{name:'Petras',email:'petras@example.test',username:'petras.j',password:'FixtureStudentPass2',student_group:'remote'},owner);
+await call('tasks','GET',null,pupil,401);await call('login','POST',{username:'petras.j',password:'FixtureStudentPass1'},{},401);
+await call('login','POST',{username:'petras.j',password:'FixtureStudentPass2'});
+await call('teacher/password','POST',{currentPassword:'wrong',password:'FixtureNewTeacherPass1!'},owner,403);
+const changed=await call('teacher/password','POST',{currentPassword:'FixtureTeacherPass1!',password:'FixtureNewTeacherPass1!'},owner);
+await call('tasks','GET',null,owner,401);owner={cookie:changed.headers.get('set-cookie').split(';')[0]};
+assert.equal((await data('me','GET',null,owner)).user.role,'teacher');
+await call('teacher/login','POST',{email:'andrej.spilevoj@gmail.com',password:'FixtureTeacherPass1!'},{},401);
+await call('teacher/login','POST',{email:'andrej.spilevoj@gmail.com',password:'FixtureNewTeacherPass1!'});
+sqlite.exec('DELETE FROM auth_attempts');
+for(let n=0;n<12;n++)await call('login','POST',{username:'rate.test',password:'incorrect'},{'cf-connecting-ip':'192.0.2.'+n},401);
+await call('login','POST',{username:'rate.test',password:'incorrect'},{'cf-connecting-ip':'192.0.2.99'},429);
+console.log('PASS: manual usernames/passwords, owner password bootstrap/change, salted password hashes, old-session revocation, throttling, 1/2-point new threads, free follow-ups and cycle rollover.');
