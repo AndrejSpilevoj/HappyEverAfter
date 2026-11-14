@@ -1,0 +1,18 @@
+import {build} from 'esbuild';
+import {mkdir,writeFile,readFile,rm} from 'node:fs/promises';
+import path from 'node:path';
+import {fileURLToPath,pathToFileURL} from 'node:url';
+const dir=path.dirname(fileURLToPath(import.meta.url));
+const root=path.resolve(dir,'../..');
+const opts={bundle:true,jsx:'automatic',logLevel:'warning'};
+await build({...opts,entryPoints:[path.join(dir,'src/main.tsx')],outfile:path.join(root,'app.js'),platform:'browser',format:'iife',target:'es2020',minify:true,legalComments:'eof'});
+const temp=path.join(dir,'.render.mjs');
+await build({...opts,entryPoints:[path.join(dir,'src/PublicSite.tsx')],outfile:temp,platform:'node',format:'esm',packages:'external'});
+const {renderToString}=await import('react-dom/server');
+const React=await import('react');
+const {default:Site}=await import(pathToFileURL(temp).href);
+const markup=renderToString(React.createElement(Site));
+const html=`<!doctype html><html lang="lt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Matematika be streso | Andrius</title><meta name="description" content="Nemokamos matematikos vaizdo pamokos 8 klasei ir individualios pamokos su Andriumi. Mokykis savo tempu."><meta name="theme-color" content="#eef5ff"><link rel="icon" href="./favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./styles.css"><link rel="preconnect" href="https://i.ytimg.com"><link rel="preconnect" href="https://fonts.googleapis.com"><script src="./app.js" defer></script></head><body><div id="root">${markup}</div><noscript>Vaizdo pamokas gali žiūrėti <a href="https://www.youtube.com/@MatematikaBeStreso">YouTube kanale „Matematika be streso“</a>.</noscript></body></html>`;
+await writeFile(path.join(root,'index.html'),html);
+await rm(temp);
+console.log('Built GitHub Pages site: '+root);
