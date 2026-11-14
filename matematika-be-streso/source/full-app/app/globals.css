@@ -12,3 +12,11 @@
 @media(max-width:760px){.lesson{min-height:44px}.lesson-title{font-size:12px}}
 .student-toolbar{display:flex;justify-content:flex-end;margin:0 0 20px}.question-composer .recipients .button{margin-top:30px}
 .notification-settings{margin:0 0 20px auto;display:flex;justify-content:flex-end}
+
+/* Remote help and account-request entry points. */
+.service-offer{border-top:1px solid var(--line);margin-top:26px;padding-top:25px;font-size:12px;line-height:1.85;color:#50647f}
+.service-offer h3{font-size:19px;color:#294c76;margin-bottom:12px}.service-offer p{margin:12px 0}.service-offer ul{padding-left:20px;margin:12px 0 18px}.service-offer li+li{margin-top:8px}.service-price{font-size:30px;color:#315f99;font-weight:600;margin-top:16px}.service-price span{font-size:11px;font-weight:400;color:#8191a7;margin-left:8px}
+.login-help h3{font-size:14px;color:#496788;margin-bottom:8px}.login-help p{line-height:1.85}.login-help .button{margin:12px auto 0}.cohort-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.cohort-tabs button{display:flex;align-items:center;gap:10px;padding:13px 19px;border:1px solid #cbdcf0;border-radius:12px;color:#6c85a6;font-size:13px;background:#ffffff60}.cohort-tabs button.active{background:#dceafa;border-color:#9ebce4;color:#275d9d}.cohort-tabs span{font-size:10px;background:#ffffffa0;border-radius:12px;padding:1px 8px}.group-explanation{font-size:12px;line-height:1.85;color:#748ba7;margin:0 0 23px;max-width:740px}
+.student-toolbar{align-items:center;gap:15px;flex-wrap:wrap;justify-content:space-between}.package-note{font-size:12px;color:#6281a7}.student-package{display:block;margin-top:5px}.row-actions a{font-size:9px;color:#537eaf}.code-email{margin-top:10px}
+@media(max-width:1000px) and (min-width:761px){.header nav{gap:13px}.header nav .button{padding-left:12px;padding-right:12px}.brand{width:225px}}
+@media(max-width:760px){.cohort-tabs button{font-size:11px;padding:10px 12px}.workspace-toolbar{flex-wrap:wrap}.package-note{font-size:11px}.service-offer h3{font-size:17px}}

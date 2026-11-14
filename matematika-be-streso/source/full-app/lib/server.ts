@@ -3,7 +3,7 @@ import { googleRoute, googleTeacher, googleLogout, drivePut, driveGet, driveTras
 import type { GoogleEnv } from './google';
 const OWNER = 'andrej.spilevoj@gmail.com';
 type Bindings = Cloudflare.Env & GoogleEnv & { RESEND_API_KEY?:string; EMAIL_FROM?:string; TEACHER_EMAIL?:string };
-type Actor = {role:'teacher';name:string} | {role:'student';id:string;name:string};
+type Actor = {role:'teacher';name:string} | {role:'student';id:string;name:string;student_group:'regular'|'remote';service_plan:'homework'|'topics'|null};
 const e = env as Bindings;
 const db = () => { if(!e.DB) throw new Error('Duomenų bazė dar neprijungta.'); return e.DB; };
 const now = () => new Date().toISOString();
@@ -22,7 +22,7 @@ async function actor(req:Request):Promise<Actor|null>{
  if(e.DEPLOYMENT_TARGET!=='cloudflare' && req.headers.get('oai-authenticated-user-id') && email?.toLowerCase()===(e.TEACHER_EMAIL||OWNER).toLowerCase())return {role:'teacher',name:'Andrius'};
  const cookie=req.headers.get('cookie')?.match(/(?:^|;\s*)math_session=([a-f0-9]{48})(?:;|$)/)?.[1];
  if(!cookie)return null;
- const s=await db().prepare('SELECT s.id,s.name FROM sessions x JOIN students s ON s.id=x.student_id WHERE x.hash=? AND x.expires>? AND s.active=1').bind(await hash(cookie),Date.now()).first<{id:string;name:string}>();
+ const s=await db().prepare('SELECT s.id,s.name,s.student_group,s.service_plan FROM sessions x JOIN students s ON s.id=x.student_id WHERE x.hash=? AND x.expires>? AND s.active=1').bind(await hash(cookie),Date.now()).first<{id:string;name:string;student_group:'regular'|'remote';service_plan:'homework'|'topics'|null}>();
  return s?{role:'student',...s}:null;
 }
 function teacher(a:Actor|null){if(a?.role!=='teacher')fail('Reikia mokytojo prisijungimo.',403);}
@@ -90,7 +90,7 @@ async function cleanup(items:any[]){
 }
 function fileInsert(f:any,task:string,msg:string|null,sid:string|null){return db().prepare('INSERT INTO files(id,task_id,message_id,student_id,name,mime,size) VALUES(?,?,?,?,?,?,?)').bind(f.id,task,msg,sid,f.name,f.mime,f.size);}
 async function listTasks(a:Actor){
- const q=a.role==='teacher'?db().prepare(`SELECT t.*,COUNT(DISTINCT a.student_id) AS recipients,(SELECT COUNT(DISTINCT student_id) FROM messages m WHERE m.task_id=t.id AND m.author='student') AS replies,(SELECT author FROM messages m WHERE m.task_id=t.id ORDER BY m.created DESC LIMIT 1) AS last_author FROM tasks t JOIN assignments a ON a.task_id=t.id GROUP BY t.id ORDER BY t.created DESC`):db().prepare(`SELECT t.*,a.seen,(SELECT COUNT(*) FROM messages m WHERE m.task_id=t.id AND m.student_id=? AND m.author='student') AS replies,(SELECT author FROM messages m WHERE m.task_id=t.id AND m.student_id=? ORDER BY m.created DESC LIMIT 1) AS last_author FROM tasks t JOIN assignments a ON a.task_id=t.id WHERE a.student_id=? ORDER BY t.created DESC`).bind(a.id,a.id,a.id);
+ const q=a.role==='teacher'?db().prepare(`SELECT t.*,MIN(s.student_group) AS student_group,COUNT(DISTINCT a.student_id) AS recipients,(SELECT COUNT(DISTINCT student_id) FROM messages m WHERE m.task_id=t.id AND m.author='student') AS replies,(SELECT author FROM messages m WHERE m.task_id=t.id ORDER BY m.created DESC LIMIT 1) AS last_author FROM tasks t JOIN assignments a ON a.task_id=t.id JOIN students s ON s.id=a.student_id GROUP BY t.id ORDER BY t.created DESC`):db().prepare(`SELECT t.*,a.seen,(SELECT COUNT(*) FROM messages m WHERE m.task_id=t.id AND m.student_id=? AND m.author='student') AS replies,(SELECT author FROM messages m WHERE m.task_id=t.id AND m.student_id=? ORDER BY m.created DESC LIMIT 1) AS last_author FROM tasks t JOIN assignments a ON a.task_id=t.id WHERE a.student_id=? ORDER BY t.created DESC`).bind(a.id,a.id,a.id);
  return (await q.all()).results;
 }
 export async function api(req:Request,path:string[]):Promise<Response>{
@@ -124,33 +124,42 @@ export async function api(req:Request,path:string[]):Promise<Response>{
  if(key==='me')return json({user:a,emailReady:a?.role==='teacher'?await emailReady():undefined});
  if(!a)fail('Prisijunk, kad atidarytum savo erdvę.',401);
  if(key==='tasks'&&method==='GET')return json(await listTasks(a));
- if(key==='students'&&method==='GET'){teacher(a);return json((await db().prepare('SELECT id,name,email,active,created FROM students ORDER BY name COLLATE NOCASE').all()).results);}
+ if(key==='students'&&method==='GET'){teacher(a);return json((await db().prepare('SELECT id,name,email,active,created,student_group,service_plan FROM students ORDER BY name COLLATE NOCASE').all()).results);}
  if(key==='students'&&method==='POST'){
   teacher(a);const data:any=await req.json();const name=clean(data.name,80),email=clean(data.email,254).toLowerCase();
   if(!name)fail('Įrašyk mokinio vardą.');if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail('Patikrink el. pašto adresą.');
-  const c=code(),id=uid();await db().prepare('INSERT INTO students(id,name,email,code_hash,created) VALUES(?,?,?,?,?)').bind(id,name,email||null,await hash(c),now()).run();return json({id,code:c});
+  const group=data.student_group||'regular';
+  if(!['regular','remote'].includes(group))fail('Pasirink mokinių grupę.');
+  const plan=group==='remote'?(data.service_plan||'homework'):null;
+  if(group==='remote'&&(!email||!['homework','topics'].includes(plan)))fail('Nuotolinei pagalbai reikia el. pašto ir pasirinkto paketo.');
+  const c=code(),id=uid();await db().prepare('INSERT INTO students(id,name,email,code_hash,created,student_group,service_plan) VALUES(?,?,?,?,?,?,?)').bind(id,name,email||null,await hash(c),now(),group,plan).run();return json({id,code:c});
  }
  if(path[0]==='students'&&path.length===2&&method==='PATCH'){
-  teacher(a);const data:any=await req.json();const id=path[1];if(!await db().prepare('SELECT id FROM students WHERE id=?').bind(id).first())fail('Mokinys nerastas.',404);
+  teacher(a);const data:any=await req.json();const id=path[1];const existing=await db().prepare('SELECT id,student_group,service_plan FROM students WHERE id=?').bind(id).first<any>();if(!existing)fail('Mokinys nerastas.',404);
   if(data.rotate){const c=code();await db().batch([db().prepare('UPDATE students SET code_hash=? WHERE id=?').bind(await hash(c),id),db().prepare('DELETE FROM sessions WHERE student_id=?').bind(id)]);return json({code:c});}
   if(typeof data.active==='boolean'){await db().batch([db().prepare('UPDATE students SET active=? WHERE id=?').bind(data.active?1:0,id),db().prepare('DELETE FROM sessions WHERE student_id=?').bind(id)]);return json({ok:true});}
   const name=clean(data.name,80),email=clean(data.email,254).toLowerCase();if(!name||email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))fail('Patikrink vardą ir el. pašto adresą.');
-  await db().prepare('UPDATE students SET name=?,email=? WHERE id=?').bind(name,email||null,id).run();return json({ok:true});
+  if(data.student_group&&data.student_group!==existing.student_group)fail('Mokinio grupė parenkama kuriant prieigą.');
+  const plan=existing.student_group==='remote'?(data.service_plan||existing.service_plan):null;
+  if(existing.student_group==='remote'&&(!email||!['homework','topics'].includes(plan)))fail('Nuotolinei pagalbai reikia el. pašto ir pasirinkto paketo.');
+  await db().prepare('UPDATE students SET name=?,email=?,service_plan=? WHERE id=?').bind(name,email||null,plan,id).run();return json({ok:true});
  }
  if(key==='questions'&&method==='POST'){
   if(a.role!=='student')fail('Ši forma skirta mokiniams.',403);
   const f=await req.formData(),body=clean(f.get('body')),items=await collectFiles(f,false);
   if(!body&&!items.length)fail('Parašyk klausimą arba pridėk uždavinio nuotrauką.');
-  const id=uid(),title=clean(f.get('title'),120)||'Klausimas mokytojui';await upload(items);
-  try{await db().batch([db().prepare("INSERT INTO tasks(id,title,body,kind,created) VALUES(?,?,?,'question',?)").bind(id,title,body,now()),db().prepare('INSERT INTO assignments(task_id,student_id) VALUES(?,?)').bind(id,a.id),...items.map(x=>fileInsert(x,id,null,a.id))]);}catch(err){await cleanup(items);throw err;}
-  const sent=await notify(OWNER,`${a.name} uždavė klausimą`,`${a.name} atsiuntė klausimą: ${title}.\n\nAtidaryti: ${url.origin}/?area=teacher&task=${id}&student=${a.id}\n\nMatematika be streso`);
+  const kind=a.student_group==='remote'?(a.service_plan==='topics'?'topic':'homework'):'question';
+  const id=uid(),title=clean(f.get('title'),120)||(kind==='homework'?'Namų darbo patikra':kind==='topic'?'Temos paaiškinimas':'Klausimas mokytojui');await upload(items);
+  try{await db().batch([db().prepare('INSERT INTO tasks(id,title,body,kind,created) VALUES(?,?,?,?,?)').bind(id,title,body,kind,now()),db().prepare('INSERT INTO assignments(task_id,student_id) VALUES(?,?)').bind(id,a.id),...items.map(x=>fileInsert(x,id,null,a.id))]);}catch(err){await cleanup(items);throw err;}
+  const sent=await notify(OWNER,`${a.student_group==='remote'?'Nuotolinė pagalba: ':''}${a.name} uždavė klausimą`,`${a.name} atsiuntė klausimą: ${title}.\n\nAtidaryti: ${url.origin}/?area=teacher&task=${id}&student=${a.id}\n\nMatematika be streso`);
   return json({id,queued:sent?0:1});
  }
  if(key==='tasks'&&method==='POST'){
   teacher(a);const f=await req.formData();const body=clean(f.get('body'));const items=await collectFiles(f,false);if(!body&&!items.length)fail('Parašyk užduotį arba pridėk nuotrauką.');
   const ids=[...new Set(f.getAll('students').map(String))];if(!ids.length||ids.length>200)fail('Pasirink bent vieną mokinį (iki 200).');
-  const people=await db().prepare(`SELECT id,name,email FROM students WHERE active=1 AND id IN (${ids.map(()=>'?').join(',')})`).bind(...ids).all<any>();
+  const people=await db().prepare(`SELECT id,name,email,student_group FROM students WHERE active=1 AND id IN (${ids.map(()=>'?').join(',')})`).bind(...ids).all<any>();
   if(people.results.length!==ids.length)fail('Atnaujink mokinių sąrašą ir pasirink dar kartą.');
+  if(people.results.some(s=>s.student_group==='remote'))fail('Nuotolinės pagalbos mokinys pats pateikia užklausą. Atsakyk jo pokalbyje.');
   const id=uid(),title=clean(f.get('title'),120)||body.slice(0,70)||'Užduotis nuotraukoje';
   await upload(items);
   try{await db().batch([db().prepare('INSERT INTO tasks(id,title,body,created) VALUES(?,?,?,?)').bind(id,title,body,now()),...ids.map(sid=>db().prepare('INSERT INTO assignments(task_id,student_id) VALUES(?,?)').bind(id,sid)),...items.map(x=>fileInsert(x,id,null,null))]);}catch(err){await cleanup(items);throw err;}
@@ -167,16 +176,17 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   if(a.role==='student')await db().prepare('UPDATE assignments SET seen=1 WHERE task_id=? AND student_id=?').bind(id,student).run();
   const msgs=(await db().prepare('SELECT * FROM messages WHERE task_id=? AND student_id=? ORDER BY created,id').bind(id,student).all()).results;
   const fs=(await db().prepare('SELECT id,message_id,name,mime,size FROM files WHERE task_id=? AND (message_id IS NULL OR student_id=?)').bind(id,student).all()).results;
-  return json({task:t,students:people,studentId:student,messages:msgs,files:fs});
+  const person=await db().prepare('SELECT student_group FROM students WHERE id=?').bind(student).first<any>();
+  return json({task:t,students:people,studentId:student,studentGroup:person?.student_group||'regular',messages:msgs,files:fs});
  }
  if(key==='messages'&&method==='POST'){
   const f=await req.formData(),task=clean(f.get('task'),40),sid=a.role==='student'?a.id:clean(f.get('student'),40);await assigned(a,task,sid);
   const body=clean(f.get('body'));const items=await collectFiles(f,a.role==='teacher');if(!body&&!items.length)fail('Parašyk žinutę arba pridėk failą.');
   const id=uid();await upload(items);try{await db().batch([db().prepare('INSERT INTO messages(id,task_id,student_id,author,body,created) VALUES(?,?,?,?,?,?)').bind(id,task,sid,a.role,body,now()),...items.map(x=>fileInsert(x,task,id,sid))]);}catch(err){await cleanup(items);throw err;}
   const t=await db().prepare('SELECT title FROM tasks WHERE id=?').bind(task).first<any>();
-  const s=await db().prepare('SELECT name,email FROM students WHERE id=?').bind(sid).first<any>();let queued=0;
+  const s=await db().prepare('SELECT name,email,student_group FROM students WHERE id=?').bind(sid).first<any>();let queued=0;
   const recipient=a.role==='student'?OWNER:s?.email;
-  if(recipient){const title=a.role==='student'?`${s.name} pateikė sprendimą`:'Mokytojas atsakė į tavo užduotį';const ok=await notify(recipient,title,`${title}.\nUžduotis: ${t.title}\n\nAtidaryti: ${url.origin}/?area=${a.role==='student'?'teacher':'student'}&task=${task}${a.role==='student'?'&student='+sid:''}\n\nMatematika be streso`);if(!ok)queued++;}
+  if(recipient){const title=a.role==='student'?`${s.student_group==='remote'?'Nuotolinė pagalba: ':''}${s.name} pateikė sprendimą`:'Mokytojas atsakė į tavo užduotį';const ok=await notify(recipient,title,`${title}.\nUžduotis: ${t.title}\n\nAtidaryti: ${url.origin}/?area=${a.role==='student'?'teacher':'student'}&task=${task}${a.role==='student'?'&student='+sid:''}\n\nMatematika be streso`);if(!ok)queued++;}
   return json({ok:true,queued});
  }
  if(path[0]==='files'&&path.length===2&&method==='GET'){
