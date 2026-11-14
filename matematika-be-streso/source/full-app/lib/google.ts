@@ -138,24 +138,37 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
  if(!state||!browserState||state!==browserState||!/^[A-Za-z0-9_-]{43}$/.test(state))return response('Prisijungimas nepatvirtintas. Bandyk dar kartą.',400);
  const attempt=await db(e).prepare('DELETE FROM oauth_states WHERE hash=? RETURNING verifier,nonce,expires').bind(await digest(state)).first<{verifier:string;nonce:string;expires:number}>();
  if(!attempt||attempt.expires<Date.now())return response('Prisijungimo laikas baigėsi. Bandyk dar kartą.',400);
+ let stage='authorization';
  try{
   const code=url.searchParams.get('code');if(!code||url.searchParams.has('error'))throw new Error('Authorization declined');
+  stage='token_exchange';
   const exchange=await fetch('https://oauth2.googleapis.com/token',{method:'POST',redirect:'error',body:new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,client_secret:e.GOOGLE_CLIENT_SECRET!,redirect_uri:callback,grant_type:'authorization_code',code,code_verifier:attempt.verifier})});
-  if(!exchange.ok)throw new Error('Google authorization failed');
+  if(!exchange.ok){
+   const error=await exchange.json().catch(()=>({})) as {error?:string};
+   stage=['invalid_client','invalid_grant','unauthorized_client'].includes(error.error||'')?'token_'+error.error:'token_http_'+exchange.status;
+   throw new Error('Google authorization failed');
+  }
   const tokens=await exchange.json() as {id_token:string;access_token:string;refresh_token?:string;scope:string};
+  stage='identity';
   const identity=await verifyGoogleIdToken(tokens.id_token,e,attempt.nonce);
+  stage='drive_scope';
   if(!tokens.scope?.split(' ').includes(DRIVE_SCOPE))throw new Error('Drive permission required');
+  stage='stored_connection';
   const existing=await connection(e);
   if(existing&&existing.sub!==identity.sub)throw new Error('Owner account changed');
+  stage='offline_access';
   const refresh=tokens.refresh_token||existing?.refresh;if(!refresh)throw new Error('Offline Drive authorization required');
   let folder=existing?.folder;
   if(!folder){
+   stage='drive_folder';
    const r=await fetch('https://www.googleapis.com/drive/v3/files?fields=id',{method:'POST',redirect:'error',headers:{Authorization:'Bearer '+tokens.access_token,'Content-Type':'application/json'},body:JSON.stringify({name:'Matematika be streso – private uploads',mimeType:'application/vnd.google-apps.folder'})});
-   if(!r.ok)throw new Error('Drive folder creation failed');
+   if(!r.ok){stage='drive_folder_http_'+r.status;throw new Error('Drive folder creation failed');}
    folder=(await r.json() as {id:string}).id;if(!folder)throw new Error('Folder unavailable');
   }
+  stage='save_connection';
   await save(e,'google_drive',await seal(e,JSON.stringify({refresh,folder,sub:identity.sub})));
   cached=undefined;
+  stage='teacher_session';
   const session=random();
   await db(e).prepare('INSERT INTO teacher_sessions(hash,email,expires) VALUES(?,?,?)').bind(await digest(session),identity.email.toLowerCase(),Date.now()+7*86400000).run();
   const headers=new Headers({Location:origin(e)+'/?area=teacher','Cache-Control':'no-store','Referrer-Policy':'no-referrer'});
@@ -163,7 +176,8 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
   headers.append('Set-Cookie',cookieValue('__Host-math_oauth','',0));
   return new Response(null,{status:303,headers});
  }catch{
-  // Provider response bodies can contain credentials; never log or display them.
-  return response('Nepavyko prisijungti. Pasirink mokytojo Google paskyrą ir suteik leidimą svetainės failams. Jei reikia, prijunk Google Drive iš naujo.',403);
+  // Report only a fixed setup stage; provider bodies and credentials stay private.
+  console.error('Google setup failed at',stage);
+  return response('Nepavyko prisijungti. Pasirink mokytojo Google paskyrą ir suteik leidimą svetainės failams. Jei reikia, prijunk Google Drive iš naujo. ['+stage+']',403);
  }
 }
