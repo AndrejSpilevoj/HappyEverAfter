@@ -31,6 +31,7 @@ async function idToken(nonce,overrides={}){
 let identityOverrides={},scope='openid email https://www.googleapis.com/auth/drive.file',uploadFail=false,evilLocation=false,driveCalls=[],nonce,refreshes=0;
 const json=(v,status=200,headers={})=>Response.json(v,{status,headers});
 globalThis.fetch=async (url,init={})=>{
+ assert.equal(init.redirect,'manual','Google requests must use the redirect mode supported by Cloudflare Workers');
  url=String(url);driveCalls.push({url,init});
  if(url.endsWith('/oauth2/v3/certs'))return json({keys:[jwk]});
  if(url==='https://oauth2.googleapis.com/token'){
