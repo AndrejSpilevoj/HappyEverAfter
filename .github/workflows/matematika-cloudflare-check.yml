@@ -1,0 +1,30 @@
+name: Check Matematika Cloudflare backend
+on:
+  push:
+    branches: [cloudflare-backend]
+    paths:
+      - 'matematika-be-streso/source/full-app/**'
+      - '.github/workflows/matematika-cloudflare-check.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: matematika-be-streso/source/full-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: matematika-be-streso/source/full-app/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: node scripts/check-workflow.mjs
+      - run: npx vite build
+      - run: node scripts/prepare-cloudflare.mjs
+      - name: Check Worker bundle
+        run: npx wrangler deploy --dry-run --config dist/server/wrangler.json
