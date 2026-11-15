@@ -178,6 +178,22 @@ export async function api(req:Request,path:string[]):Promise<Response>{
  const a=await actor(req);
  if(key==='me')return json({user:a,emailReady:a?.role==='teacher'?await emailReady():undefined,teacherPasswordReady:a?.role==='teacher'?Boolean(await db().prepare("SELECT 1 FROM app_settings WHERE key='teacher_password'").first()):undefined});
  if(!a)fail('Prisijunk, kad atidarytum savo erdvę.',401);
+ if(key==='teacher/password/reset'&&method==='POST'){
+  teacher(a);await loginLimit(req,'teacher-password-reset');
+  const data:any=await req.json();validPassword(data.password,true);
+  const encoded=await passwordHash(data.password);
+  const session=req.headers.get('cookie')?.match(/(?:^|;\\s*)__Host-math_teacher=([A-Za-z0-9_-]{43})(?:;|$)/)?.[1];
+  if(!session)fail('Patvirtink tapatybę su Google.',403);
+  // Consume the short-lived, session-bound grant atomically; replay cannot change a password.
+  const grant=await db().prepare("DELETE FROM app_settings WHERE key=? AND CAST(value AS INTEGER)>? RETURNING key").bind('password_reset:'+await digest(session),Date.now()).first();
+  if(!grant)fail('Atkūrimo laikas baigėsi. Dar kartą patvirtink tapatybę su Google.',403);
+  await db().batch([
+   db().prepare("INSERT INTO app_settings(key,value) VALUES('teacher_password',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(encoded),
+   db().prepare('DELETE FROM teacher_sessions'),
+   db().prepare("DELETE FROM app_settings WHERE key LIKE 'password_reset:%'")
+  ]);
+  return teacherSession();
+ }
  if(key==='teacher/password'&&method==='POST'){
   teacher(a);const data:any=await req.json();await loginLimit(req,'teacher-password-change');
   const stored=await db().prepare("SELECT value FROM app_settings WHERE key='teacher_password'").first<{value:string}>();
