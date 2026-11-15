@@ -176,3 +176,13 @@ h1,.workspace-title h1{font-size:30px}
 .service-options>div{grid-template-columns:minmax(0,1fr);gap:8px}
 .service-options span,.service-options p{grid-column:1}
 }
+
+/* Compact mobile video information; desktop descriptions remain visible. */
+.video-about-toggle{display:none}
+@media(max-width:760px){
+.video-about-toggle{display:inline-flex;margin:18px 5px 0;gap:12px}
+.lesson-description{display:none}
+.lesson-description.is-expanded{display:block;margin-top:18px}
+.lesson-pagination{display:none}
+.lesson-layout{gap:24px}
+}
