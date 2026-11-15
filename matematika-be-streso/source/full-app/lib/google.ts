@@ -13,7 +13,10 @@ const from64 = (s: string) => Uint8Array.from(atob(s.replace(/-/g,'+').replace(/
 const random = () => bytes64(crypto.getRandomValues(new Uint8Array(32)));
 export const digest = async (s: string) => bytes64(new Uint8Array(await crypto.subtle.digest('SHA-256',enc.encode(s))));
 const db = (e: GoogleEnv) => { if(!e.DB) throw new Error('Database unavailable'); return e.DB; };
-const origin = (e: GoogleEnv) => e.PUBLIC_ORIGIN || DEFAULT_ORIGIN;
+const origin = (e: GoogleEnv,req?: Request) => {
+ const requested=req?new URL(req.url).origin:'';
+ return requested==='https://matematikabestreso.lt'?requested:e.PUBLIC_ORIGIN || DEFAULT_ORIGIN;
+};
 const owner = (e: GoogleEnv) => (e.TEACHER_EMAIL || OWNER).toLowerCase();
 const cookie = (r: Request,n: string) => r.headers.get('cookie')?.split(';').map(x=>x.trim()).find(x=>x.startsWith(n+'='))?.slice(n.length+1);
 const cookieValue = (n: string,v: string,age: number) => n+'='+v+'; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age='+age;
@@ -149,8 +152,8 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
  if(req.method!=='GET')return response('Method not allowed',405);
  if(!config(e))return response('Google prisijungimas dar nesukonfigūruotas.',503);
  const url=new URL(req.url);
- if(url.origin!==origin(e))return response('Neteisingas svetainės adresas.',403);
- const callback=origin(e)+'/api/google/callback';
+ if(url.origin!==origin(e,req))return response('Neteisingas svetainės adresas.',403);
+ const callback=origin(e,req)+'/api/google/callback';
  if(path==='google/start'||path==='google/email/start'||path==='google/reset/start'){
   const mail=path==='google/email/start',reset=path==='google/reset/start';
   if(mail&&!await googleTeacher(req,e))return response('Reikia mokytojo prisijungimo.',403);
@@ -190,7 +193,7 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
     db(e).prepare('INSERT INTO teacher_sessions(hash,email,expires) VALUES(?,?,?)').bind(sessionHash,identity.email.toLowerCase(),stamp+600000),
     db(e).prepare('INSERT INTO app_settings(key,value) VALUES(?,?)').bind('password_reset:'+sessionHash,String(stamp+600000))
    ]);
-   const headers=new Headers({Location:origin(e)+'/?area=teacher&reset=password','Cache-Control':'no-store','Referrer-Policy':'no-referrer'});
+   const headers=new Headers({Location:origin(e,req)+'/?area=teacher&reset=password','Cache-Control':'no-store','Referrer-Policy':'no-referrer'});
    headers.append('Set-Cookie',cookieValue('__Host-math_teacher',session,600));
    headers.append('Set-Cookie',cookieValue('__Host-math_oauth','',0));
    return new Response(null,{status:303,headers});
@@ -202,7 +205,7 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
    if(!tokens.refresh_token)throw new Error('Offline Gmail authorization required');
    await save(e,'google_gmail',await seal(e,JSON.stringify({refresh:tokens.refresh_token,sub:identity.sub})));
    cached=undefined;
-   return new Response(null,{status:303,headers:{Location:origin(e)+'/?area=teacher','Set-Cookie':cookieValue('__Host-math_oauth','',0),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
+   return new Response(null,{status:303,headers:{Location:origin(e,req)+'/?area=teacher','Set-Cookie':cookieValue('__Host-math_oauth','',0),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
   }
   stage='drive_scope';
   if(!tokens.scope?.split(' ').includes(DRIVE_SCOPE))throw new Error('Drive permission required');
@@ -224,7 +227,7 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
   stage='teacher_session';
   const session=random();
   await db(e).prepare('INSERT INTO teacher_sessions(hash,email,expires) VALUES(?,?,?)').bind(await digest(session),identity.email.toLowerCase(),Date.now()+7*86400000).run();
-  const headers=new Headers({Location:origin(e)+'/?area=teacher','Cache-Control':'no-store','Referrer-Policy':'no-referrer'});
+  const headers=new Headers({Location:origin(e,req)+'/?area=teacher','Cache-Control':'no-store','Referrer-Policy':'no-referrer'});
   headers.append('Set-Cookie',cookieValue('__Host-math_teacher',session,604800));
   headers.append('Set-Cookie',cookieValue('__Host-math_oauth','',0));
   return new Response(null,{status:303,headers});
