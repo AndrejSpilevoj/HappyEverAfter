@@ -145,24 +145,25 @@ export async function gmailSend(e: GoogleEnv,n: {id:string;recipient:string;subj
 }
 
 export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promise<Response|null>{
- if(!['google/start','google/email/start','google/callback'].includes(path))return null;
+ if(!['google/start','google/email/start','google/reset/start','google/callback'].includes(path))return null;
  if(req.method!=='GET')return response('Method not allowed',405);
  if(!config(e))return response('Google prisijungimas dar nesukonfigūruotas.',503);
  const url=new URL(req.url);
  if(url.origin!==origin(e))return response('Neteisingas svetainės adresas.',403);
  const callback=origin(e)+'/api/google/callback';
- if(path==='google/start'||path==='google/email/start'){
-  const mail=path==='google/email/start';
+ if(path==='google/start'||path==='google/email/start'||path==='google/reset/start'){
+  const mail=path==='google/email/start',reset=path==='google/reset/start';
   if(mail&&!await googleTeacher(req,e))return response('Reikia mokytojo prisijungimo.',403);
   const ip=await digest('google:'+ (req.headers.get('cf-connecting-ip')||'local'));
   const stamp=Date.now();
   const attempt=await db(e).prepare('INSERT INTO auth_attempts(key,count,reset) VALUES(?,1,?) ON CONFLICT(key) DO UPDATE SET count=CASE WHEN reset<? THEN 1 ELSE count+1 END,reset=CASE WHEN reset<? THEN excluded.reset ELSE reset END RETURNING count').bind(ip,stamp+900000,stamp,stamp).first<{count:number}>();
   if((attempt?.count||0)>20)return response('Pabandyk po 15 minučių.',429);
   await db(e).batch([db(e).prepare('DELETE FROM oauth_states WHERE expires<?').bind(stamp),db(e).prepare('DELETE FROM teacher_sessions WHERE expires<?').bind(stamp)]);
-  const state=random(),verifier=random(),nonce=(mail?'mail:':'')+random();
+  const state=random(),verifier=random(),nonce=(reset?'reset:':mail?'mail:':'')+random();
   await db(e).prepare('INSERT INTO oauth_states(hash,verifier,nonce,expires) VALUES(?,?,?,?)').bind(await digest(state),verifier,nonce,stamp+600000).run();
-  const params=new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,redirect_uri:callback,response_type:'code',scope:'openid email '+(mail?GMAIL_SCOPE:DRIVE_SCOPE),access_type:'offline',state,nonce,code_challenge:await digest(verifier),code_challenge_method:'S256',login_hint:owner(e)});
-  if(mail||url.searchParams.get('reconnect')==='1'||!await settings(e,'google_drive'))params.set('prompt','consent');
+  const params=new URLSearchParams({client_id:e.GOOGLE_CLIENT_ID!,redirect_uri:callback,response_type:'code',scope:reset?'openid email':'openid email '+(mail?GMAIL_SCOPE:DRIVE_SCOPE),access_type:'offline',state,nonce,code_challenge:await digest(verifier),code_challenge_method:'S256',login_hint:owner(e)});
+  if(reset){params.set('prompt','select_account');params.set('max_age','0');}
+  if(!reset&&(mail||url.searchParams.get('reconnect')==='1'||!await settings(e,'google_drive')))params.set('prompt','consent');
   return new Response(null,{status:302,headers:{Location:'https://accounts.google.com/o/oauth2/v2/auth?'+params,'Set-Cookie':cookieValue('__Host-math_oauth',state,600),'Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
  }
  const state=url.searchParams.get('state'),browserState=cookie(req,'__Host-math_oauth');
@@ -182,6 +183,18 @@ export async function googleRoute(req: Request,path: string,e: GoogleEnv):Promis
   const tokens=await exchange.json() as {id_token:string;access_token:string;refresh_token?:string;scope:string};
   stage='identity';
   const identity=await verifyGoogleIdToken(tokens.id_token,e,attempt.nonce);
+  if(attempt.nonce.startsWith('reset:')){
+   const session=random(),sessionHash=await digest(session),stamp=Date.now();
+   await db(e).batch([
+    db(e).prepare("DELETE FROM app_settings WHERE key LIKE 'password_reset:%' AND CAST(value AS INTEGER)<?").bind(stamp),
+    db(e).prepare('INSERT INTO teacher_sessions(hash,email,expires) VALUES(?,?,?)').bind(sessionHash,identity.email.toLowerCase(),stamp+600000),
+    db(e).prepare('INSERT INTO app_settings(key,value) VALUES(?,?)').bind('password_reset:'+sessionHash,String(stamp+600000))
+   ]);
+   const headers=new Headers({Location:origin(e)+'/?area=teacher&reset=password','Cache-Control':'no-store','Referrer-Policy':'no-referrer'});
+   headers.append('Set-Cookie',cookieValue('__Host-math_teacher',session,600));
+   headers.append('Set-Cookie',cookieValue('__Host-math_oauth','',0));
+   return new Response(null,{status:303,headers});
+  }
   if(attempt.nonce.startsWith('mail:')){
    stage='gmail_scope';
    if(!tokens.scope?.split(' ').includes(GMAIL_SCOPE))throw new Error('Send-only permission required');
