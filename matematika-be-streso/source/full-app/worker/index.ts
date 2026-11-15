@@ -12,7 +12,13 @@ const worker = {
         if (name.startsWith("oai-authenticated-user-")) headers.delete(name);
       }
       request = new Request(request, { headers });
-      const pathname = new URL(request.url).pathname;
+      const requestUrl = new URL(request.url);
+      if (requestUrl.hostname === "www.matematikabestreso.lt") {
+        requestUrl.hostname = "matematikabestreso.lt";
+        requestUrl.protocol = "https:";
+        return Response.redirect(requestUrl.href, 308);
+      }
+      const pathname = requestUrl.pathname;
       if (pathname === "/signin-with-chatgpt") {
         return Response.redirect(new URL("/api/google/start", request.url).href, 302);
       }
