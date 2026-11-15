@@ -200,6 +200,28 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   const login=data.username?await credentials(data):null;if(login&&!login.password)fail('Įrašyk slaptažodį.');
   const c=code(),id=uid();await db().prepare('INSERT INTO students(id,name,email,code_hash,created,student_group,service_plan,username,password_hash) VALUES(?,?,?,?,?,?,?,?,?)').bind(id,name,email||null,await hash(c),now(),group,plan,login?.name||null,login?.password||null).run();return json(login?{id,username:login.name}:{id,code:c});
  }
+ if(path[0]==='students'&&path.length===2&&method==='DELETE'){
+  teacher(a);const id=path[1];
+  const student=await db().prepare('SELECT id,email FROM students WHERE id=?').bind(id).first<any>();if(!student)fail('Mokinys nerastas.',404);
+  const exclusive="SELECT task_id FROM assignments WHERE student_id=? AND task_id NOT IN (SELECT task_id FROM assignments WHERE student_id!=?)";
+  const attachments=(await db().prepare(`SELECT id FROM files WHERE student_id=? OR task_id IN (${exclusive})`).bind(id,id,id).all<{id:string}>()).results;
+  // Revoke access before external cleanup. A failed cleanup can safely be retried.
+  await db().batch([db().prepare('DELETE FROM sessions WHERE student_id=?').bind(id),db().prepare('UPDATE students SET active=0 WHERE id=?').bind(id)]);
+  for(const file of attachments){
+   if(e.DEPLOYMENT_TARGET==='cloudflare')await driveTrash(e,file.id);
+   else await e.BUCKET?.delete(file.id);
+  }
+  const taskIds=(await db().prepare(exclusive).bind(id,id).all<{task_id:string}>()).results.map(t=>t.task_id);
+  await db().batch([
+   db().prepare(`DELETE FROM files WHERE student_id=? OR task_id IN (${exclusive})`).bind(id,id,id),
+   db().prepare('DELETE FROM messages WHERE student_id=?').bind(id),
+   db().prepare("DELETE FROM notifications WHERE status IN ('pending','failed') AND (instr(body,?)>0 OR (recipient=? AND NOT EXISTS (SELECT 1 FROM students WHERE email=? AND id!=?)))").bind('&student='+id,student.email||'',student.email||'',id),
+   db().prepare('DELETE FROM assignments WHERE student_id=?').bind(id),
+   ...taskIds.map(task=>db().prepare('DELETE FROM tasks WHERE id=? AND NOT EXISTS (SELECT 1 FROM assignments WHERE task_id=?)').bind(task,task)),
+   db().prepare('DELETE FROM students WHERE id=?').bind(id)
+  ]);
+  return json({ok:true});
+ }
  if(path[0]==='students'&&path.length===2&&method==='PATCH'){
   teacher(a);const data:any=await req.json();const id=path[1];const existing=await db().prepare('SELECT id,student_group,service_plan,username,password_hash FROM students WHERE id=?').bind(id).first<any>();if(!existing)fail('Mokinys nerastas.',404);
   if(data.rotate){const c=code();await db().batch([db().prepare('UPDATE students SET code_hash=? WHERE id=?').bind(await hash(c),id),db().prepare('DELETE FROM sessions WHERE student_id=?').bind(id)]);return json({code:c});}
