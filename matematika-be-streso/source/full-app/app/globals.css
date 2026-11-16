@@ -186,3 +186,20 @@ h1,.workspace-title h1{font-size:30px}
 .lesson-pagination{display:none}
 .lesson-layout{gap:24px}
 }
+
+/* Clear, readable details for the flexible mathematics help package. */
+.service-details{color:#29415f;font-size:20px;line-height:1.8}
+.service-details section{margin:28px 0}
+.service-details h3{font-size:22px;line-height:1.5;margin:0 0 14px;letter-spacing:0}
+.service-details p{margin:0}
+.service-details strong{color:#173759;font-weight:650}
+.service-details ul{list-style:disc;padding-left:26px;margin:14px 0 0}
+.service-details li{padding-left:3px}
+.service-details li+li{margin-top:12px}
+.service-details .service-options{margin:18px 0 0;gap:18px}
+.service-details .service-options>div{padding:22px;grid-template-columns:minmax(0,1fr) auto;column-gap:18px}
+.service-details .service-options>div>strong{font-size:20px}
+.service-details .service-options ul{grid-column:1/-1;margin-top:4px}
+.service-details .service-options span{white-space:nowrap}
+.service-details>.button{margin-top:6px}
+@media(max-width:760px){.service-details .service-price{font-size:25px}.service-details .service-options>div{padding:18px;grid-template-columns:minmax(0,1fr)}.service-details section{margin:26px 0}}
