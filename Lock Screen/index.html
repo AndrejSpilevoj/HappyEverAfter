@@ -264,14 +264,9 @@
     }
 
     function renderClock(date) {
-      const hours = new Intl.DateTimeFormat("en-GB", {
-        hour: "2-digit",
-        hourCycle: "h23"
-      }).format(date);
-
-      const minutes = new Intl.DateTimeFormat("en-GB", {
-        minute: "2-digit"
-      }).format(date);
+      // Format explicitly: Intl may omit the leading zero for minutes alone.
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
 
       // Inline spans preserve the original font and natural text layout.
       hoursTextEl.textContent = hours;
