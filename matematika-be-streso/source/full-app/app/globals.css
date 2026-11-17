@@ -219,16 +219,35 @@ h1,.workspace-title h1{font-size:30px}
 .print-task-button{float:right;margin-bottom:16px}
 .task-printout{display:none}
 @media(max-width:760px){.task-card-row .task-info{min-width:0;flex-basis:100%}.task-card-row .task-card>.status{margin-left:0}.workspace-toolbar{flex-wrap:wrap;gap:16px}.print-task-button{float:none;margin:14px 0;display:flex}}
+/* A paper-specific worksheet, independent of the website layout and browser margins. */
 @media print{
- @page{size:A4;margin:15mm}
- html,body{background:white!important;color:black!important}
+ @page{size:A4;margin:0}
+ html,body{background:#fff!important;color:#172b40!important;margin:0!important;padding:0!important;min-height:0!important}
  .geometry,.header,footer,.overlay{display:none!important}
- .site-shell{display:block!important;max-width:none!important;padding:0!important;margin:0!important}
- .workspace{padding:0!important}
- .workspace>*:not(.thread){display:none!important}
- .thread>*:not(.task-printout){display:none!important}
- .task-printout{display:block!important;font-family:Arial,sans-serif;color:black;font-size:12pt;line-height:1.6}
- .task-printout h1{font-size:20pt;line-height:1.3;margin:0 0 8mm}
- .task-printout p{white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:8mm}
- .task-printout img{display:block;max-width:100%;max-height:240mm;width:auto;height:auto;object-fit:contain;margin:6mm auto;break-inside:avoid}
+ .site-shell{display:block!important;width:100%!important;max-width:none!important;padding:0!important;margin:0!important;min-height:0!important}
+ .workspace{padding:0!important;margin:0!important}
+ .workspace>*:not(.thread),.thread>*:not(.task-printout){display:none!important}
+ .task-printout{display:block!important;width:100%;max-width:210mm;padding:14mm 16mm 12mm;margin:0 auto;box-sizing:border-box;font-family:Arial,sans-serif;color:#172b40;font-size:11pt;line-height:1.6}
+ .worksheet-header{display:flex;align-items:center;justify-content:space-between;gap:10mm;padding-bottom:6mm;border-bottom:1.5pt solid #315b82;break-inside:avoid}
+ .worksheet-header .worksheet-logo{display:block;width:47mm;height:20mm;object-fit:contain;object-position:left center}
+ .worksheet-header>div{text-align:right;display:flex;flex-direction:column;gap:2mm}
+ .worksheet-header strong{font-size:8pt;letter-spacing:1.4pt;color:#315b82}
+ .worksheet-header span{font-size:9pt;color:#42566b}
+ .worksheet-title{margin:7mm 0 5mm;break-inside:avoid}
+ .worksheet-title>span{font-size:8pt;font-weight:700;letter-spacing:1.4pt;color:#5d7287}
+ .task-printout h1{font-size:22pt;line-height:1.25;letter-spacing:-.5pt;font-weight:600;margin:2mm 0 0;overflow-wrap:anywhere}
+ .worksheet-student{display:flex;gap:12mm;margin:0 0 6mm;font-size:9pt;color:#42566b;break-inside:avoid}
+ .worksheet-student>span{display:flex;align-items:baseline;gap:3mm;flex:2}
+ .worksheet-student>span+span{flex:1}
+ .worksheet-student i{flex:1;border-bottom:.5pt solid #9babb9;min-width:15mm;height:6mm}
+ .worksheet-instructions{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11pt;line-height:1.65;margin:0 0 6mm}
+ .worksheet-images{margin:0}
+ .worksheet-images figure{margin:0 0 6mm;padding:4mm;border:.6pt solid #cbd5de;border-radius:3mm;break-inside:avoid}
+ .worksheet-images .worksheet-image{display:block;width:auto;height:auto;max-width:100%;max-height:82mm;object-fit:contain;margin:0 auto}
+ .worksheet-image.worksheet-dark{filter:invert(1) grayscale(1)}
+ .worksheet-solution{margin-top:7mm;break-inside:avoid}
+ .worksheet-solution h2{font-size:10pt;font-weight:600;letter-spacing:0;line-height:1.4;margin:0 0 1mm}
+ .worksheet-solution>div{height:9mm;border-bottom:.5pt solid #d3dbe3}
+ .worksheet-footer{display:flex;align-items:center;justify-content:space-between;gap:5mm;border-top:.6pt solid #aabac8;margin-top:9mm;padding-top:3mm;font-size:8pt;color:#52687c;break-inside:avoid}
+ .worksheet-footer strong{font-weight:500}
 }
