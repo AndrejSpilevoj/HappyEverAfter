@@ -38,22 +38,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="lt">
-      <head>
-        <meta property="og:type" content="website" />
-        <meta property="og:locale" content="lt_LT" />
-        <meta property="og:url" content="https://matematikabestreso.lt/" />
-        <meta property="og:site_name" content="Matematika be streso" />
-        <meta property="og:title" content="Matematika be streso | Andrius" />
-        <meta property="og:description" content="Nemokamos matematikos vaizdo pamokos 8 klasei ir individualios pamokos su Andriumi." />
-        <meta property="og:image" content="https://matematikabestreso.lt/social-preview-v1.png" />
-        <meta property="og:image:secure_url" content="https://matematikabestreso.lt/social-preview-v1.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:type" content="image/png" />
-        <meta property="og:image:alt" content="Matematika be streso" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content="https://matematikabestreso.lt/social-preview-v1.png" />
-      </head>
       <body className="antialiased">{children}</body>
     </html>
   );
