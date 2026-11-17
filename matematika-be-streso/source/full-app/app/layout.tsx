@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     title: "Matematika be streso | Andrius",
     description: "Nemokamos matematikos vaizdo pamokos 8 klasei ir individualios pamokos su Andriumi.",
     images: [{
-      url: "/social-preview-v1.png",
+      url: "/social-preview-v2.png",
       width: 1200,
       height: 630,
       type: "image/png",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Matematika be streso | Andrius",
-    images: ["/social-preview-v1.png"],
+    images: ["/social-preview-v2.png"],
   },
   icons: {
     icon: "/favicon.svg",
