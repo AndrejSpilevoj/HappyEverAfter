@@ -11,6 +11,10 @@ const worker = {
       for (const name of [...headers.keys()]) {
         if (name.startsWith("oai-authenticated-user-")) headers.delete(name);
       }
+      // Derive approximate location from Cloudflare, never from caller-supplied headers.
+      const geo=(request as Request & {cf?:{city?:string;country?:string}}).cf;
+      headers.set("x-math-geo-city",encodeURIComponent(geo?.city||"Nežinoma"));
+      headers.set("x-math-geo-country",geo?.country||"XX");
       request = new Request(request, { headers });
       const requestUrl = new URL(request.url);
       if (requestUrl.hostname === "www.matematikabestreso.lt") {

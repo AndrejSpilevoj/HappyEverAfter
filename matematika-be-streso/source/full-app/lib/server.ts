@@ -1,3 +1,4 @@
+import {visitorAnalytics} from './visitor-analytics';
 import { env } from 'cloudflare:workers';
 import { googleRoute, googleTeacher, googleLogout, drivePut, driveTaskFolder, driveGet, driveTrash, gmailReady, gmailSend, digest } from './google';
 import type { GoogleEnv } from './google';
@@ -179,6 +180,7 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   return result;
  }
  const a=await actor(req);
+ if(key==='visitor-stats'&&['GET','POST'].includes(method))return await visitorAnalytics(req,e,a?.role);
  if(key==='me')return json({user:a,emailReady:a?.role==='teacher'?await emailReady():undefined,teacherPasswordReady:a?.role==='teacher'?Boolean(await db().prepare("SELECT 1 FROM app_settings WHERE key='teacher_password'").first()):undefined});
  if(!a)fail('Prisijunk, kad atidarytum savo erdvę.',401);
  if(key==='teacher/password/reset'&&method==='POST'){
