@@ -203,3 +203,32 @@ h1,.workspace-title h1{font-size:30px}
 .service-details .service-options span{white-space:nowrap}
 .service-details>.button{margin-top:6px}
 @media(max-width:760px){.service-details .service-price{font-size:25px}.service-details .service-options>div{padding:18px;grid-template-columns:minmax(0,1fr)}.service-details section{margin:26px 0}}
+
+/* Keep the task action separate from the card's navigation button. */
+.task-card-row{position:relative;display:flex;align-items:stretch;gap:12px}
+.task-card-row>.task-card{flex:1;min-width:0;width:100%;text-align:left}
+.task-trash{flex-shrink:0;align-self:center;width:48px;height:48px;min-width:48px;color:#8c3540;background:#fff8f8;border:1px solid #dcbec3;border-radius:14px}
+.task-trash:hover{background:#ffe9ec;color:#a51f32}
+.task-trash:focus-visible{outline:3px solid #3977cf;outline-offset:3px}
+.task-trash:disabled{opacity:.6;cursor:wait}
+@media(max-width:760px){.task-card-row{gap:8px}.task-trash{min-width:44px;width:44px;height:44px}.task-card-row .task-card{flex-wrap:wrap}}
+
+.student-section-tabs{margin-bottom:20px;display:flex;flex-wrap:wrap}
+.workspace-toolbar>.tabs{flex-wrap:wrap}
+.task-card-row .task-info{overflow-wrap:anywhere}
+.print-task-button{float:right;margin-bottom:16px}
+.task-printout{display:none}
+@media(max-width:760px){.task-card-row .task-info{min-width:0;flex-basis:100%}.task-card-row .task-card>.status{margin-left:0}.workspace-toolbar{flex-wrap:wrap;gap:16px}.print-task-button{float:none;margin:14px 0;display:flex}}
+@media print{
+ @page{size:A4;margin:15mm}
+ html,body{background:white!important;color:black!important}
+ .geometry,.header,footer,.overlay{display:none!important}
+ .site-shell{display:block!important;max-width:none!important;padding:0!important;margin:0!important}
+ .workspace{padding:0!important}
+ .workspace>*:not(.thread){display:none!important}
+ .thread>*:not(.task-printout){display:none!important}
+ .task-printout{display:block!important;font-family:Arial,sans-serif;color:black;font-size:12pt;line-height:1.6}
+ .task-printout h1{font-size:20pt;line-height:1.3;margin:0 0 8mm}
+ .task-printout p{white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:8mm}
+ .task-printout img{display:block;max-width:100%;max-height:240mm;width:auto;height:auto;object-fit:contain;margin:6mm auto;break-inside:avoid}
+}

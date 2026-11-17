@@ -89,11 +89,27 @@ async function googleFetch(e: GoogleEnv,url: string,init: RequestInit={}) {
  return fetch(url,{...init,headers:h,redirect:'manual'});
 }
 export async function driveReady(e: GoogleEnv) {return config(e)&&Boolean(await settings(e,'google_drive'));}
-export async function drivePut(e: GoogleEnv,f: {id:string;name:string;mime:string;size:number;bytes:Uint8Array}) {
+// One stable folder per task, including tasks created before folder grouping existed.
+export async function driveTaskFolder(e: GoogleEnv,taskId:string,title:string) {
+ const key='drive_task_folder:'+taskId;
+ const existing=await settings(e,key);if(existing)return existing.value;
+ const c=await connection(e);if(!c)failure('Google Drive dar neprijungtas.');
+ const r=await googleFetch(e,'https://www.googleapis.com/drive/v3/files?fields=id',{
+  method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({name:title,mimeType:'application/vnd.google-apps.folder',parents:[c!.folder],appProperties:{application:'matematika-be-streso',taskId}})
+ });
+ if(!r.ok)failure('Nepavyko sukurti užduoties aplanko Google Drive.');
+ const created=await r.json() as {id:string};if(!created.id)failure('Užduoties aplankas nesukurtas.');
+ await db(e).prepare('INSERT INTO app_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO NOTHING').bind(key,created.id).run();
+ const selected=(await settings(e,key))!.value;
+ if(selected!==created.id)await googleFetch(e,'https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(created.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:'{"trashed":true}'}).catch(()=>{});
+ return selected;
+}
+export async function drivePut(e: GoogleEnv,f: {id:string;name:string;mime:string;size:number;bytes:Uint8Array},folder?:string) {
  const c=await connection(e);if(!c)failure('Google Drive dar neprijungtas.');
  const start=await googleFetch(e,'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id',{
   method:'POST',headers:{'Content-Type':'application/json','X-Upload-Content-Type':f.mime,'X-Upload-Content-Length':String(f.size)},
-  body:JSON.stringify({name:f.name,parents:[c!.folder],appProperties:{application:'matematika-be-streso',storageId:f.id}})
+  body:JSON.stringify({name:f.name,parents:[folder||c!.folder],appProperties:{application:'matematika-be-streso',storageId:f.id}})
  });
  if(!start.ok)failure('Nepavyko pradėti failo įkėlimo į Google Drive.');
  const location=start.headers.get('Location');if(!location)failure('Google Drive negrąžino įkėlimo adreso.');
