@@ -4,6 +4,32 @@ import type { ConnectorBinding } from "../lib/connector-contract.mjs";
 
 const worker = {
   fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
+    // Direct Cloudflare requests do not pass through the Sites identity gateway.
+    // Never accept caller-supplied Sites identity headers on the standalone Worker.
+    if ((env as Cloudflare.Env & { DEPLOYMENT_TARGET?: string }).DEPLOYMENT_TARGET === "cloudflare") {
+      const headers = new Headers(request.headers);
+      for (const name of [...headers.keys()]) {
+        if (name.startsWith("oai-authenticated-user-")) headers.delete(name);
+      }
+      // Derive approximate location from Cloudflare, never from caller-supplied headers.
+      const geo=(request as Request & {cf?:{city?:string;country?:string}}).cf;
+      headers.set("x-math-geo-city",encodeURIComponent(geo?.city||"Nežinoma"));
+      headers.set("x-math-geo-country",geo?.country||"XX");
+      request = new Request(request, { headers });
+      const requestUrl = new URL(request.url);
+      if (requestUrl.hostname === "www.matematikabestreso.lt") {
+        requestUrl.hostname = "matematikabestreso.lt";
+        requestUrl.protocol = "https:";
+        return Response.redirect(requestUrl.href, 308);
+      }
+      const pathname = requestUrl.pathname;
+      if (pathname === "/signin-with-chatgpt") {
+        return Response.redirect(new URL("/api/google/start", request.url).href, 302);
+      }
+      if (pathname === "/signout-with-chatgpt") {
+        return Response.redirect(new URL("/", request.url).href, 302);
+      }
+    }
     let binding = ctx.props?.CONNECTORS;
     // Local preview emulates the same request-scoped capability. This branch and
     // the auxiliary service binding are absent from production builds.
