@@ -17,9 +17,9 @@ export default function PrivacyPage() {
   <p>Jei pranešimų siuntimas įjungtas, apie naują užduotį ar atsakymą gali būti pranešta pateiktu el. pašto adresu per mokytojo Gmail paskyrą. Pranešimų siuntimui mokytojas atskirai suteikia Gmail leidimą siųsti laiškus; svetainė neskaito ir netrina pašto dėžutės laiškų. Siuntimo prieigos raktas serveryje laikomas užšifruotas. Prisijungimo kodai ir sprendimų failai el. laiškuose nesiunčiami. Pamokų vaizdo įrašus teikia YouTube; paleidus įrašą duomenis taip pat tvarko Google / YouTube pagal savo privatumo taisykles.</p>
   <h2>Pasirenkama lankomumo statistika</h2>
   <p>Tik jums leidus, naršyklės vietinėje saugykloje išsaugomas atsitiktinis identifikatorius ir apsilankymo kodas. Statistika padeda mokytojui matyti unikalias ir sugrįžtančias naršykles, įrenginių tipus, apytikslius miestus ir šalis bei nukreipiančios svetainės domeną. Neįrašomi IP adresai, tikslios koordinatės, visas naršyklės aprašas ar pilnas nukreipiančio puslapio adresas. Statistikos įrašai saugomi iki 365 dienų ir matomi tik prisijungusiam mokytojui. Debesijos paslaugą teikia Cloudflare.</p>
-  <p>Leidimą galite pakeisti svetainės apačioje pasirinkę „Statistikos pasirinkimas“. Pasirinkus „Neleisti“, tos naršyklės statistikos įrašai pašalinami. Atpažintos mokytojo ir mokinių naršyklės neįtraukiamos. Jų atsitiktinio identifikatoriaus maiša saugoma atmetimo sąraše, kad apsilankymai nebūtų įtraukiami ir atsijungus.</p>
+  <p>Leidimą galite pakeisti svetainės apačioje pasirinkę „Statistikos pasirinkimas“. Pasirinkus „Neleisti“, tos naršyklės statistikos įrašai pašalinami. Mokytojo ir mokinių apsilankymai įtraukiami tomis pačiomis sąlygomis kaip kitų lankytojų, jei leidžiama statistika. Prisijungimas nelemia lankytojo atmetimo.</p>
   <h2>Duomenų tvarkymas</h2>
   <p>Užduočių ir pokalbių duomenys naudojami mokymui bei svetainės veikimui. Jie neparduodami ir nenaudojami reklamai. Cloudflare gali saugoti techninius užklausų žurnalus. Dėl duomenų peržiūros, patikslinimo ar pašalinimo parašykite mokytojui aukščiau nurodytu adresu.</p>
-  <p style={{fontSize:14}}>Atnaujinta 2026-11-17.</p>
+  <p style={{fontSize:14}}>Atnaujinta 2026-11-20.</p>
  </main>;
 }

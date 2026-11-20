@@ -6,17 +6,18 @@ type Row={name:string;visitors:number;visits:number};
 type Stats={days:number;since:string;today:string;started:string;summary:Summary;daily:{day:string;visits:number;visitors:number}[];devices:Row[];cities:Row[];countries:Row[];sources:Row[]};
 async function postStats(body:unknown){const r=await fetch('/api/visitor-stats',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error('Statistika nepasiekiama.');return r.json();}
 const consentKey='math_stats_consent',idKey='math_stats_visitor',sessionKey='math_stats_session';
-export function VisitorCounting({ready,role}:{ready:boolean;role?:string}){
+export function VisitorCounting({ready}:{ready:boolean;role?:string}){
  const [choice,setChoice]=useState('loading');
  useEffect(()=>{
   if(!ready)return;
   try{
-   if(role){const id=localStorage.getItem(idKey);localStorage.setItem(consentKey,'excluded');setChoice('excluded');if(id)postStats({visitor:id,exclude:true}).catch(()=>{});return;}
-   setChoice(localStorage.getItem(consentKey)||'ask');
+   const saved=localStorage.getItem(consentKey);
+   if(saved==='excluded'){localStorage.removeItem(consentKey);localStorage.removeItem(idKey);localStorage.removeItem(sessionKey);}
+   setChoice(saved==='excluded'?'ask':saved||'ask');
   }catch{setChoice('unavailable');}
- },[ready,role]);
+ },[ready]);
  useEffect(()=>{
-  if(!ready||role||choice!=='allowed')return;
+  if(!ready||choice!=='allowed')return;
   let stopped=false;
   const visit=async()=>{
    try{
@@ -26,18 +27,18 @@ export function VisitorCounting({ready,role}:{ready:boolean;role?:string}){
     if(!session||!session.id||stamp-session.last>30*60000)session={id:crypto.randomUUID(),last:stamp};
     session.last=stamp;localStorage.setItem(sessionKey,JSON.stringify(session));
     const result=await postStats({visitor:id,session:session.id,referrer:document.referrer});
-    if(!stopped&&result.excluded){localStorage.setItem(consentKey,'excluded');setChoice('excluded');}
+    if(!stopped&&result.excluded){localStorage.setItem(consentKey,'denied');setChoice('denied');}
    }catch{/* Statistics must never interrupt a lesson or login. */}
   };
   let lastActivity=0;
   const activity=()=>{if(Date.now()-lastActivity>120000){lastActivity=Date.now();void visit();}};
   void visit();window.addEventListener('focus',activity);document.addEventListener('visibilitychange',activity);window.addEventListener('pointerdown',activity);
   return()=>{stopped=true;window.removeEventListener('focus',activity);document.removeEventListener('visibilitychange',activity);window.removeEventListener('pointerdown',activity);};
- },[ready,role,choice]);
+ },[ready,choice]);
  async function choose(value:string){
   try{if(value==='denied'){const id=localStorage.getItem(idKey);if(id)await postStats({visitor:id,exclude:true});localStorage.removeItem(idKey);localStorage.removeItem(sessionKey);}localStorage.setItem(consentKey,value);setChoice(value);}catch{setChoice('unavailable');}
  }
- if(!ready||role||['loading','excluded','unavailable'].includes(choice))return null;
+ if(!ready||['loading','unavailable'].includes(choice))return null;
  return choice==='ask'?<aside className="analytics-choice" aria-label="Lankomumo statistika"><p>Ar leidi lankomumo statistiką? Ji padeda suprasti, kiek žmonių atranda pamokas. Saugomas atsitiktinis naršyklės kodas, įrenginio tipas ir apytikslis miestas. IP adresai nesaugomi. <a href="/privacy" target="_blank" rel="noreferrer">Privatumas</a></p><div><button onClick={()=>choose('allowed')}>Leisti statistiką</button><button onClick={()=>choose('denied')}>Neleisti</button></div></aside>:<button className="analytics-preference" onClick={()=>setChoice('ask')}>Statistikos pasirinkimas</button>;
 }
 const fmt=(n=0)=>new Intl.NumberFormat('lt-LT').format(n);
@@ -65,7 +66,7 @@ export default function VisitorStats(){
  <section className="glass stats-panel stats-trend"><div className="stats-heading"><div><h2>Lankytojų augimas</h2><p>Unikalios naršyklės kiekvieną dieną</p></div><strong>{data!.since} – {data!.today}</strong></div>{!s.visits?<p className="stats-empty">Statistika pradedama rinkti dabar. Čia atsiras pirmųjų lankytojų duomenys.</p>:<><div className="stats-chart" role="img" aria-label="Kasdienio lankomumo diagrama">{daily.map(d=><div className="stats-chart-column" key={d.day} title={d.day+': '+d.visitors+' unikalūs, '+d.visits+' apsilankymų'}><span style={{height:(d.visitors?Math.max(3,d.visitors/max*100):0)+'%'}}/></div>)}</div><div className="stats-chart-dates"><span>{data!.since}</span><span>{data!.today}</span></div></>}</section>
  <div className="stats-grid"><Breakdown title="Įrenginiai" rows={data!.devices} device/><Breakdown title="Iš kur ateina lankytojai" rows={data!.sources}/><Breakdown title="Miestai · apytikslė vieta" rows={data!.cities}/><Breakdown title="Šalys" rows={data!.countries}/></div>
  <details className="glass stats-panel stats-daily"><summary>Kasdieniai skaičiai</summary><div className="stats-table-scroll"><table><thead><tr><th>Data</th><th>Unikalūs</th><th>Apsilankymai</th></tr></thead><tbody>{daily.slice().reverse().map(d=><tr key={d.day}><td>{d.day}</td><td>{fmt(d.visitors)}</td><td>{fmt(d.visits)}</td></tr>)}</tbody></table></div></details>
- <section className="stats-explanation"><h3>Kaip skaičiuojama?</h3><p>Skaičiuojami tik statistiką leidę lankytojai. Tavo ir mokinių atpažintos naršyklės neįtraukiamos; prisijungus pašalinami ir ankstesni tos naršyklės apsilankymai. Kitas įrenginys ar išvalyta naršyklė gali būti suskaičiuoti iš naujo.</p><p>Miestai nustatomi apytiksliai pagal interneto ryšį. VPN ar mobilusis ryšys gali rodyti kitą miestą. Viena naršyklė gali patekti į kelias įrenginių, miestų ar šaltinių grupes. Dienų unikalių skaičių suma nėra viso laikotarpio unikalių skaičius.</p><p>Laikas: Lietuva. Duomenys saugomi iki 365 dienų. Rinkimo pradžia: {data?.started?new Date(data.started).toLocaleDateString('lt-LT'):'šiandien'}. Ankstesnių apsilankymų atkurti negalima.</p></section>
+ <section className="stats-explanation"><h3>Kaip skaičiuojama?</h3><p>Skaičiuojami tik statistiką leidę lankytojai. Įtraukiami visi statistiką leidę lankytojai, taip pat mokytojas ir mokiniai. Prisijungimas skaičiavimo nekeičia. Kitas įrenginys ar išvalyta naršyklė gali būti suskaičiuoti iš naujo.</p><p>Miestai nustatomi apytiksliai pagal interneto ryšį. VPN ar mobilusis ryšys gali rodyti kitą miestą. Viena naršyklė gali patekti į kelias įrenginių, miestų ar šaltinių grupes. Dienų unikalių skaičių suma nėra viso laikotarpio unikalių skaičius.</p><p>Laikas: Lietuva. Duomenys saugomi iki 365 dienų. Rinkimo pradžia: {data?.started?new Date(data.started).toLocaleDateString('lt-LT'):'šiandien'}. Ankstesnių apsilankymų atkurti negalima.</p></section>
  </>}
  </div>;
 }

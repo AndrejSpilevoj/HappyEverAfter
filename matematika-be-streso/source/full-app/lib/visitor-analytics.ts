@@ -22,11 +22,10 @@ export async function visitorAnalytics(req:Request,e:Env,role?:string){
   const data=await req.json() as {visitor?:string;session?:string;referrer?:string;exclude?:boolean};
   if(!valid(data.visitor))return reply({error:'Neteisingi duomenys.'},400);
   const visitor=await digest('visitor:'+ (e.GOOGLE_CLIENT_SECRET||'math-stats')+':'+data.visitor);
-  if(role||data.exclude===true){
-   await db.batch([db.prepare('INSERT INTO visitor_exclusions(visitor) VALUES(?) ON CONFLICT DO NOTHING').bind(visitor),db.prepare('DELETE FROM visitor_sessions WHERE visitor=?').bind(visitor)]);
+  if(data.exclude===true){
+   await db.prepare('DELETE FROM visitor_sessions WHERE visitor=?').bind(visitor).run();
    return reply({excluded:true});
   }
-  if(await db.prepare('SELECT 1 FROM visitor_exclusions WHERE visitor=?').bind(visitor).first())return reply({excluded:true});
   if(!valid(data.session))return reply({error:'Neteisingi duomenys.'},400);
   // Obvious crawlers do not become visits; no IP or full user agent is stored.
   const ua=req.headers.get('user-agent')||'';
