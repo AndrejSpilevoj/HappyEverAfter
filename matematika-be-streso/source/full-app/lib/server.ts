@@ -1,6 +1,6 @@
 import {visitorAnalytics} from './visitor-analytics';
 import { env } from 'cloudflare:workers';
-import { googleRoute, googleTeacher, googleLogout, drivePut, driveTaskFolder, driveGet, driveTrash, gmailReady, gmailSend, digest } from './google';
+import { googleRoute, googleTeacher, googleLogout, drivePut, driveStart, driveChunk, driveTaskFolder, driveGet, driveTrash, gmailReady, gmailSend, digest } from './google';
 import type { GoogleEnv } from './google';
 const OWNER = 'andrej.spilevoj@gmail.com';
 type Bindings = Cloudflare.Env & GoogleEnv & { RESEND_API_KEY?:string; EMAIL_FROM?:string; TEACHER_EMAIL?:string };
@@ -302,12 +302,67 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   const person=await db().prepare('SELECT student_group FROM students WHERE id=?').bind(student).first<any>();
   return json({task:t,students:people,studentId:student,studentGroup:person?.student_group||'regular',messages:msgs,files:fs});
  }
+ if(path[0]==='reply-video'&&method==='POST'){
+  teacher(a);
+  if(e.DEPLOYMENT_TARGET!=='cloudflare')fail('Vaizdo įrašų saugykla nepasiekiama.',503);
+  if(path.length===1){
+   const info=await req.json() as {task:string;student:string;size:number};
+   const task=clean(info.task,40),sid=clean(info.student,40);
+   await assigned(a,task,sid);
+   if(!Number.isSafeInteger(info.size)||info.size<12||info.size>200*1024*1024)fail('Vaizdo įrašas gali būti iki 200 MB.');
+   const id=uid();
+   await db().prepare('INSERT INTO app_settings(key,value) VALUES(?,?)').bind('reply_video:'+id,JSON.stringify({task,sid,size:info.size,offset:0,created:Date.now()})).run();
+   return json({id});
+  }
+  const id=path[1];
+  const key='reply_video:'+id;
+  const row=await db().prepare('SELECT value FROM app_settings WHERE key=?').bind(key).first<{value:string}>();
+  if(!row)fail('Įkėlimas nerastas.',404);
+  const stage=JSON.parse(row.value);
+  if(Date.now()-stage.created>86400000)fail('Įkėlimo laikas baigėsi.',410);
+  await assigned(a,stage.task,stage.sid);
+  const offset=Number(req.headers.get('X-Video-Offset'));
+  if(stage.driveId||offset<stage.offset)return json({offset:stage.offset});
+  const size=Math.min(4*1024*1024,stage.size-stage.offset);
+  if(offset!==stage.offset||Number(req.headers.get('Content-Length'))!==size)fail('Neteisinga vaizdo įrašo dalis.');
+  const bytes=await req.arrayBuffer();
+  if(bytes.byteLength!==size)fail('Neteisingas įrašo dalies dydis.');
+  if(!stage.session){
+   const sig=new Uint8Array(bytes,0,12);
+   const mp4=String.fromCharCode(...sig.slice(4,8))==='ftyp';
+   const webm=sig[0]===26&&sig[1]===69&&sig[2]===223&&sig[3]===163;
+   if(!mp4&&!webm)fail('Pasirink MP4, MOV arba WebM vaizdo įrašą.');
+   const mov=mp4&&String.fromCharCode(...new Uint8Array(bytes,8,4))==='qt  ';
+   stage.mime=mov?'video/quicktime':mp4?'video/mp4':'video/webm';
+   const task=await db().prepare('SELECT title FROM tasks WHERE id=?').bind(stage.task).first<{title:string}>();
+   const student=await db().prepare('SELECT name FROM students WHERE id=?').bind(stage.sid).first<{name:string}>();
+   stage.name='Mokytojas – '+student!.name+' – '+id+'.'+(mov?'mov':mp4?'mp4':'webm');
+   stage.session=await driveStart(e,{id,name:stage.name,mime:stage.mime,size:stage.size},await driveTaskFolder(e,stage.task,task!.title));
+   await db().prepare('UPDATE app_settings SET value=? WHERE key=?').bind(JSON.stringify(stage),key).run();
+  }
+  const result=await driveChunk(e,stage.session,bytes,offset,stage.size);
+  if(result.driveId)stage.driveId=result.driveId;
+  stage.offset=result.offset;
+  await db().prepare('UPDATE app_settings SET value=? WHERE key=?').bind(JSON.stringify(stage),key).run();
+  return json({offset:stage.offset});
+ }
  if(key==='messages'&&method==='POST'){
   const f=await req.formData(),task=clean(f.get('task'),40),sid=a.role==='student'?a.id:clean(f.get('student'),40);await assigned(a,task,sid);
-  const body=clean(f.get('body'));const items=await collectFiles(f,a.role==='teacher');if(!body&&!items.length)fail('Parašyk žinutę arba pridėk failą.');
+  const body=clean(f.get('body'));const items=await collectFiles(f,a.role==='teacher');const videos=[];
+  const videoIds=f.getAll('video');
+  if(videoIds.length&&a.role!=='teacher')fail('Vaizdo įrašus gali pridėti tik mokytojas.',403);
+  if(videoIds.length+items.length>5||new Set(videoIds).size!==videoIds.length)fail('Vienu kartu galima pridėti iki 5 failų.');
+  for(const id of videoIds){
+   const key='reply_video:'+clean(id,36);
+   const row=await db().prepare('SELECT value FROM app_settings WHERE key=?').bind(key).first<{value:string}>();
+   const video=row&&JSON.parse(row.value);
+   if(!video?.driveId||video.task!==task||video.sid!==sid||Date.now()-video.created>86400000)fail('Vaizdo įrašas dar neįkeltas arba įkėlimo laikas baigėsi.');
+   videos.push({...video,id,key});
+  }
+  if(!body&&!items.length&&!videos.length)fail('Parašyk žinutę arba pridėk failą.');
   const t=await db().prepare('SELECT title FROM tasks WHERE id=?').bind(task).first<any>();
   const s=await db().prepare('SELECT name,email,student_group FROM students WHERE id=?').bind(sid).first<any>();
-  const id=uid();await upload(items,task,t.title,a.role==='student'?s.name:'Mokytojas – '+s.name);try{await db().batch([db().prepare('INSERT INTO messages(id,task_id,student_id,author,body,created) VALUES(?,?,?,?,?,?)').bind(id,task,sid,a.role,body,now()),...items.map(x=>fileInsert(x,task,id,sid))]);}catch(err){await cleanup(items);throw err;}
+  const id=uid();await upload(items,task,t.title,a.role==='student'?s.name:'Mokytojas – '+s.name);try{await db().batch([db().prepare('INSERT INTO messages(id,task_id,student_id,author,body,created) VALUES(?,?,?,?,?,?)').bind(id,task,sid,a.role,body,now()),...items.map(x=>fileInsert(x,task,id,sid)),...videos.flatMap(video=>[db().prepare('INSERT INTO drive_objects(key,drive_id) VALUES(?,?)').bind(video.id,video.driveId),fileInsert(video,task,id,sid),db().prepare('DELETE FROM app_settings WHERE key=?').bind(video.key)])]);}catch(err){await cleanup(items);throw err;}
   let queued=0;
   const recipient=a.role==='student'?OWNER:s?.email;
   if(recipient){const title=a.role==='student'?`${s.student_group==='remote'?'Nuotolinė pagalba: ':''}${s.name} pateikė sprendimą`:'Mokytojas atsakė į tavo užduotį';const ok=await notify(recipient,title,`${title}.\nUžduotis: ${t.title}\n\nAtidaryti: ${url.origin}/?area=${a.role==='student'?'teacher':'student'}&task=${task}${a.role==='student'?'&student='+sid:''}\n\nMatematika be streso`);if(!ok)queued++;}

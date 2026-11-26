@@ -105,7 +105,8 @@ export async function driveTaskFolder(e: GoogleEnv,taskId:string,title:string) {
  if(selected!==created.id)await googleFetch(e,'https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(created.id),{method:'PATCH',headers:{'Content-Type':'application/json'},body:'{"trashed":true}'}).catch(()=>{});
  return selected;
 }
-export async function drivePut(e: GoogleEnv,f: {id:string;name:string;mime:string;size:number;bytes:Uint8Array},folder?:string) {
+type DriveUpload = {id:string;name:string;mime:string;size:number};
+export async function driveStart(e:GoogleEnv,f:DriveUpload,folder?:string) {
  const c=await connection(e);if(!c)failure('Google Drive dar neprijungtas.');
  const start=await googleFetch(e,'https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&fields=id',{
   method:'POST',headers:{'Content-Type':'application/json','X-Upload-Content-Type':f.mime,'X-Upload-Content-Length':String(f.size)},
@@ -115,7 +116,18 @@ export async function drivePut(e: GoogleEnv,f: {id:string;name:string;mime:strin
  const location=start.headers.get('Location');if(!location)failure('Google Drive negrąžino įkėlimo adreso.');
  const session=new URL(location);
  if(session.origin!=='https://www.googleapis.com'||!session.pathname.startsWith('/upload/drive/'))failure('Neteisingas įkėlimo adresas.');
- const uploaded=await googleFetch(e,session.href,{method:'PUT',headers:{'Content-Type':f.mime},body:new Blob([f.bytes as Uint8Array<ArrayBuffer>])});
+ return session.href;
+}
+export async function driveChunk(e:GoogleEnv,session:string,body:ArrayBuffer,offset:number,size:number){
+ const result=await googleFetch(e,session,{method:'PUT',headers:{'Content-Range':`bytes ${offset}-${offset+body.byteLength-1}/${size}`},body});
+ if(result.status===308){const range=/^bytes=0-(\d+)$/.exec(result.headers.get('Range')||'');return {offset:range?Number(range[1])+1:0};}
+ if(!result.ok)failure('Nepavyko įkelti vaizdo įrašo į Google Drive.');
+ const file=await result.json() as {id:string};
+ if(!file.id)failure('Failo įkėlimas nepatvirtintas.');
+ return {offset:size,driveId:file.id};
+}
+export async function drivePut(e: GoogleEnv,f:DriveUpload & {bytes:Uint8Array},folder?:string){
+ const uploaded=await googleFetch(e,await driveStart(e,f,folder),{method:'PUT',headers:{'Content-Type':f.mime},body:new Blob([f.bytes as Uint8Array<ArrayBuffer>])});
  if(!uploaded.ok)failure('Nepavyko įkelti failo į Google Drive.');
  const file=await uploaded.json() as {id:string};if(!file.id)failure('Failo įkėlimas nepatvirtintas.');
  try{await db(e).prepare('INSERT INTO drive_objects(key,drive_id) VALUES(?,?)').bind(f.id,file.id).run();}
