@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="lt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Šaknis iš sandaugos · Matematika be streso</title>
+<link rel="stylesheet" href="/bandymai/temu-pamokos.css"><link rel="stylesheet" href="/bandymai/lesson-navigation.css"></head>
+<body><header class="lesson-site-header"><nav aria-label="Pagrindinė navigacija"><a class="lesson-brand" href="/"><img src="/logo.webp" alt="Matematika be streso"></a><a href="/pamokos">Pamokos ir testai</a><a href="/prieiga#kodas">Įvesti kodą</a><a href="/?area=teacher" data-teacher-link hidden>Mokytojo erdvė</a></nav></header><main><header><a href="/saknu-tema">← Kvadratinės ir kubinės šaknys</a><p><small>8 klasė · Kvadratinės ir kubinės šaknys</small></p><h1>Šaknis iš sandaugos</h1></header>
+<section><h2>Kaip šaknį iš sandaugos ištraukti dalimis?</h2><p>Kvadratas sudėtas iš keturių vienodų kvadratinių plytelių. Vienos plytelės plotas 9 cm². Koks viso kvadrato kraštinės ilgis?</p><div class="diagram four" role="img" aria-label="Kvadratas iš keturių plytelių po 9 cm²"><span class="grid" style="--n:2;--size:144px"><i>9 cm²</i><i>9 cm²</i><i>9 cm²</i><i>9 cm²</i></span></div><details class="reveal"><summary>Patikrink savo mintį</summary><p>Vienos plytelės kraštinė yra 3 cm. Palei viso kvadrato kraštinę telpa dvi plytelės, todėl kraštinė lygi 6 cm. Tą patį gausi iš ploto: √(4 · 9) = 2 · 3.</p></details><p>Kai abu dauginamieji neneigiami, √(a · b) = √a · √b. Kubinėms šaknims ši taisyklė tinka ir tada, kai dauginamieji neigiami. Kartais lengviau padalyti sandaugą į dalis, o kartais – sujungti po vienu ženklu.</p></section>
+<section><h2>Pavyzdžiai</h2><div class="example"><p class="math">√(0,25 · 196) = 0,5 · 14 = 7</p><p>Abiejų dauginamųjų šaknis gali ištraukti atskirai.</p></div>
+<div class="example"><p class="math">√7 · √28 = √196 = 14</p><p>Šįkart patogiau pirmiausia sudauginti pošaknius.</p></div>
+<div class="example"><p class="math">∛(−4) · ∛16 = ∛(−64) = −4</p><p>Sujunk pošaknius ir patikrink, kurio skaičiaus kubą gavai.</p></div></section>
+<button id="start" class="primary">PASITIKRINK</button>
+<div id="history"></div><section id="quiz" hidden><h2 id="heading" tabindex="-1"></h2><div id="exercise"><p id="prompt"></p><p class="math" id="expression"></p><form id="form"><label for="answer">Tavo atsakymas</label><span class="answer-box"><input id="answer" type="text" required autocomplete="off" maxlength="32"><span id="confetti" aria-hidden="true"></span></span> <button class="primary" id="check">Tikrinti</button></form></div><div id="attempts"></div><p id="feedback" role="status"></p><div class="actions"><button id="solution" hidden>Rodyti sprendimą</button><button id="next" hidden>Toliau</button><button id="retry" hidden>Pakartoti klaidas</button><button id="again" hidden>Naujas testas</button></div></section></main><script type="application/json" id="questions">[
+{"expression":"√(9 · 16) = □","answer":"12","hint":"Iš kiekvieno dauginamojo atskirai ištrauk šaknį.","solution":"3 · 4 = 12."},
+{"expression":"√(0,09 · 400) = □","answer":"6","hint":"Pagalvok, kurio dešimtainio skaičiaus kvadratas yra pirmasis dauginamasis.","solution":"0,3 · 20 = 6."},
+{"expression":"√2 · √18 = □","answer":"6","hint":"Sudaugink pošaknius. Ieškok skaičiaus, kurio kvadratas lygus sandaugai.","solution":"√(2 · 18) = √36 = 6."},
+{"expression":"∛(−27 · 8) = □","answer":"−6","hint":"Neigiamo ir teigiamo skaičiaus sandauga neigiama.","solution":"(−3) · 2 = −6."},
+{"expression":"∛2 · ∛108 = □","answer":"6","hint":"Sudaugink pošaknius ir patikrink, kieno kubą gavai.","solution":"∛(2 · 108) = ∛216 = 6."},
+{"expression":"−2√2 · (−2√2) = □","answer":"8","hint":"Pirmiausia sudaugink skaičius prieš šaknis, tada dvi vienodas šaknis.","solution":"(−2) · (−2) · 2 = 8."},
+{"expression":"√3 · √4 · √12 = □","answer":"12","hint":"Sujunk pirmąsias dvi šaknis ir palygink su trečiąja.","solution":"√12 · √12 = 12."},
+{"expression":"Stačiakampio kraštinės yra 2√2 cm ir 4√2 cm. Jo plotas □ cm².","answer":"16","hint":"Plotui rasti sudaugink kraštinių ilgius.","solution":"2 · 4 · (√2)² = 16."},
+{"expression":"√(9 · 2 + 9 · 14) = □","answer":"12","hint":"Abu dėmenys turi bendrą dauginamąjį. Iškelk jį prieš skliaustus po šaknimi.","solution":"√(9 · (2 + 14)) = √(9 · 16) = 3 · 4 = 12."},
+{"expression":"∛(−54) · ∛(−4) = □","answer":"6","hint":"Du neigiami dauginamieji duoda teigiamą sandaugą. Sujunk pošaknius.","solution":"Pošaknių sandauga lygi 216. Jos kubinė šaknis lygi 6."},
+{"expression":"√(16 · 25) = □","answer":"20","hint":"Iš kiekvieno dauginamojo atskirai ištrauk šaknį.","solution":"4 · 5 = 20."},
+{"expression":"√(0,16 · 400) = □","answer":"8","hint":"Pagalvok, kurio dešimtainio skaičiaus kvadratas yra pirmasis dauginamasis.","solution":"0,4 · 20 = 8."},
+{"expression":"√3 · √48 = □","answer":"12","hint":"Sudaugink pošaknius. Ieškok skaičiaus, kurio kvadratas lygus sandaugai.","solution":"√(3 · 48) = √144 = 12."},
+{"expression":"∛(−64 · 27) = □","answer":"−12","hint":"Neigiamo ir teigiamo skaičiaus sandauga neigiama.","solution":"(−4) · 3 = −12."},
+{"expression":"∛3 · ∛576 = □","answer":"12","hint":"Sudaugink pošaknius ir patikrink, kieno kubą gavai.","solution":"∛(3 · 576) = ∛1728 = 12."},
+{"expression":"−3√3 · (−2√3) = □","answer":"18","hint":"Pirmiausia sudaugink skaičius prieš šaknis, tada dvi vienodas šaknis.","solution":"(−3) · (−2) · 3 = 18."},
+{"expression":"√4 · √5 · √20 = □","answer":"20","hint":"Sujunk pirmąsias dvi šaknis ir palygink su trečiąja.","solution":"√20 · √20 = 20."},
+{"expression":"Stačiakampio kraštinės yra 3√3 cm ir 5√3 cm. Jo plotas □ cm².","answer":"45","hint":"Plotui rasti sudaugink kraštinių ilgius.","solution":"3 · 5 · (√3)² = 45."},
+{"expression":"√(16 · 3 + 16 · 13) = □","answer":"16","hint":"Abu dėmenys turi bendrą dauginamąjį. Iškelk jį prieš skliaustus po šaknimi.","solution":"√(16 · (3 + 13)) = √(16 · 16) = 4 · 4 = 16."},
+{"expression":"∛(−192) · ∛(−9) = □","answer":"12","hint":"Du neigiami dauginamieji duoda teigiamą sandaugą. Sujunk pošaknius.","solution":"Pošaknių sandauga lygi 1728. Jos kubinė šaknis lygi 12."},
+{"expression":"√(25 · 36) = □","answer":"30","hint":"Iš kiekvieno dauginamojo atskirai ištrauk šaknį.","solution":"5 · 6 = 30."},
+{"expression":"√(0,25 · 400) = □","answer":"10","hint":"Pagalvok, kurio dešimtainio skaičiaus kvadratas yra pirmasis dauginamasis.","solution":"0,5 · 20 = 10."},
+{"expression":"√5 · √125 = □","answer":"25","hint":"Sudaugink pošaknius. Ieškok skaičiaus, kurio kvadratas lygus sandaugai.","solution":"√(5 · 125) = √625 = 25."},
+{"expression":"∛(−125 · 64) = □","answer":"−20","hint":"Neigiamo ir teigiamo skaičiaus sandauga neigiama.","solution":"(−5) · 4 = −20."},
+{"expression":"∛5 · ∛3125 = □","answer":"25","hint":"Sudaugink pošaknius ir patikrink, kieno kubą gavai.","solution":"∛(5 · 3125) = ∛15625 = 25."},
+{"expression":"−4√5 · (−2√5) = □","answer":"40","hint":"Pirmiausia sudaugink skaičius prieš šaknis, tada dvi vienodas šaknis.","solution":"(−4) · (−2) · 5 = 40."},
+{"expression":"√5 · √6 · √30 = □","answer":"30","hint":"Sujunk pirmąsias dvi šaknis ir palygink su trečiąja.","solution":"√30 · √30 = 30."},
+{"expression":"Stačiakampio kraštinės yra 4√5 cm ir 6√5 cm. Jo plotas □ cm².","answer":"120","hint":"Plotui rasti sudaugink kraštinių ilgius.","solution":"4 · 6 · (√5)² = 120."},
+{"expression":"√(25 · 4 + 25 · 12) = □","answer":"20","hint":"Abu dėmenys turi bendrą dauginamąjį. Iškelk jį prieš skliaustus po šaknimi.","solution":"√(25 · (4 + 12)) = √(25 · 16) = 5 · 4 = 20."},
+{"expression":"∛(−625) · ∛(−25) = □","answer":"25","hint":"Du neigiami dauginamieji duoda teigiamą sandaugą. Sujunk pošaknius.","solution":"Pošaknių sandauga lygi 15625. Jos kubinė šaknis lygi 25."},
+{"expression":"√(36 · 49) = □","answer":"42","hint":"Iš kiekvieno dauginamojo atskirai ištrauk šaknį.","solution":"6 · 7 = 42."},
+{"expression":"√(0,36 · 400) = □","answer":"12","hint":"Pagalvok, kurio dešimtainio skaičiaus kvadratas yra pirmasis dauginamasis.","solution":"0,6 · 20 = 12."},
+{"expression":"√7 · √252 = □","answer":"42","hint":"Sudaugink pošaknius. Ieškok skaičiaus, kurio kvadratas lygus sandaugai.","solution":"√(7 · 252) = √1764 = 42."},
+{"expression":"∛(−216 · 125) = □","answer":"−30","hint":"Neigiamo ir teigiamo skaičiaus sandauga neigiama.","solution":"(−6) · 5 = −30."},
+{"expression":"∛7 · ∛10584 = □","answer":"42","hint":"Sudaugink pošaknius ir patikrink, kieno kubą gavai.","solution":"∛(7 · 10584) = ∛74088 = 42."},
+{"expression":"−5√7 · (−2√7) = □","answer":"70","hint":"Pirmiausia sudaugink skaičius prieš šaknis, tada dvi vienodas šaknis.","solution":"(−5) · (−2) · 7 = 70."},
+{"expression":"√6 · √7 · √42 = □","answer":"42","hint":"Sujunk pirmąsias dvi šaknis ir palygink su trečiąja.","solution":"√42 · √42 = 42."},
+{"expression":"Stačiakampio kraštinės yra 5√7 cm ir 7√7 cm. Jo plotas □ cm².","answer":"245","hint":"Plotui rasti sudaugink kraštinių ilgius.","solution":"5 · 7 · (√7)² = 245."},
+{"expression":"√(36 · 5 + 36 · 11) = □","answer":"24","hint":"Abu dėmenys turi bendrą dauginamąjį. Iškelk jį prieš skliaustus po šaknimi.","solution":"√(36 · (5 + 11)) = √(36 · 16) = 6 · 4 = 24."},
+{"expression":"∛(−1512) · ∛(−49) = □","answer":"42","hint":"Du neigiami dauginamieji duoda teigiamą sandaugą. Sujunk pošaknius.","solution":"Pošaknių sandauga lygi 74088. Jos kubinė šaknis lygi 42."},
+{"expression":"√(49 · 64) = □","answer":"56","hint":"Iš kiekvieno dauginamojo atskirai ištrauk šaknį.","solution":"7 · 8 = 56."},
+{"expression":"√(0,49 · 400) = □","answer":"14","hint":"Pagalvok, kurio dešimtainio skaičiaus kvadratas yra pirmasis dauginamasis.","solution":"0,7 · 20 = 14."},
+{"expression":"√11 · √539 = □","answer":"77","hint":"Sudaugink pošaknius. Ieškok skaičiaus, kurio kvadratas lygus sandaugai.","solution":"√(11 · 539) = √5929 = 77."},
+{"expression":"∛(−343 · 216) = □","answer":"−42","hint":"Neigiamo ir teigiamo skaičiaus sandauga neigiama.","solution":"(−7) · 6 = −42."},
+{"expression":"∛11 · ∛41503 = □","answer":"77","hint":"Sudaugink pošaknius ir patikrink, kieno kubą gavai.","solution":"∛(11 · 41503) = ∛456533 = 77."},
+{"expression":"−6√11 · (−2√11) = □","answer":"132","hint":"Pirmiausia sudaugink skaičius prieš šaknis, tada dvi vienodas šaknis.","solution":"(−6) · (−2) · 11 = 132."},
+{"expression":"√7 · √8 · √56 = □","answer":"56","hint":"Sujunk pirmąsias dvi šaknis ir palygink su trečiąja.","solution":"√56 · √56 = 56."},
+{"expression":"Stačiakampio kraštinės yra 6√11 cm ir 8√11 cm. Jo plotas □ cm².","answer":"528","hint":"Plotui rasti sudaugink kraštinių ilgius.","solution":"6 · 8 · (√11)² = 528."},
+{"expression":"√(49 · 6 + 49 · 10) = □","answer":"28","hint":"Abu dėmenys turi bendrą dauginamąjį. Iškelk jį prieš skliaustus po šaknimi.","solution":"√(49 · (6 + 10)) = √(49 · 16) = 7 · 4 = 28."},
+{"expression":"∛(−3773) · ∛(−121) = □","answer":"77","hint":"Du neigiami dauginamieji duoda teigiamą sandaugą. Sujunk pošaknius.","solution":"Pošaknių sandauga lygi 456533. Jos kubinė šaknis lygi 77."}
+]</script><script src="/bandymai/temu-testas.js" defer></script><script src="/lesson-preview.js" defer></script></body></html>

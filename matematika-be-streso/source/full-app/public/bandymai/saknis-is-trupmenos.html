@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="lt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Šaknis iš trupmenos · Matematika be streso</title>
+<link rel="stylesheet" href="/bandymai/temu-pamokos.css"><link rel="stylesheet" href="/bandymai/lesson-navigation.css"></head>
+<body><header class="lesson-site-header"><nav aria-label="Pagrindinė navigacija"><a class="lesson-brand" href="/"><img src="/logo.webp" alt="Matematika be streso"></a><a href="/pamokos">Pamokos ir testai</a><a href="/prieiga#kodas">Įvesti kodą</a><a href="/?area=teacher" data-teacher-link hidden>Mokytojo erdvė</a></nav></header><main><header><a href="/saknu-tema">← Kvadratinės ir kubinės šaknys</a><p><small>8 klasė · Kvadratinės ir kubinės šaknys</small></p><h1>Šaknis iš trupmenos</h1></header>
+<section><h2>Kaip ištraukti šaknį iš trupmenos?</h2><p>Kvadratas padalytas į 25 vienodus langelius. Nuspalvintas kvadratas užima 9 langelius. Kokią didžiojo kvadrato kraštinės dalį sudaro mažojo kraštinė?</p><div class="diagram fraction" role="img" aria-label="Penkių eilių ir penkių stulpelių tinklelyje nuspalvintas trijų eilių ir trijų stulpelių kvadratas"><span class="grid" style="--n:5;--size:145px"><i class="mark"></i><i class="mark"></i><i class="mark"></i><i></i><i></i><i class="mark"></i><i class="mark"></i><i class="mark"></i><i></i><i></i><i class="mark"></i><i class="mark"></i><i class="mark"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div><details class="reveal"><summary>Patikrink savo mintį</summary><p>Nuspalvinto kvadrato kraštinėje yra 3 langeliai, visoje kraštinėje – 5. Iš plotų santykio gauname ilgių santykį: √(9/25) = 3/5.</p></details><p>Kvadratinę šaknį gali ištraukti atskirai iš skaitiklio ir vardiklio, kai skaitiklis neneigiamas, o vardiklis teigiamas. Kubinės šaknies atveju tinka ir neigiami skaičiai. Vardiklis visada turi skirtis nuo nulio.</p></section>
+<section><h2>Pavyzdžiai</h2><div class="example"><p class="math">√(4 21/100) = √(421/100) = √421/10</p><p>Mišrųjį skaičių pirmiausia paversk netaisyklingąja trupmena. Jei skaitiklio šaknis nėra sveikasis skaičius, palik šaknies ženklą.</p></div>
+<div class="example"><p class="math">∛(−64/343) = −4/7</p><p>Patikrink atsakymą pakeldamas trupmeną kubu.</p></div>
+<div class="example"><p class="math">√117 / √13 = √(117/13) = 3</p><p>Kai nė viena šaknis iš karto neišsitraukia, pirmiausia padalyk pošaknius.</p></div></section>
+<button id="start" class="primary">PASITIKRINK</button>
+<div id="history"></div><section id="quiz" hidden><h2 id="heading" tabindex="-1"></h2><div id="exercise"><p id="prompt"></p><p class="math" id="expression"></p><form id="form"><label for="answer">Tavo atsakymas</label><span class="answer-box"><input id="answer" type="text" required autocomplete="off" maxlength="32"><span id="confetti" aria-hidden="true"></span></span> <button class="primary" id="check">Tikrinti</button></form></div><div id="attempts"></div><p id="feedback" role="status"></p><div class="actions"><button id="solution" hidden>Rodyti sprendimą</button><button id="next" hidden>Toliau</button><button id="retry" hidden>Pakartoti klaidas</button><button id="again" hidden>Naujas testas</button></div></section></main><script type="application/json" id="questions">[
+{"expression":"√(9/36) = □","answer":"3/6","hint":"Atskirai ištrauk šaknį iš skaitiklio ir vardiklio.","solution":"√9 / √36 = 3/6."},
+{"expression":"∛(−8/64) = □","answer":"-2/4","hint":"Minusą gali palikti skaitiklyje. Abu trupmenos narius užrašyk kubais.","solution":"∛(−8) / ∛64 = −2/4."},
+{"expression":"√(2/16) = √2/□","answer":"4","hint":"Skaitiklyje šaknį palik. Apskaičiuok vardiklio šaknį.","solution":"√16 = 4, todėl vardiklis lygus 4."},
+{"expression":"∛(2/27) = ∛2/□","answer":"3","hint":"Kuris skaičius, pakeltas kubu, duoda vardiklį?","solution":"3³ = 27, todėl ištraukus šaknį vardiklis lygus 3."},
+{"expression":"√8 / √2 = □","answer":"2","hint":"Užrašyk dalmenį po vienu šaknies ženklu ir suprastink trupmeną.","solution":"√(8/2) = √4 = 2."},
+{"expression":"∛2 / ∛54 = □","answer":"1/3","hint":"Po viena kubine šaknimi sutrumpink trupmeną iš 2.","solution":"∛(1/27) = 1/3."},
+{"expression":"√(12 1/4) = □","answer":"7/2","hint":"Mišrųjį skaičių paversk netaisyklingąja trupmena.","solution":"Po šaknimi gauname (12 · 4 + 1)/4 = 49/4. Šaknis lygi 7/2."},
+{"expression":"□ · √2 = √32","answer":"4","hint":"Padalyk dešinę pusę iš žinomo dauginamojo.","solution":"□ = √(32/2) = √16 = 4."},
+{"expression":"Dviejų kvadratų plotai yra 2 m² ir 18 m². Kiek kartų ilgesnė didesniojo kvadrato kraštinė?","answer":"3","hint":"Ilgesnę kraštinę padalyk iš trumpesnės. Jų ilgius rask iš plotų.","solution":"Kraštinių ilgių santykis lygus √(18/2) = 3."},
+{"expression":"∛(−128) / ∛2 = □","answer":"−4","hint":"Sujunk kubines šaknis. Patikrink dalmens ženklą.","solution":"∛(−128/2) = ∛(−64) = −4."},
+{"expression":"√(16/49) = □","answer":"4/7","hint":"Atskirai ištrauk šaknį iš skaitiklio ir vardiklio.","solution":"√16 / √49 = 4/7."},
+{"expression":"∛(−27/125) = □","answer":"-3/5","hint":"Minusą gali palikti skaitiklyje. Abu trupmenos narius užrašyk kubais.","solution":"∛(−27) / ∛125 = −3/5."},
+{"expression":"√(3/25) = √3/□","answer":"5","hint":"Skaitiklyje šaknį palik. Apskaičiuok vardiklio šaknį.","solution":"√25 = 5, todėl vardiklis lygus 5."},
+{"expression":"∛(3/64) = ∛3/□","answer":"4","hint":"Kuris skaičius, pakeltas kubu, duoda vardiklį?","solution":"4³ = 64, todėl ištraukus šaknį vardiklis lygus 4."},
+{"expression":"√27 / √3 = □","answer":"3","hint":"Užrašyk dalmenį po vienu šaknies ženklu ir suprastink trupmeną.","solution":"√(27/3) = √9 = 3."},
+{"expression":"∛3 / ∛192 = □","answer":"1/4","hint":"Po viena kubine šaknimi sutrumpink trupmeną iš 3.","solution":"∛(1/64) = 1/4."},
+{"expression":"√(20 1/4) = □","answer":"9/2","hint":"Mišrųjį skaičių paversk netaisyklingąja trupmena.","solution":"Po šaknimi gauname (20 · 4 + 1)/4 = 81/4. Šaknis lygi 9/2."},
+{"expression":"□ · √3 = √75","answer":"5","hint":"Padalyk dešinę pusę iš žinomo dauginamojo.","solution":"□ = √(75/3) = √25 = 5."},
+{"expression":"Dviejų kvadratų plotai yra 3 m² ir 48 m². Kiek kartų ilgesnė didesniojo kvadrato kraštinė?","answer":"4","hint":"Ilgesnę kraštinę padalyk iš trumpesnės. Jų ilgius rask iš plotų.","solution":"Kraštinių ilgių santykis lygus √(48/3) = 4."},
+{"expression":"∛(−375) / ∛3 = □","answer":"−5","hint":"Sujunk kubines šaknis. Patikrink dalmens ženklą.","solution":"∛(−375/3) = ∛(−125) = −5."},
+{"expression":"√(25/64) = □","answer":"5/8","hint":"Atskirai ištrauk šaknį iš skaitiklio ir vardiklio.","solution":"√25 / √64 = 5/8."},
+{"expression":"∛(−64/216) = □","answer":"-4/6","hint":"Minusą gali palikti skaitiklyje. Abu trupmenos narius užrašyk kubais.","solution":"∛(−64) / ∛216 = −4/6."},
+{"expression":"√(5/36) = √5/□","answer":"6","hint":"Skaitiklyje šaknį palik. Apskaičiuok vardiklio šaknį.","solution":"√36 = 6, todėl vardiklis lygus 6."},
+{"expression":"∛(5/125) = ∛5/□","answer":"5","hint":"Kuris skaičius, pakeltas kubu, duoda vardiklį?","solution":"5³ = 125, todėl ištraukus šaknį vardiklis lygus 5."},
+{"expression":"√80 / √5 = □","answer":"4","hint":"Užrašyk dalmenį po vienu šaknies ženklu ir suprastink trupmeną.","solution":"√(80/5) = √16 = 4."},
+{"expression":"∛5 / ∛625 = □","answer":"1/5","hint":"Po viena kubine šaknimi sutrumpink trupmeną iš 5.","solution":"∛(1/125) = 1/5."},
+{"expression":"√(30 1/4) = □","answer":"11/2","hint":"Mišrųjį skaičių paversk netaisyklingąja trupmena.","solution":"Po šaknimi gauname (30 · 4 + 1)/4 = 121/4. Šaknis lygi 11/2."},
+{"expression":"□ · √5 = √180","answer":"6","hint":"Padalyk dešinę pusę iš žinomo dauginamojo.","solution":"□ = √(180/5) = √36 = 6."},
+{"expression":"Dviejų kvadratų plotai yra 5 m² ir 125 m². Kiek kartų ilgesnė didesniojo kvadrato kraštinė?","answer":"5","hint":"Ilgesnę kraštinę padalyk iš trumpesnės. Jų ilgius rask iš plotų.","solution":"Kraštinių ilgių santykis lygus √(125/5) = 5."},
+{"expression":"∛(−1080) / ∛5 = □","answer":"−6","hint":"Sujunk kubines šaknis. Patikrink dalmens ženklą.","solution":"∛(−1080/5) = ∛(−216) = −6."},
+{"expression":"√(36/81) = □","answer":"6/9","hint":"Atskirai ištrauk šaknį iš skaitiklio ir vardiklio.","solution":"√36 / √81 = 6/9."},
+{"expression":"∛(−125/343) = □","answer":"-5/7","hint":"Minusą gali palikti skaitiklyje. Abu trupmenos narius užrašyk kubais.","solution":"∛(−125) / ∛343 = −5/7."},
+{"expression":"√(7/49) = √7/□","answer":"7","hint":"Skaitiklyje šaknį palik. Apskaičiuok vardiklio šaknį.","solution":"√49 = 7, todėl vardiklis lygus 7."},
+{"expression":"∛(7/216) = ∛7/□","answer":"6","hint":"Kuris skaičius, pakeltas kubu, duoda vardiklį?","solution":"6³ = 216, todėl ištraukus šaknį vardiklis lygus 6."},
+{"expression":"√175 / √7 = □","answer":"5","hint":"Užrašyk dalmenį po vienu šaknies ženklu ir suprastink trupmeną.","solution":"√(175/7) = √25 = 5."},
+{"expression":"∛7 / ∛1512 = □","answer":"1/6","hint":"Po viena kubine šaknimi sutrumpink trupmeną iš 7.","solution":"∛(1/216) = 1/6."},
+{"expression":"√(42 1/4) = □","answer":"13/2","hint":"Mišrųjį skaičių paversk netaisyklingąja trupmena.","solution":"Po šaknimi gauname (42 · 4 + 1)/4 = 169/4. Šaknis lygi 13/2."},
+{"expression":"□ · √7 = √343","answer":"7","hint":"Padalyk dešinę pusę iš žinomo dauginamojo.","solution":"□ = √(343/7) = √49 = 7."},
+{"expression":"Dviejų kvadratų plotai yra 7 m² ir 252 m². Kiek kartų ilgesnė didesniojo kvadrato kraštinė?","answer":"6","hint":"Ilgesnę kraštinę padalyk iš trumpesnės. Jų ilgius rask iš plotų.","solution":"Kraštinių ilgių santykis lygus √(252/7) = 6."},
+{"expression":"∛(−2401) / ∛7 = □","answer":"−7","hint":"Sujunk kubines šaknis. Patikrink dalmens ženklą.","solution":"∛(−2401/7) = ∛(−343) = −7."},
+{"expression":"√(49/100) = □","answer":"7/10","hint":"Atskirai ištrauk šaknį iš skaitiklio ir vardiklio.","solution":"√49 / √100 = 7/10."},
+{"expression":"∛(−216/512) = □","answer":"-6/8","hint":"Minusą gali palikti skaitiklyje. Abu trupmenos narius užrašyk kubais.","solution":"∛(−216) / ∛512 = −6/8."},
+{"expression":"√(11/64) = √11/□","answer":"8","hint":"Skaitiklyje šaknį palik. Apskaičiuok vardiklio šaknį.","solution":"√64 = 8, todėl vardiklis lygus 8."},
+{"expression":"∛(11/343) = ∛11/□","answer":"7","hint":"Kuris skaičius, pakeltas kubu, duoda vardiklį?","solution":"7³ = 343, todėl ištraukus šaknį vardiklis lygus 7."},
+{"expression":"√396 / √11 = □","answer":"6","hint":"Užrašyk dalmenį po vienu šaknies ženklu ir suprastink trupmeną.","solution":"√(396/11) = √36 = 6."},
+{"expression":"∛11 / ∛3773 = □","answer":"1/7","hint":"Po viena kubine šaknimi sutrumpink trupmeną iš 11.","solution":"∛(1/343) = 1/7."},
+{"expression":"√(56 1/4) = □","answer":"15/2","hint":"Mišrųjį skaičių paversk netaisyklingąja trupmena.","solution":"Po šaknimi gauname (56 · 4 + 1)/4 = 225/4. Šaknis lygi 15/2."},
+{"expression":"□ · √11 = √704","answer":"8","hint":"Padalyk dešinę pusę iš žinomo dauginamojo.","solution":"□ = √(704/11) = √64 = 8."},
+{"expression":"Dviejų kvadratų plotai yra 11 m² ir 539 m². Kiek kartų ilgesnė didesniojo kvadrato kraštinė?","answer":"7","hint":"Ilgesnę kraštinę padalyk iš trumpesnės. Jų ilgius rask iš plotų.","solution":"Kraštinių ilgių santykis lygus √(539/11) = 7."},
+{"expression":"∛(−5632) / ∛11 = □","answer":"−8","hint":"Sujunk kubines šaknis. Patikrink dalmens ženklą.","solution":"∛(−5632/11) = ∛(−512) = −8."}
+]</script><script src="/bandymai/temu-testas.js" defer></script><script src="/lesson-preview.js" defer></script></body></html>
