@@ -1,0 +1,23 @@
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top right,#deedf9,transparent 60%),#f3f8fd;color:#18324c;font:18px/1.55 system-ui,sans-serif}
+header{background:#ffffffd9;border-bottom:1px solid #d5e5f1}
+nav,main{max-width:1160px;margin:auto;padding:18px 24px}
+nav{display:flex;align-items:center;flex-wrap:wrap;gap:16px}
+.brand{margin-right:auto}.brand img{display:block;width:138px;max-height:58px;object-fit:contain}
+main{padding-top:40px;padding-bottom:64px}
+h1,h2,h3{line-height:1.15;margin:0 0 14px}
+h1{font-size:clamp(34px,5vw,56px);margin:14px 0 22px}h2{font-size:26px}h3{font-size:22px}
+p{margin:0 0 16px}a{color:#14558e;text-underline-offset:4px}
+.intro{margin-bottom:26px}.grades,.columns,.sidebar{display:grid;gap:18px}
+.grades{grid-template-columns:repeat(3,1fr);margin-bottom:22px}.grades strong,.grades span{display:block}.grades strong{font-size:24px}.grades a{text-decoration:none}
+.columns{grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);align-items:start}
+.card{background:#ffffffdf;border:1px solid #d5e5f1;border-radius:18px;padding:clamp(16px,3vw,28px);box-shadow:0 8px 24px #224d7910}
+.active,.free{background:#e3f4e9;color:#185d38}.active{border-color:#89bb9a}
+.muted{color:#455e75}.action{display:inline-block;border-radius:10px;padding:9px 14px;background:#165b9c;color:white;font-weight:650;text-decoration:none}
+.secondary{background:#e4effb;color:#174a7b}.action.free{background:#e3f4e9;color:#185d38}
+.offer{background:#e7f2ff}.price{display:block;font-size:28px;margin-bottom:12px}
+.lessons{list-style:none;margin:0;padding:0}.lessons li{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-top:1px solid #d5e5f1}
+ol{padding-left:24px}li+li{margin-top:4px}.notice{border-left:4px solid #83abc9;padding-left:12px}
+label{display:block}input{max-width:100%;padding:8px;border:1px solid #a9bdcf;border-radius:8px;font:inherit}a:focus-visible{outline:3px solid #327eb5;outline-offset:3px}
+@media(max-width:720px){.columns{grid-template-columns:1fr}.grades{gap:8px}.grades .card{padding:12px}.grades strong{font-size:20px}nav,main{padding-left:16px;padding-right:16px}}
+@media(max-width:400px){.grades{grid-template-columns:1fr}.grades .active{grid-row:1}}
