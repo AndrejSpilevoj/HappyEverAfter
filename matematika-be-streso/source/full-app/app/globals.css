@@ -362,3 +362,21 @@ h1,.workspace-title h1{font-size:30px}
  height: auto;
  border-radius: 0;
 }
+
+.wide-teacher-navigation,.wide-account{display:none}
+.legacy-teacher-navigation{display:contents}
+@media screen and (min-width: 961px){
+ .teacher-workspace .workspace-title{position:relative;margin:0;padding:0;min-height:0}
+ .teacher-workspace .workspace-title>div,.legacy-teacher-navigation{display:none}
+ .wide-account{display:block;position:absolute;right:0;top:.25rem;z-index:3}
+ .wide-account summary{cursor:pointer;padding:.6rem 1rem}
+ .wide-account>div{position:absolute;right:0;display:grid;padding:.5rem}
+ .wide-account button{background:transparent;color:inherit;border:0;padding:.65rem;cursor:pointer}
+ .wide-teacher-navigation{display:grid;gap:1rem;margin-bottom:1rem}
+ .wide-section-heading{display:flex;align-items:center;gap:.85rem;flex-wrap:wrap;padding-right:7rem}
+ .wide-section-heading h1{margin:0 auto 0 0}
+ .wide-section-heading .cohort-tabs{margin:0}
+ .wide-teacher-navigation .tabs{display:flex;width:100%;gap:.6rem}
+}
+
+.student-photo-toolbar button[aria-pressed="true"]{outline:2px solid currentColor;outline-offset:-3px}
