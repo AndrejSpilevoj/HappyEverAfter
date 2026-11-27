@@ -177,12 +177,12 @@ h1,.workspace-title h1{font-size:30px}
 .service-options span,.service-options p{grid-column:1}
 }
 
-/* Compact mobile video information; desktop descriptions remain visible. */
-.video-about-toggle{display:none}
-@media(max-width:760px){
 .video-about-toggle{display:inline-flex;margin:18px 5px 0;gap:12px}
 .lesson-description{display:none}
 .lesson-description.is-expanded{display:block;margin-top:18px}
+.lesson-thumbnail{flex:none;width:clamp(64px,6vw,88px);height:auto;aspect-ratio:16/9;object-fit:cover;border-radius:6px}
+.lesson-title{min-width:0;overflow-wrap:anywhere}
+@media(max-width:760px){
 .lesson-pagination{display:none}
 .lesson-layout{gap:24px}
 }
