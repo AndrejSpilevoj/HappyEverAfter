@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="lt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Raidiniai reiškiniai su šaknimis · Matematika be streso</title>
+<link rel="stylesheet" href="/bandymai/temu-pamokos.css"></head>
+<body><main><header><a href="/">Matematika be streso</a><p><small>8 klasė · Kvadratinės ir kubinės šaknys</small></p><h1>Raidiniai reiškiniai su šaknimis</h1></header>
+<section><h2>Ką galima apskaičiuoti nežinant x reikšmės?</h2><p>Dvi vienodo ilgio juostelės sudėtos galais. Kiekvienos ilgis yra 3√x. Kaip užrašytum bendrą ilgį, kai x ≥ 0?</p><div class="diagram bars" role="img" aria-label="Dvi suglaustos vienodo ilgio juostelės, kiekvienos ilgis 3√x"><span class="tile">3√x</span><span class="tile">3√x</span></div><details class="reveal"><summary>Patikrink savo mintį</summary><p>Abiejų atkarpų ilgis matuojamas tuo pačiu vienetu √x. Sudėję 3√x ir 3√x gauname 6√x. Skaičiuoti pačios šaknies nereikia.</p></details><p>Su √x elgiesi kaip su bendru daugikliu. Sudėdamas vienodus narius sudėk jų koeficientus, o daugindamas prisimink, kad √x · √x = x. Kubinė šaknis ∛x turi prasmę su visomis realiosiomis x reikšmėmis.</p></section>
+<section><h2>Pavyzdžiai</h2><div class="example"><p class="math">√(49x) − 2√x = 7√x − 2√x = 5√x</p><p>Kai x ≥ 0, iš pirmosios šaknies gali iškelti 7.</p></div>
+<div class="example"><p class="math">2√x(4 − √x) = 8√x − 2x</p><p>Kai x ≥ 0, padaugink abu skliaustų narius iš 2√x. Antrojoje sandaugoje šaknis dauginama iš savęs.</p></div>
+<div class="example"><p class="math">∛(−64y) + ∛y = −4∛y + ∛y = −3∛y</p><p>Jei y = −8, gausi −3 · (−2) = 6. Pirmiausia sutrauk narius, tada įrašyk reikšmę.</p></div></section>
+<button id="start" class="primary">PASITIKRINK</button>
+<div id="history"></div><section id="quiz" hidden><h2 id="heading" tabindex="-1"></h2><div id="exercise"><p id="prompt"></p><p class="math" id="expression"></p><form id="form"><label for="answer">Tavo atsakymas</label><span class="answer-box"><input id="answer" type="text" required autocomplete="off" maxlength="32"><span id="confetti" aria-hidden="true"></span></span> <button class="primary" id="check">Tikrinti</button></form></div><div id="attempts"></div><p id="feedback" role="status"></p><div class="actions"><button id="solution" hidden>Rodyti sprendimą</button><button id="next" hidden>Toliau</button><button id="retry" hidden>Pakartoti klaidas</button><button id="again" hidden>Naujas testas</button></div></section></main><script type="application/json" id="questions">[
+{"expression":"3√x + 4√x = □√x, kai x ≥ 0.","answer":"7","hint":"Abu dėmenys turi tą patį daugiklį √x. Sudėk skaičius prieš jį.","solution":"(3 + 4)√x = 7√x."},
+{"expression":"2∛y − 4∛y = □∛y","answer":"−2","hint":"Kubinę šaknį palik, atimk jos daugiklius.","solution":"(2 − 4)∛y = −2∛y."},
+{"expression":"√(9x) − √(4x) = □√x, kai x ≥ 0.","answer":"1","hint":"Iš abiejų pošaknių iškelk kvadratinius dauginamuosius.","solution":"3√x − 2√x = √x."},
+{"expression":"∛(−27y) + 4∛y = □∛y","answer":"1","hint":"Neigiamo kubo šaknis neigiama. Atsižvelk į šį ženklą sudėdamas.","solution":"−3∛y + 4∛y = ∛y."},
+{"expression":"3√x · 2√x = □x, kai x ≥ 0.","answer":"6","hint":"Sudaugink skaičius. Tada pagalvok, kam lygu √x · √x.","solution":"3 · 2 · (√x)² = 6x."},
+{"expression":"2√x(3 − √x) = 6√x + □x, kai x ≥ 0.","answer":"−2","hint":"Daugiklį prieš skliaustus padaugink ir iš antrojo dėmens.","solution":"Antrasis dėmuo yra 2√x · (−√x) = −2x."},
+{"expression":"√(18a²) − 2a√2 = □a√2, kai a ≥ 0.","answer":"1","hint":"Kai a ≥ 0, iš a² ištraukta kvadratinė šaknis lygi a.","solution":"Pirmasis dėmuo lygus 3a√2. Lieka (3 − 2)a√2."},
+{"expression":"(∛(128x³) − 2x∛2) / ∛2 = □x","answer":"2","hint":"Iškelk kubus iš pirmosios šaknies. Tada suprastink trupmeną.","solution":"Skaitiklis lygus (4 − 2)x∛2. Padalijus iš ∛2 lieka 2x."},
+{"expression":"Apskaičiuok 3√x + 2√y − 2√x, kai x = 9 ir y = 16.","answer":"11","hint":"Sutrauk dėmenis su √x, paskui įrašyk abiejų šaknų reikšmes.","solution":"(3 − 2) · 3 + 2 · 4 = 11."},
+{"expression":"Apskaičiuok 3∛y − 2∛x, kai y = −8 ir x = 27.","answer":"−12","hint":"Pirmiausia atskirai rask abiejų kubinių šaknų reikšmes.","solution":"3 · (−2) − 2 · 3 = −12."},
+{"expression":"4√x + 5√x = □√x, kai x ≥ 0.","answer":"9","hint":"Abu dėmenys turi tą patį daugiklį √x. Sudėk skaičius prieš jį.","solution":"(4 + 5)√x = 9√x."},
+{"expression":"3∛y − 5∛y = □∛y","answer":"−2","hint":"Kubinę šaknį palik, atimk jos daugiklius.","solution":"(3 − 5)∛y = −2∛y."},
+{"expression":"√(16x) − √(9x) = □√x, kai x ≥ 0.","answer":"1","hint":"Iš abiejų pošaknių iškelk kvadratinius dauginamuosius.","solution":"4√x − 3√x = √x."},
+{"expression":"∛(−64y) + 5∛y = □∛y","answer":"1","hint":"Neigiamo kubo šaknis neigiama. Atsižvelk į šį ženklą sudėdamas.","solution":"−4∛y + 5∛y = ∛y."},
+{"expression":"4√x · 3√x = □x, kai x ≥ 0.","answer":"12","hint":"Sudaugink skaičius. Tada pagalvok, kam lygu √x · √x.","solution":"4 · 3 · (√x)² = 12x."},
+{"expression":"3√x(4 − √x) = 12√x + □x, kai x ≥ 0.","answer":"−3","hint":"Daugiklį prieš skliaustus padaugink ir iš antrojo dėmens.","solution":"Antrasis dėmuo yra 3√x · (−√x) = −3x."},
+{"expression":"√(48a²) − 3a√3 = □a√3, kai a ≥ 0.","answer":"1","hint":"Kai a ≥ 0, iš a² ištraukta kvadratinė šaknis lygi a.","solution":"Pirmasis dėmuo lygus 4a√3. Lieka (4 − 3)a√3."},
+{"expression":"(∛(375x³) − 3x∛3) / ∛3 = □x","answer":"2","hint":"Iškelk kubus iš pirmosios šaknies. Tada suprastink trupmeną.","solution":"Skaitiklis lygus (5 − 3)x∛3. Padalijus iš ∛3 lieka 2x."},
+{"expression":"Apskaičiuok 4√x + 3√y − 3√x, kai x = 9 ir y = 16.","answer":"15","hint":"Sutrauk dėmenis su √x, paskui įrašyk abiejų šaknų reikšmes.","solution":"(4 − 3) · 3 + 3 · 4 = 15."},
+{"expression":"Apskaičiuok 4∛y − 3∛x, kai y = −8 ir x = 27.","answer":"−17","hint":"Pirmiausia atskirai rask abiejų kubinių šaknų reikšmes.","solution":"4 · (−2) − 3 · 3 = −17."},
+{"expression":"5√x + 6√x = □√x, kai x ≥ 0.","answer":"11","hint":"Abu dėmenys turi tą patį daugiklį √x. Sudėk skaičius prieš jį.","solution":"(5 + 6)√x = 11√x."},
+{"expression":"4∛y − 6∛y = □∛y","answer":"−2","hint":"Kubinę šaknį palik, atimk jos daugiklius.","solution":"(4 − 6)∛y = −2∛y."},
+{"expression":"√(25x) − √(16x) = □√x, kai x ≥ 0.","answer":"1","hint":"Iš abiejų pošaknių iškelk kvadratinius dauginamuosius.","solution":"5√x − 4√x = √x."},
+{"expression":"∛(−125y) + 6∛y = □∛y","answer":"1","hint":"Neigiamo kubo šaknis neigiama. Atsižvelk į šį ženklą sudėdamas.","solution":"−5∛y + 6∛y = ∛y."},
+{"expression":"5√x · 4√x = □x, kai x ≥ 0.","answer":"20","hint":"Sudaugink skaičius. Tada pagalvok, kam lygu √x · √x.","solution":"5 · 4 · (√x)² = 20x."},
+{"expression":"4√x(5 − √x) = 20√x + □x, kai x ≥ 0.","answer":"−4","hint":"Daugiklį prieš skliaustus padaugink ir iš antrojo dėmens.","solution":"Antrasis dėmuo yra 4√x · (−√x) = −4x."},
+{"expression":"√(125a²) − 4a√5 = □a√5, kai a ≥ 0.","answer":"1","hint":"Kai a ≥ 0, iš a² ištraukta kvadratinė šaknis lygi a.","solution":"Pirmasis dėmuo lygus 5a√5. Lieka (5 − 4)a√5."},
+{"expression":"(∛(1080x³) − 4x∛5) / ∛5 = □x","answer":"2","hint":"Iškelk kubus iš pirmosios šaknies. Tada suprastink trupmeną.","solution":"Skaitiklis lygus (6 − 4)x∛5. Padalijus iš ∛5 lieka 2x."},
+{"expression":"Apskaičiuok 5√x + 4√y − 4√x, kai x = 9 ir y = 16.","answer":"19","hint":"Sutrauk dėmenis su √x, paskui įrašyk abiejų šaknų reikšmes.","solution":"(5 − 4) · 3 + 4 · 4 = 19."},
+{"expression":"Apskaičiuok 5∛y − 4∛x, kai y = −8 ir x = 27.","answer":"−22","hint":"Pirmiausia atskirai rask abiejų kubinių šaknų reikšmes.","solution":"5 · (−2) − 4 · 3 = −22."},
+{"expression":"6√x + 7√x = □√x, kai x ≥ 0.","answer":"13","hint":"Abu dėmenys turi tą patį daugiklį √x. Sudėk skaičius prieš jį.","solution":"(6 + 7)√x = 13√x."},
+{"expression":"5∛y − 7∛y = □∛y","answer":"−2","hint":"Kubinę šaknį palik, atimk jos daugiklius.","solution":"(5 − 7)∛y = −2∛y."},
+{"expression":"√(36x) − √(25x) = □√x, kai x ≥ 0.","answer":"1","hint":"Iš abiejų pošaknių iškelk kvadratinius dauginamuosius.","solution":"6√x − 5√x = √x."},
+{"expression":"∛(−216y) + 7∛y = □∛y","answer":"1","hint":"Neigiamo kubo šaknis neigiama. Atsižvelk į šį ženklą sudėdamas.","solution":"−6∛y + 7∛y = ∛y."},
+{"expression":"6√x · 5√x = □x, kai x ≥ 0.","answer":"30","hint":"Sudaugink skaičius. Tada pagalvok, kam lygu √x · √x.","solution":"6 · 5 · (√x)² = 30x."},
+{"expression":"5√x(6 − √x) = 30√x + □x, kai x ≥ 0.","answer":"−5","hint":"Daugiklį prieš skliaustus padaugink ir iš antrojo dėmens.","solution":"Antrasis dėmuo yra 5√x · (−√x) = −5x."},
+{"expression":"√(252a²) − 5a√7 = □a√7, kai a ≥ 0.","answer":"1","hint":"Kai a ≥ 0, iš a² ištraukta kvadratinė šaknis lygi a.","solution":"Pirmasis dėmuo lygus 6a√7. Lieka (6 − 5)a√7."},
+{"expression":"(∛(2401x³) − 5x∛7) / ∛7 = □x","answer":"2","hint":"Iškelk kubus iš pirmosios šaknies. Tada suprastink trupmeną.","solution":"Skaitiklis lygus (7 − 5)x∛7. Padalijus iš ∛7 lieka 2x."},
+{"expression":"Apskaičiuok 6√x + 5√y − 5√x, kai x = 9 ir y = 16.","answer":"23","hint":"Sutrauk dėmenis su √x, paskui įrašyk abiejų šaknų reikšmes.","solution":"(6 − 5) · 3 + 5 · 4 = 23."},
+{"expression":"Apskaičiuok 6∛y − 5∛x, kai y = −8 ir x = 27.","answer":"−27","hint":"Pirmiausia atskirai rask abiejų kubinių šaknų reikšmes.","solution":"6 · (−2) − 5 · 3 = −27."},
+{"expression":"7√x + 8√x = □√x, kai x ≥ 0.","answer":"15","hint":"Abu dėmenys turi tą patį daugiklį √x. Sudėk skaičius prieš jį.","solution":"(7 + 8)√x = 15√x."},
+{"expression":"6∛y − 8∛y = □∛y","answer":"−2","hint":"Kubinę šaknį palik, atimk jos daugiklius.","solution":"(6 − 8)∛y = −2∛y."},
+{"expression":"√(49x) − √(36x) = □√x, kai x ≥ 0.","answer":"1","hint":"Iš abiejų pošaknių iškelk kvadratinius dauginamuosius.","solution":"7√x − 6√x = √x."},
+{"expression":"∛(−343y) + 8∛y = □∛y","answer":"1","hint":"Neigiamo kubo šaknis neigiama. Atsižvelk į šį ženklą sudėdamas.","solution":"−7∛y + 8∛y = ∛y."},
+{"expression":"7√x · 6√x = □x, kai x ≥ 0.","answer":"42","hint":"Sudaugink skaičius. Tada pagalvok, kam lygu √x · √x.","solution":"7 · 6 · (√x)² = 42x."},
+{"expression":"6√x(7 − √x) = 42√x + □x, kai x ≥ 0.","answer":"−6","hint":"Daugiklį prieš skliaustus padaugink ir iš antrojo dėmens.","solution":"Antrasis dėmuo yra 6√x · (−√x) = −6x."},
+{"expression":"√(539a²) − 6a√11 = □a√11, kai a ≥ 0.","answer":"1","hint":"Kai a ≥ 0, iš a² ištraukta kvadratinė šaknis lygi a.","solution":"Pirmasis dėmuo lygus 7a√11. Lieka (7 − 6)a√11."},
+{"expression":"(∛(5632x³) − 6x∛11) / ∛11 = □x","answer":"2","hint":"Iškelk kubus iš pirmosios šaknies. Tada suprastink trupmeną.","solution":"Skaitiklis lygus (8 − 6)x∛11. Padalijus iš ∛11 lieka 2x."},
+{"expression":"Apskaičiuok 7√x + 6√y − 6√x, kai x = 9 ir y = 16.","answer":"27","hint":"Sutrauk dėmenis su √x, paskui įrašyk abiejų šaknų reikšmes.","solution":"(7 − 6) · 3 + 6 · 4 = 27."},
+{"expression":"Apskaičiuok 7∛y − 6∛x, kai y = −8 ir x = 27.","answer":"−32","hint":"Pirmiausia atskirai rask abiejų kubinių šaknų reikšmes.","solution":"7 · (−2) − 6 · 3 = −32."}
+]</script><script src="/bandymai/temu-testas.js" defer></script></body></html>

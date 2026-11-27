@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="lt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Kvadratinė šaknis · Matematika be streso</title>
+<link rel="stylesheet" href="/bandymai/temu-pamokos.css"></head>
+<body><main><header><a href="/">Matematika be streso</a><p><small>8 klasė · Kvadratinės ir kubinės šaknys</small></p><h1>Kvadratinė šaknis</h1></header>
+<section><h2>Kaip iš ploto rasti kvadrato kraštinę?</h2><p>Iš 16 vienodų plytelių sudėtas kvadratas. Kiek plytelių telpa palei vieną jo kraštinę?</p><div class="diagram" role="img" aria-label="Kvadratas iš keturių eilių po keturias plyteles"><span class="grid" style="--n:4;--size:132px"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div><details class="reveal"><summary>Patikrink savo mintį</summary><p>Vienoje eilėje yra 4 plytelės. Keturios tokios eilės sudaro 16 plytelių. Todėl √16 = 4.</p></details><p>Traukdamas kvadratinę šaknį ieškai neneigiamo skaičiaus, kurio kvadratas lygus pošakniui – skaičiui po šaknies ženklu. √0 = 0. Iš neigiamo skaičiaus realiosios kvadratinės šaknies ištraukti negalime.</p></section>
+<section><h2>Pavyzdžiai</h2><div class="example"><p class="math">√0,49 = 0,7</p><p>Patikrink daugindamas: 0,7 · 0,7 = 0,49.</p></div>
+<div class="example"><p class="math">√(36/121) = 6/11</p><p>Skaitiklis yra 6², o vardiklis – 11².</p></div>
+<div class="example"><p class="math">S = 81 cm² → a = 9 cm → P = 36 cm</p><p>Iš ploto rask kraštinę. Kad gautum perimetrą, jos ilgį padaugink iš keturių.</p></div></section>
+<button id="start" class="primary">PASITIKRINK</button>
+<div id="history"></div><section id="quiz" hidden><h2 id="heading" tabindex="-1"></h2><div id="exercise"><p id="prompt"></p><p class="math" id="expression"></p><form id="form"><label for="answer">Tavo atsakymas</label><span class="answer-box"><input id="answer" type="text" required autocomplete="off" maxlength="32"><span id="confetti" aria-hidden="true"></span></span> <button class="primary" id="check">Tikrinti</button></form></div><div id="attempts"></div><p id="feedback" role="status"></p><div class="actions"><button id="solution" hidden>Rodyti sprendimą</button><button id="next" hidden>Toliau</button><button id="retry" hidden>Pakartoti klaidas</button><button id="again" hidden>Naujas testas</button></div></section></main><script type="application/json" id="questions">[
+{"expression":"√144 = □","answer":"12","hint":"Ieškok teigiamo skaičiaus, kurį padauginęs iš savęs gautum pošaknį.","solution":"12² = 144."},
+{"expression":"√0,09 = □","answer":"0,3","hint":"Pakelk dešimtąsias kvadratu. Pavyzdžiui, 0,2² = 0,04.","solution":"0,3 · 0,3 = 0,09."},
+{"expression":"√(9/16) = □","answer":"3/4","hint":"Kokios trupmenos kvadratas duotų šį skaitiklį ir šį vardiklį?","solution":"(3/4)² = 9/16."},
+{"expression":"√□ = 16","answer":"256","hint":"Šį kartą ieškai pošaknio. Pakelk dešinėje esantį skaičių kvadratu.","solution":"□ = 16² = 256."},
+{"expression":"Ar √9 = −3? (Taip arba ne)","answer":"ne","hint":"Kvadratinės šaknies reikšmė visada neneigiama.","solution":"√9 = 3. Abu skaičiai turi tą patį kvadratą, bet šaknis žymi neneigiamą reikšmę."},
+{"expression":"Kvadrato plotas 81 cm². Jo perimetras □ cm.","answer":"36","hint":"Pirmiausia rask vienos kraštinės ilgį. Kvadratas turi keturias lygias kraštines.","solution":"Kraštinė yra 9 cm. Perimetras lygus 4 · 9 = 36 cm."},
+{"expression":"Kvadrato kraštinė √15 m. Jo plotas □ m².","answer":"15","hint":"Plotą gausi kraštinės ilgį pakėlęs kvadratu.","solution":"(√15)² = 15."},
+{"expression":"√(√81) = □","answer":"3","hint":"Pradėk nuo vidinės šaknies.","solution":"Vidinė šaknis lygi 9, o √9 = 3."},
+{"expression":"√9 − √64 = □","answer":"−5","hint":"Apskaičiuok abi šaknis atskirai. Išlaikyk atimties tvarką.","solution":"3 − 8 = −5."},
+{"expression":"Kokia mažiausia sveikoji x reikšmė, su kuria √(x − 4) turi prasmę?","answer":"4","hint":"Pošaknis gali būti nulis arba teigiamas skaičius.","solution":"Reikia, kad x − 4 ≥ 0. Mažiausia tinkama reikšmė yra 4."},
+{"expression":"√169 = □","answer":"13","hint":"Ieškok teigiamo skaičiaus, kurį padauginęs iš savęs gautum pošaknį.","solution":"13² = 169."},
+{"expression":"√0,16 = □","answer":"0,4","hint":"Pakelk dešimtąsias kvadratu. Pavyzdžiui, 0,2² = 0,04.","solution":"0,4 · 0,4 = 0,16."},
+{"expression":"√(16/25) = □","answer":"4/5","hint":"Kokios trupmenos kvadratas duotų šį skaitiklį ir šį vardiklį?","solution":"(4/5)² = 16/25."},
+{"expression":"√□ = 17","answer":"289","hint":"Šį kartą ieškai pošaknio. Pakelk dešinėje esantį skaičių kvadratu.","solution":"□ = 17² = 289."},
+{"expression":"Ar √16 = −4? (Taip arba ne)","answer":"ne","hint":"Kvadratinės šaknies reikšmė visada neneigiama.","solution":"√16 = 4. Abu skaičiai turi tą patį kvadratą, bet šaknis žymi neneigiamą reikšmę."},
+{"expression":"Kvadrato plotas 100 cm². Jo perimetras □ cm.","answer":"40","hint":"Pirmiausia rask vienos kraštinės ilgį. Kvadratas turi keturias lygias kraštines.","solution":"Kraštinė yra 10 cm. Perimetras lygus 4 · 10 = 40 cm."},
+{"expression":"Kvadrato kraštinė √16 m. Jo plotas □ m².","answer":"16","hint":"Plotą gausi kraštinės ilgį pakėlęs kvadratu.","solution":"(√16)² = 16."},
+{"expression":"√(√256) = □","answer":"4","hint":"Pradėk nuo vidinės šaknies.","solution":"Vidinė šaknis lygi 16, o √16 = 4."},
+{"expression":"√16 − √100 = □","answer":"−6","hint":"Apskaičiuok abi šaknis atskirai. Išlaikyk atimties tvarką.","solution":"4 − 10 = −6."},
+{"expression":"Kokia mažiausia sveikoji x reikšmė, su kuria √(x − 5) turi prasmę?","answer":"5","hint":"Pošaknis gali būti nulis arba teigiamas skaičius.","solution":"Reikia, kad x − 5 ≥ 0. Mažiausia tinkama reikšmė yra 5."},
+{"expression":"√196 = □","answer":"14","hint":"Ieškok teigiamo skaičiaus, kurį padauginęs iš savęs gautum pošaknį.","solution":"14² = 196."},
+{"expression":"√0,25 = □","answer":"0,5","hint":"Pakelk dešimtąsias kvadratu. Pavyzdžiui, 0,2² = 0,04.","solution":"0,5 · 0,5 = 0,25."},
+{"expression":"√(25/36) = □","answer":"5/6","hint":"Kokios trupmenos kvadratas duotų šį skaitiklį ir šį vardiklį?","solution":"(5/6)² = 25/36."},
+{"expression":"√□ = 18","answer":"324","hint":"Šį kartą ieškai pošaknio. Pakelk dešinėje esantį skaičių kvadratu.","solution":"□ = 18² = 324."},
+{"expression":"Ar √25 = −5? (Taip arba ne)","answer":"ne","hint":"Kvadratinės šaknies reikšmė visada neneigiama.","solution":"√25 = 5. Abu skaičiai turi tą patį kvadratą, bet šaknis žymi neneigiamą reikšmę."},
+{"expression":"Kvadrato plotas 121 cm². Jo perimetras □ cm.","answer":"44","hint":"Pirmiausia rask vienos kraštinės ilgį. Kvadratas turi keturias lygias kraštines.","solution":"Kraštinė yra 11 cm. Perimetras lygus 4 · 11 = 44 cm."},
+{"expression":"Kvadrato kraštinė √17 m. Jo plotas □ m².","answer":"17","hint":"Plotą gausi kraštinės ilgį pakėlęs kvadratu.","solution":"(√17)² = 17."},
+{"expression":"√(√625) = □","answer":"5","hint":"Pradėk nuo vidinės šaknies.","solution":"Vidinė šaknis lygi 25, o √25 = 5."},
+{"expression":"√25 − √144 = □","answer":"−7","hint":"Apskaičiuok abi šaknis atskirai. Išlaikyk atimties tvarką.","solution":"5 − 12 = −7."},
+{"expression":"Kokia mažiausia sveikoji x reikšmė, su kuria √(x − 6) turi prasmę?","answer":"6","hint":"Pošaknis gali būti nulis arba teigiamas skaičius.","solution":"Reikia, kad x − 6 ≥ 0. Mažiausia tinkama reikšmė yra 6."},
+{"expression":"√225 = □","answer":"15","hint":"Ieškok teigiamo skaičiaus, kurį padauginęs iš savęs gautum pošaknį.","solution":"15² = 225."},
+{"expression":"√0,36 = □","answer":"0,6","hint":"Pakelk dešimtąsias kvadratu. Pavyzdžiui, 0,2² = 0,04.","solution":"0,6 · 0,6 = 0,36."},
+{"expression":"√(36/49) = □","answer":"6/7","hint":"Kokios trupmenos kvadratas duotų šį skaitiklį ir šį vardiklį?","solution":"(6/7)² = 36/49."},
+{"expression":"√□ = 19","answer":"361","hint":"Šį kartą ieškai pošaknio. Pakelk dešinėje esantį skaičių kvadratu.","solution":"□ = 19² = 361."},
+{"expression":"Ar √36 = −6? (Taip arba ne)","answer":"ne","hint":"Kvadratinės šaknies reikšmė visada neneigiama.","solution":"√36 = 6. Abu skaičiai turi tą patį kvadratą, bet šaknis žymi neneigiamą reikšmę."},
+{"expression":"Kvadrato plotas 144 cm². Jo perimetras □ cm.","answer":"48","hint":"Pirmiausia rask vienos kraštinės ilgį. Kvadratas turi keturias lygias kraštines.","solution":"Kraštinė yra 12 cm. Perimetras lygus 4 · 12 = 48 cm."},
+{"expression":"Kvadrato kraštinė √18 m. Jo plotas □ m².","answer":"18","hint":"Plotą gausi kraštinės ilgį pakėlęs kvadratu.","solution":"(√18)² = 18."},
+{"expression":"√(√1296) = □","answer":"6","hint":"Pradėk nuo vidinės šaknies.","solution":"Vidinė šaknis lygi 36, o √36 = 6."},
+{"expression":"√36 − √196 = □","answer":"−8","hint":"Apskaičiuok abi šaknis atskirai. Išlaikyk atimties tvarką.","solution":"6 − 14 = −8."},
+{"expression":"Kokia mažiausia sveikoji x reikšmė, su kuria √(x − 7) turi prasmę?","answer":"7","hint":"Pošaknis gali būti nulis arba teigiamas skaičius.","solution":"Reikia, kad x − 7 ≥ 0. Mažiausia tinkama reikšmė yra 7."},
+{"expression":"√256 = □","answer":"16","hint":"Ieškok teigiamo skaičiaus, kurį padauginęs iš savęs gautum pošaknį.","solution":"16² = 256."},
+{"expression":"√0,49 = □","answer":"0,7","hint":"Pakelk dešimtąsias kvadratu. Pavyzdžiui, 0,2² = 0,04.","solution":"0,7 · 0,7 = 0,49."},
+{"expression":"√(49/64) = □","answer":"7/8","hint":"Kokios trupmenos kvadratas duotų šį skaitiklį ir šį vardiklį?","solution":"(7/8)² = 49/64."},
+{"expression":"√□ = 20","answer":"400","hint":"Šį kartą ieškai pošaknio. Pakelk dešinėje esantį skaičių kvadratu.","solution":"□ = 20² = 400."},
+{"expression":"Ar √49 = −7? (Taip arba ne)","answer":"ne","hint":"Kvadratinės šaknies reikšmė visada neneigiama.","solution":"√49 = 7. Abu skaičiai turi tą patį kvadratą, bet šaknis žymi neneigiamą reikšmę."},
+{"expression":"Kvadrato plotas 169 cm². Jo perimetras □ cm.","answer":"52","hint":"Pirmiausia rask vienos kraštinės ilgį. Kvadratas turi keturias lygias kraštines.","solution":"Kraštinė yra 13 cm. Perimetras lygus 4 · 13 = 52 cm."},
+{"expression":"Kvadrato kraštinė √19 m. Jo plotas □ m².","answer":"19","hint":"Plotą gausi kraštinės ilgį pakėlęs kvadratu.","solution":"(√19)² = 19."},
+{"expression":"√(√2401) = □","answer":"7","hint":"Pradėk nuo vidinės šaknies.","solution":"Vidinė šaknis lygi 49, o √49 = 7."},
+{"expression":"√49 − √256 = □","answer":"−9","hint":"Apskaičiuok abi šaknis atskirai. Išlaikyk atimties tvarką.","solution":"7 − 16 = −9."},
+{"expression":"Kokia mažiausia sveikoji x reikšmė, su kuria √(x − 8) turi prasmę?","answer":"8","hint":"Pošaknis gali būti nulis arba teigiamas skaičius.","solution":"Reikia, kad x − 8 ≥ 0. Mažiausia tinkama reikšmė yra 8."}
+]</script><script src="/bandymai/temu-testas.js" defer></script></body></html>

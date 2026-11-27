@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="lt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Dauginamojo iškėlimas ir įkėlimas · Matematika be streso</title>
+<link rel="stylesheet" href="/bandymai/temu-pamokos.css"></head>
+<body><main><header><a href="/">Matematika be streso</a><p><small>8 klasė · Kvadratinės ir kubinės šaknys</small></p><h1>Dauginamojo iškėlimas ir įkėlimas</h1></header>
+<section><h2>Kaip iškelti dauginamąjį prieš šaknies ženklą?</h2><p>Kvadratas sudėtas iš keturių plytelių, kurių kiekvienos plotas 3 cm². Kaip jo kraštinę užrašytum dviem būdais?</p><div class="diagram extract" role="img" aria-label="Kvadratas iš keturių plytelių po 3 cm²"><span class="grid" style="--n:2;--size:144px"><i>3 cm²</i><i>3 cm²</i><i>3 cm²</i><i>3 cm²</i></span></div><details class="reveal"><summary>Patikrink savo mintį</summary><p>Visas plotas yra 12 cm², tad kraštinė lygi √12 cm. Palei kraštinę telpa dvi plytelės po √3 cm. Vadinasi, √12 = 2√3.</p></details><p>Po kvadratinės šaknies ženklu ieškok dauginamojo, kuris yra kvadratas, o po kubinės – kubas. Įkeldamas dauginamąjį atgal, pakelk jį atitinkamai kvadratu arba kubu.</p></section>
+<section><h2>Pavyzdžiai</h2><div class="example"><p class="math">√147 = √(49 · 3) = 7√3</p><p>Iš 49 ištrauk šaknį, o 3 palik po šaknies ženklu.</p></div>
+<div class="example"><p class="math">−4√5 = −√(16 · 5) = −√80</p><p>Įkeldamas teigiamą daugiklį po kvadratinės šaknies ženklu, minusą palik išorėje.</p></div>
+<div class="example"><p class="math">∛(−192) = ∛(−64 · 3) = −4∛3</p><p>Kubinei šakniai minusas gali keliauti kartu su daugikliu: (−4)³ = −64.</p></div></section>
+<button id="start" class="primary">PASITIKRINK</button>
+<div id="history"></div><section id="quiz" hidden><h2 id="heading" tabindex="-1"></h2><div id="exercise"><p id="prompt"></p><p class="math" id="expression"></p><form id="form"><label for="answer">Tavo atsakymas</label><span class="answer-box"><input id="answer" type="text" required autocomplete="off" maxlength="32"><span id="confetti" aria-hidden="true"></span></span> <button class="primary" id="check">Tikrinti</button></form></div><div id="attempts"></div><p id="feedback" role="status"></p><div class="actions"><button id="solution" hidden>Rodyti sprendimą</button><button id="next" hidden>Toliau</button><button id="retry" hidden>Pakartoti klaidas</button><button id="again" hidden>Naujas testas</button></div></section></main><script type="application/json" id="questions">[
+{"expression":"√18 = □√2","answer":"3","hint":"Pošaknį išskaidyk į kvadrato ir likusio skaičiaus sandaugą.","solution":"√(3² · 2) = 3√2."},
+{"expression":"∛16 = □∛2","answer":"2","hint":"Ieškok dauginamojo, kuris yra sveikojo skaičiaus kubas.","solution":"∛(2³ · 2) = 2∛2."},
+{"expression":"∛(−128) = □∛2","answer":"−4","hint":"Išskaidyk pošaknį taip, kad vienas dauginamasis būtų neigiamas kubas.","solution":"∛((−4)³ · 2) = −4∛2."},
+{"expression":"3√2 = √□","answer":"18","hint":"Įkeldamas skaičių po kvadratinės šaknies ženklu, pakelk jį kvadratu.","solution":"3² · 2 = 18."},
+{"expression":"−2√2 = −√□","answer":"8","hint":"Minusas jau užrašytas prieš šaknį. Į pošaknį įkelk tik teigiamą daugiklį.","solution":"2² · 2 = 8."},
+{"expression":"−3∛2 = ∛□","answer":"−54","hint":"Į kubinės šaknies pošaknį galima įkelti ir minusą. Pakelk daugiklį kubu.","solution":"(−3)³ · 2 = −54."},
+{"expression":"0,2√2 = √□","answer":"0,08","hint":"Dešimtainį daugiklį taip pat kelk kvadratu.","solution":"0,2² · 2 = 0,08."},
+{"expression":"(3/2) · √8 = √□","answer":"18","hint":"Gali pirmiausia iškelti √4 ir suprastinti trupmeną.","solution":"√8 = 2√2, todėl lieka 3√2 = √18."},
+{"expression":"√(18/16) = □ · √2","answer":"3/4","hint":"Iš skaitiklio iškelk kvadratinį dauginamąjį. Iš vardiklio ištrauk šaknį.","solution":"Skaitiklio šaknis lygi 3√2, vardiklio – 4. Prieš šaknį lieka 3/4."},
+{"expression":"−3√2 □ −√19. Įrašyk \u003c, > arba =.","answer":">","hint":"Įkelk teigiamą daugiklį po šaknimi. Prisimink, kaip palyginti du neigiamus skaičius.","solution":"Kairėje gauname −√18. Jos atstumas nuo nulio mažesnis, todėl kairysis skaičius didesnis."},
+{"expression":"√48 = □√3","answer":"4","hint":"Pošaknį išskaidyk į kvadrato ir likusio skaičiaus sandaugą.","solution":"√(4² · 3) = 4√3."},
+{"expression":"∛81 = □∛3","answer":"3","hint":"Ieškok dauginamojo, kuris yra sveikojo skaičiaus kubas.","solution":"∛(3³ · 3) = 3∛3."},
+{"expression":"∛(−375) = □∛3","answer":"−5","hint":"Išskaidyk pošaknį taip, kad vienas dauginamasis būtų neigiamas kubas.","solution":"∛((−5)³ · 3) = −5∛3."},
+{"expression":"4√3 = √□","answer":"48","hint":"Įkeldamas skaičių po kvadratinės šaknies ženklu, pakelk jį kvadratu.","solution":"4² · 3 = 48."},
+{"expression":"−3√3 = −√□","answer":"27","hint":"Minusas jau užrašytas prieš šaknį. Į pošaknį įkelk tik teigiamą daugiklį.","solution":"3² · 3 = 27."},
+{"expression":"−4∛3 = ∛□","answer":"−192","hint":"Į kubinės šaknies pošaknį galima įkelti ir minusą. Pakelk daugiklį kubu.","solution":"(−4)³ · 3 = −192."},
+{"expression":"0,3√3 = √□","answer":"0,27","hint":"Dešimtainį daugiklį taip pat kelk kvadratu.","solution":"0,3² · 3 = 0,27."},
+{"expression":"(4/2) · √12 = √□","answer":"48","hint":"Gali pirmiausia iškelti √4 ir suprastinti trupmeną.","solution":"√12 = 2√3, todėl lieka 4√3 = √48."},
+{"expression":"√(48/25) = □ · √3","answer":"4/5","hint":"Iš skaitiklio iškelk kvadratinį dauginamąjį. Iš vardiklio ištrauk šaknį.","solution":"Skaitiklio šaknis lygi 4√3, vardiklio – 5. Prieš šaknį lieka 4/5."},
+{"expression":"−4√3 □ −√49. Įrašyk \u003c, > arba =.","answer":">","hint":"Įkelk teigiamą daugiklį po šaknimi. Prisimink, kaip palyginti du neigiamus skaičius.","solution":"Kairėje gauname −√48. Jos atstumas nuo nulio mažesnis, todėl kairysis skaičius didesnis."},
+{"expression":"√125 = □√5","answer":"5","hint":"Pošaknį išskaidyk į kvadrato ir likusio skaičiaus sandaugą.","solution":"√(5² · 5) = 5√5."},
+{"expression":"∛320 = □∛5","answer":"4","hint":"Ieškok dauginamojo, kuris yra sveikojo skaičiaus kubas.","solution":"∛(4³ · 5) = 4∛5."},
+{"expression":"∛(−1080) = □∛5","answer":"−6","hint":"Išskaidyk pošaknį taip, kad vienas dauginamasis būtų neigiamas kubas.","solution":"∛((−6)³ · 5) = −6∛5."},
+{"expression":"5√5 = √□","answer":"125","hint":"Įkeldamas skaičių po kvadratinės šaknies ženklu, pakelk jį kvadratu.","solution":"5² · 5 = 125."},
+{"expression":"−4√5 = −√□","answer":"80","hint":"Minusas jau užrašytas prieš šaknį. Į pošaknį įkelk tik teigiamą daugiklį.","solution":"4² · 5 = 80."},
+{"expression":"−5∛5 = ∛□","answer":"−625","hint":"Į kubinės šaknies pošaknį galima įkelti ir minusą. Pakelk daugiklį kubu.","solution":"(−5)³ · 5 = −625."},
+{"expression":"0,4√5 = √□","answer":"0,8","hint":"Dešimtainį daugiklį taip pat kelk kvadratu.","solution":"0,4² · 5 = 0,8."},
+{"expression":"(5/2) · √20 = √□","answer":"125","hint":"Gali pirmiausia iškelti √4 ir suprastinti trupmeną.","solution":"√20 = 2√5, todėl lieka 5√5 = √125."},
+{"expression":"√(125/36) = □ · √5","answer":"5/6","hint":"Iš skaitiklio iškelk kvadratinį dauginamąjį. Iš vardiklio ištrauk šaknį.","solution":"Skaitiklio šaknis lygi 5√5, vardiklio – 6. Prieš šaknį lieka 5/6."},
+{"expression":"−5√5 □ −√126. Įrašyk \u003c, > arba =.","answer":">","hint":"Įkelk teigiamą daugiklį po šaknimi. Prisimink, kaip palyginti du neigiamus skaičius.","solution":"Kairėje gauname −√125. Jos atstumas nuo nulio mažesnis, todėl kairysis skaičius didesnis."},
+{"expression":"√252 = □√7","answer":"6","hint":"Pošaknį išskaidyk į kvadrato ir likusio skaičiaus sandaugą.","solution":"√(6² · 7) = 6√7."},
+{"expression":"∛875 = □∛7","answer":"5","hint":"Ieškok dauginamojo, kuris yra sveikojo skaičiaus kubas.","solution":"∛(5³ · 7) = 5∛7."},
+{"expression":"∛(−2401) = □∛7","answer":"−7","hint":"Išskaidyk pošaknį taip, kad vienas dauginamasis būtų neigiamas kubas.","solution":"∛((−7)³ · 7) = −7∛7."},
+{"expression":"6√7 = √□","answer":"252","hint":"Įkeldamas skaičių po kvadratinės šaknies ženklu, pakelk jį kvadratu.","solution":"6² · 7 = 252."},
+{"expression":"−5√7 = −√□","answer":"175","hint":"Minusas jau užrašytas prieš šaknį. Į pošaknį įkelk tik teigiamą daugiklį.","solution":"5² · 7 = 175."},
+{"expression":"−6∛7 = ∛□","answer":"−1512","hint":"Į kubinės šaknies pošaknį galima įkelti ir minusą. Pakelk daugiklį kubu.","solution":"(−6)³ · 7 = −1512."},
+{"expression":"0,5√7 = √□","answer":"1,75","hint":"Dešimtainį daugiklį taip pat kelk kvadratu.","solution":"0,5² · 7 = 1,75."},
+{"expression":"(6/2) · √28 = √□","answer":"252","hint":"Gali pirmiausia iškelti √4 ir suprastinti trupmeną.","solution":"√28 = 2√7, todėl lieka 6√7 = √252."},
+{"expression":"√(252/49) = □ · √7","answer":"6/7","hint":"Iš skaitiklio iškelk kvadratinį dauginamąjį. Iš vardiklio ištrauk šaknį.","solution":"Skaitiklio šaknis lygi 6√7, vardiklio – 7. Prieš šaknį lieka 6/7."},
+{"expression":"−6√7 □ −√253. Įrašyk \u003c, > arba =.","answer":">","hint":"Įkelk teigiamą daugiklį po šaknimi. Prisimink, kaip palyginti du neigiamus skaičius.","solution":"Kairėje gauname −√252. Jos atstumas nuo nulio mažesnis, todėl kairysis skaičius didesnis."},
+{"expression":"√539 = □√11","answer":"7","hint":"Pošaknį išskaidyk į kvadrato ir likusio skaičiaus sandaugą.","solution":"√(7² · 11) = 7√11."},
+{"expression":"∛2376 = □∛11","answer":"6","hint":"Ieškok dauginamojo, kuris yra sveikojo skaičiaus kubas.","solution":"∛(6³ · 11) = 6∛11."},
+{"expression":"∛(−5632) = □∛11","answer":"−8","hint":"Išskaidyk pošaknį taip, kad vienas dauginamasis būtų neigiamas kubas.","solution":"∛((−8)³ · 11) = −8∛11."},
+{"expression":"7√11 = √□","answer":"539","hint":"Įkeldamas skaičių po kvadratinės šaknies ženklu, pakelk jį kvadratu.","solution":"7² · 11 = 539."},
+{"expression":"−6√11 = −√□","answer":"396","hint":"Minusas jau užrašytas prieš šaknį. Į pošaknį įkelk tik teigiamą daugiklį.","solution":"6² · 11 = 396."},
+{"expression":"−7∛11 = ∛□","answer":"−3773","hint":"Į kubinės šaknies pošaknį galima įkelti ir minusą. Pakelk daugiklį kubu.","solution":"(−7)³ · 11 = −3773."},
+{"expression":"0,6√11 = √□","answer":"3,96","hint":"Dešimtainį daugiklį taip pat kelk kvadratu.","solution":"0,6² · 11 = 3,96."},
+{"expression":"(7/2) · √44 = √□","answer":"539","hint":"Gali pirmiausia iškelti √4 ir suprastinti trupmeną.","solution":"√44 = 2√11, todėl lieka 7√11 = √539."},
+{"expression":"√(539/64) = □ · √11","answer":"7/8","hint":"Iš skaitiklio iškelk kvadratinį dauginamąjį. Iš vardiklio ištrauk šaknį.","solution":"Skaitiklio šaknis lygi 7√11, vardiklio – 8. Prieš šaknį lieka 7/8."},
+{"expression":"−7√11 □ −√540. Įrašyk \u003c, > arba =.","answer":">","hint":"Įkelk teigiamą daugiklį po šaknimi. Prisimink, kaip palyginti du neigiamus skaičius.","solution":"Kairėje gauname −√539. Jos atstumas nuo nulio mažesnis, todėl kairysis skaičius didesnis."}
+]</script><script src="/bandymai/temu-testas.js" defer></script></body></html>
