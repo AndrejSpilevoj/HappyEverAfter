@@ -16,7 +16,18 @@ const el=id=>document.getElementById(id);
 let questions=[],index=0,missed=[];
 function line(tag,text){
  const node=document.createElement(tag);
- node.textContent=text;
+ // Render worksheet blanks without interpreting any quiz text as HTML.
+ const parts = text.split('□');
+ parts.forEach((part, index) => {
+  if (index) {
+   const box = document.createElement('span');
+   box.className = 'missing-value';
+   box.setAttribute('role', 'img');
+   box.setAttribute('aria-label', 'Trūkstama reikšmė');
+   node.append(box);
+  }
+  node.append(part);
+ });
  return node;
 }
 function recordAnswer(value,correct){
@@ -32,7 +43,7 @@ function keepQuestion(){
 function show(){
  const q=questions[index];
  el('heading').textContent='Užduotis '+(index+1)+' iš '+questions.length;
- el('expression').textContent=q.expression;
+ el('expression').replaceChildren(...line('p',q.expression).childNodes);
  el('answer').value='';el('answer').disabled=false;el('check').hidden=false;
  el('next').hidden=true;el('solution').hidden=true;el('feedback').textContent='';
  el('answer').focus({preventScroll:true});
