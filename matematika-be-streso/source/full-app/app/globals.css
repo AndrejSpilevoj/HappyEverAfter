@@ -294,3 +294,71 @@ h1,.workspace-title h1{font-size:30px}
 @media(max-width:1000px){.stats-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.analytics-choice{flex-direction:column;align-items:flex-start}}
 @media(max-width:760px){.stats-grid{grid-template-columns:1fr}.stats-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.stats-heading h2{font-size:27px}.stats-panel{padding:22px}.stats-actions{width:100%}.stats-actions label{width:100%}.stats-actions .button{flex:1}.stats-chart{gap:2px;height:120px}.stats-trend .stats-heading>strong{font-size:18px}.stats-metric{padding:14px;gap:8px}.stats-metric>span{font-size:18px}.stats-metric>strong{font-size:30px}}
 @media print{.analytics-choice,.analytics-preference{display:none!important}}
+
+.photo-view-trigger {
+ display: block;
+ padding: 0;
+ border: 0;
+ background: transparent;
+ cursor: zoom-in;
+}
+.student-photo-dialog {
+ position: fixed;
+ inset: 0;
+ box-sizing: border-box;
+ width: 100%;
+ height: 100%;
+ max-width: none;
+ max-height: none;
+ margin: 0;
+ padding: 0;
+ border: 0;
+ background: #101b2b;
+ color: white;
+}
+.student-photo-dialog[open] {
+ display: flex;
+ flex-direction: column;
+}
+.student-photo-dialog::backdrop { background: #101b2b; }
+.student-photo-toolbar {
+ display: flex;
+ flex-wrap: wrap;
+ justify-content: center;
+ gap: .5rem;
+ padding: .75rem;
+}
+.student-photo-toolbar button {
+ min-height: 44px;
+ min-width: 44px;
+ padding: .4rem .75rem;
+ border: 1px solid #8195af;
+ border-radius: .6rem;
+ background: #253750;
+ color: white;
+ font: inherit;
+ cursor: pointer;
+}
+.student-photo-toolbar button:disabled { opacity: .55; cursor: default; }
+.student-photo-scroll {
+ display: grid;
+ flex: 1;
+ min-height: 0;
+ overflow: auto;
+ container-type: size;
+}
+.student-photo-frame {
+ position: relative;
+ margin: auto;
+ flex: none;
+}
+.student-photo-frame img {
+ position: absolute;
+ top: 50%;
+ left: 50%;
+ display: block;
+ max-width: none;
+ max-height: none;
+ height: auto;
+ border-radius: 0;
+}
