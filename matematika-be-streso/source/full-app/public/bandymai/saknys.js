@@ -7,11 +7,11 @@ for(let i=0;i<10;i++){
  function add(expression,answer,root,calculation,hint){
   bank.push({expression,answer,hint,solution:calculation+' Taigi □ = '+answer+'.',root});
  }
- add(term(a,square)+' + '+term(b,square)+' = □'+square,a+b,square,a+' + '+b+' = '+(a+b)+'.','Sudėk prieš šaknį esančius koeficientus.');
- add(term(b,cube)+' − '+term(a+1,cube)+' = □'+cube,b-a-1,cube,b+' − '+(a+1)+' = '+(b-a-1)+'.','Iš pirmojo koeficiento atimk antrąjį. Atkreipk dėmesį į rezultato ženklą.');
- add(term(-a,square)+' − ('+term(-b,square)+') = □'+square,b-a,square,'−'+a+' − (−'+b+') = −'+a+' + '+b+' = '+(b-a)+'.','Atimdamas neigiamą narį, pridėk jam priešingą narį.');
- add(term(c,cube)+' − ('+term(a,cube)+' − '+term(b,cube)+') = □'+cube,c-a+b,cube,c+' − ('+a+' − '+b+') = '+(c-a+b)+'.','Pirmiausia apskaičiuok koeficientų skirtumą skliaustuose.');
- add('□'+square+' + '+term(b,square)+' = '+term(a+c,square),a+c-b,square,'Iš sumos koeficiento atimame žinomą koeficientą: '+(a+c)+' − '+b+' = '+(a+c-b)+'.','Pagalvok, kokį skaičių pridėjus prie žinomo koeficiento gaunama dešinė pusė.');
+ add(term(a,square)+' + '+term(b,square)+' = □'+square,a+b,square,a+' + '+b+' = '+(a+b)+'.','Pošakniai vienodi. Sudėk skaičius prieš šaknies ženklą.');
+ add(term(b,cube)+' − '+term(a+1,cube)+' = □'+cube,b-a-1,cube,b+' − '+(a+1)+' = '+(b-a-1)+'.','Atkreipk dėmesį į skaičių eilę: iš pirmojo skaičiaus prieš šaknies ženklą atimk antrąjį.');
+ add(term(-a,square)+' − ('+term(-b,square)+') = □'+square,b-a,square,'−'+a+' − (−'+b+') = −'+a+' + '+b+' = '+(b-a)+'.','Atimti neigiamą skaičių – tas pats, kas pridėti jam priešingą skaičių.');
+ add(term(c,cube)+' − ('+term(a,cube)+' − '+term(b,cube)+') = □'+cube,c-a+b,cube,c+' − ('+a+' − '+b+') = '+(c-a+b)+'.','Pirmiausia rask skliaustuose užrašytų skaičių skirtumą.');
+ add('□'+square+' + '+term(b,square)+' = '+term(a+c,square),a+c-b,square,'Ieškome skaičiaus, kurį reikia įrašyti į langelį: '+(a+c)+' − '+b+' = '+(a+c-b)+'.','Kaip rasti nežinomą dėmenį, kai žinai sumą ir kitą dėmenį?');
 }
 function shuffle(items){
  const result=[...items];
