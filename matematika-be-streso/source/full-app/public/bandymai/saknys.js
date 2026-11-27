@@ -1,0 +1,51 @@
+'use strict';
+const bank=[];
+const term=(n,r)=>n===0?'0':(n<0?'−':'')+(Math.abs(n)===1?'':Math.abs(n))+r;
+for(let i=0;i<10;i++){
+ const n=[2,3,5,6,7,10,11,13,15,17][i],a=2+i,b=1+i%4,c=2+i%3;
+ const square='√'+n,cube='∛'+n;
+ function add(expression,answer,root,calculation,hint){
+  bank.push({expression,answer,hint,solution:calculation+' Taigi □ = '+answer+'.',root});
+ }
+ add(term(a,square)+' + '+term(b,square)+' = □'+square,a+b,square,a+' + '+b+' = '+(a+b)+'.','Sudėk prieš šaknį esančius koeficientus.');
+ add(term(b,cube)+' − '+term(a+1,cube)+' = □'+cube,b-a-1,cube,b+' − '+(a+1)+' = '+(b-a-1)+'.','Iš pirmojo koeficiento atimk antrąjį. Atkreipk dėmesį į rezultato ženklą.');
+ add(term(-a,square)+' − ('+term(-b,square)+') = □'+square,b-a,square,'−'+a+' − (−'+b+') = −'+a+' + '+b+' = '+(b-a)+'.','Atimdamas neigiamą narį, pridėk jam priešingą narį.');
+ add(term(c,cube)+' − ('+term(a,cube)+' − '+term(b,cube)+') = □'+cube,c-a+b,cube,c+' − ('+a+' − '+b+') = '+(c-a+b)+'.','Pirmiausia apskaičiuok koeficientų skirtumą skliaustuose.');
+ add('□'+square+' + '+term(b,square)+' = '+term(a+c,square),a+c-b,square,'Iš sumos koeficiento atimame žinomą koeficientą: '+(a+c)+' − '+b+' = '+(a+c-b)+'.','Pagalvok, kokį skaičių pridėjus prie žinomo koeficiento gaunama dešinė pusė.');
+}
+function shuffle(items){
+ const result=[...items];
+ for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}
+ return result;
+}
+function round(){return shuffle(Array.from({length:5},(_,type)=>shuffle(bank.filter((_,i)=>i%5===type)).slice(0,2)).flat());}
+const el=id=>document.getElementById(id);
+let questions=[],index=0,missed=[];
+function show(){
+ const q=questions[index];
+ el('heading').textContent='Užduotis '+(index+1)+' iš '+questions.length;
+ el('expression').textContent=q.expression;
+ el('answer').value='';el('answer').disabled=false;el('check').hidden=false;
+ el('next').hidden=true;el('solution').hidden=true;el('feedback').textContent='';
+ el('answer').focus();
+}
+function begin(items){
+ questions=items;index=0;missed=[];el('quiz').hidden=false;el('start').hidden=true;
+ el('exercise').hidden=false;el('again').hidden=true;el('retry').hidden=true;show();
+ el('quiz').scrollIntoView({block:'start'});
+}
+function finishQuestion(){el('answer').disabled=true;el('check').hidden=true;el('solution').hidden=true;el('next').hidden=false;el('next').focus();}
+el('form').onsubmit=event=>{
+ event.preventDefault();const q=questions[index],value=el('answer').value.trim().replace('−','-');
+ if(!/^[+-]?\d+$/.test(value)){el('feedback').textContent='Įrašyk sveikąjį skaičių.';return;}
+ if(Number(value)===q.answer){el('feedback').textContent='Teisingai! '+q.solution;finishQuestion();}
+ else{if(!missed.includes(q))missed.push(q);el('feedback').textContent='Dar kartą pagalvok. '+q.hint;el('solution').hidden=false;el('answer').select();}
+};
+el('solution').onclick=()=>{el('feedback').textContent=questions[index].solution;finishQuestion();};
+el('next').onclick=()=>{
+ if(++index<questions.length){show();return;}
+ el('heading').textContent='Testas baigtas';el('exercise').hidden=true;el('next').hidden=true;
+ el('feedback').textContent='Iš pirmo karto teisingai atlikta užduočių: '+(questions.length-missed.length)+' iš '+questions.length+'.';
+ el('again').hidden=false;el('retry').hidden=!missed.length;el('heading').focus();
+};
+el('start').onclick=el('again').onclick=()=>begin(round());el('retry').onclick=()=>begin(shuffle(missed));
