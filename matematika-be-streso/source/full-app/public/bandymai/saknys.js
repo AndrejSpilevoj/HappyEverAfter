@@ -21,6 +21,21 @@ function shuffle(items){
 function round(){return shuffle(Array.from({length:5},(_,type)=>shuffle(bank.filter((_,i)=>i%5===type)).slice(0,2)).flat());}
 const el=id=>document.getElementById(id);
 let questions=[],index=0,missed=[];
+function line(tag,text){
+ const node=document.createElement(tag);
+ node.textContent=text;
+ return node;
+}
+function recordAnswer(value,correct){
+ el('attempts').append(line('p','Tavo atsakymas: '+value+(correct?' ✓ Teisingai.':' – pabandyk dar kartą.')));
+}
+function keepQuestion(){
+ const card=document.createElement('section');
+ const expression=line('p',questions[index].expression);
+ expression.className='math';
+ card.append(line('h2',el('heading').textContent),expression,...Array.from(el('attempts').children),line('p',el('feedback').textContent));
+ el('history').append(card);
+}
 function show(){
  const q=questions[index];
  el('heading').textContent='Užduotis '+(index+1)+' iš '+questions.length;
@@ -30,6 +45,11 @@ function show(){
  el('answer').focus();
 }
 function begin(items){
+ if(questions.length){
+  const summary=document.createElement('section');
+  summary.append(line('h2','Testas baigtas'),line('p',el('feedback').textContent));
+  el('history').append(summary);
+ }
  questions=items;index=0;missed=[];el('quiz').hidden=false;el('start').hidden=true;
  el('exercise').hidden=false;el('again').hidden=true;el('retry').hidden=true;show();
  el('quiz').scrollIntoView({block:'start'});
@@ -38,11 +58,13 @@ function finishQuestion(){el('answer').disabled=true;el('check').hidden=true;el(
 el('form').onsubmit=event=>{
  event.preventDefault();const q=questions[index],value=el('answer').value.trim().replace('−','-');
  if(!/^[+-]?\d+$/.test(value)){el('feedback').textContent='Įrašyk sveikąjį skaičių.';return;}
+ recordAnswer(value,Number(value)===q.answer);
  if(Number(value)===q.answer){el('feedback').textContent='Teisingai! '+q.solution;finishQuestion();}
- else{if(!missed.includes(q))missed.push(q);el('feedback').textContent='Dar kartą pagalvok. '+q.hint;el('solution').hidden=false;el('answer').select();}
+ else{if(!missed.includes(q)){missed.push(q);el('attempts').append(line('p','Patarimas: '+q.hint));}el('feedback').textContent='Dar kartą pagalvok. '+q.hint;el('solution').hidden=false;el('answer').select();}
 };
-el('solution').onclick=()=>{el('feedback').textContent=questions[index].solution;finishQuestion();};
+el('solution').onclick=()=>{el('feedback').textContent='Peržiūrėtas sprendimas. '+questions[index].solution;finishQuestion();};
 el('next').onclick=()=>{
+ keepQuestion();
  if(++index<questions.length){show();return;}
  el('heading').textContent='Testas baigtas';el('exercise').hidden=true;el('next').hidden=true;
  el('feedback').textContent='Iš pirmo karto teisingai atlikta užduočių: '+(questions.length-missed.length)+' iš '+questions.length+'.';
