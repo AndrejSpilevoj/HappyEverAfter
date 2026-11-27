@@ -18,7 +18,12 @@ function shuffle(items){
  for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}
  return result;
 }
-function round(){return shuffle(Array.from({length:5},(_,type)=>shuffle(bank.filter((_,i)=>i%5===type)).slice(0,2)).flat());}
+function round() {
+ // Start with direct operations, then introduce the missing coefficient and brackets.
+ return [0, 1, 4, 2, 3].flatMap(skill =>
+  shuffle(bank.filter((_, position) => position % 5 === skill)).slice(0, 2)
+ );
+}
 const el=id=>document.getElementById(id);
 let questions=[],index=0,missed=[];
 function line(tag,text){
@@ -55,24 +60,31 @@ function begin(items){
  el('exercise').hidden=false;el('again').hidden=true;el('retry').hidden=true;show();
 }
 function finishQuestion(){el('answer').disabled=true;el('check').hidden=true;el('solution').hidden=true;el('next').hidden=false;el('next').focus();}
-function celebrateAnswer(){
- if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){advance();return;}
- const layer=el('confetti'),colors=['#ff427c','#00adbe','#ffbc00','#8653e8','#17aa68','#ff6740'];
- el('answer').readOnly=true;el('check').disabled=true;el('solution').hidden=true;
- for(let i=0;i<21;i++){
-  const piece=document.createElement('i'),angle=(18+(i*73)%145)*Math.PI/180;
-  const radius=44+(i*17)%41;
-  piece.className=['star','dot','ribbon'][i%3];
-  if(piece.className==='ribbon')piece.textContent='∿';
-  piece.style.color=colors[i%colors.length];
-  piece.style.setProperty('--x',Math.cos(angle)*radius+'px');
-  piece.style.setProperty('--y',(-Math.sin(angle)*radius-18)+'px');
-  piece.style.setProperty('--spin',i*41+'deg');
+function celebrateAnswer() {
+ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  advance();
+  return;
+ }
+ const layer = el('confetti');
+ const colors = ['#ff427c', '#00adbe', '#ffbc00', '#8653e8', '#17aa68', '#ff6740'];
+ el('answer').readOnly = true;
+ el('check').disabled = true;
+ el('solution').hidden = true;
+ for (let index = 0; index < 32; index++) {
+  const piece = document.createElement('i');
+  piece.className = ['confetti-star', 'confetti-dot', 'confetti-ribbon'][index % 3];
+  piece.style.backgroundColor = colors[index % colors.length];
+  piece.style.setProperty('--x', ((index % 8 - 3.5) * layer.clientWidth / 8) + 'px');
+  piece.style.setProperty('--y', ((Math.floor(index / 8) - 1.5) * layer.clientHeight / 4) + 'px');
+  piece.style.setProperty('--spin', (index * 41) + 'deg');
   layer.append(piece);
  }
- window.setTimeout(()=>{
-  layer.replaceChildren();el('answer').readOnly=false;el('check').disabled=false;advance();
- },1200);
+ window.setTimeout(() => {
+  layer.replaceChildren();
+  el('answer').readOnly = false;
+  el('check').disabled = false;
+  advance();
+ }, 950);
 }
 el('form').onsubmit=event=>{
  event.preventDefault();if(el('check').disabled)return;const q=questions[index],value=el('answer').value.trim().replace('−','-');
@@ -90,4 +102,4 @@ function advance(){
  el('again').hidden=false;el('retry').hidden=!missed.length;el('heading').focus();
 }
 el('next').onclick=advance;
-el('start').onclick=el('again').onclick=()=>begin(round());el('retry').onclick=()=>begin(shuffle(missed));
+el('start').onclick=el('again').onclick=()=>begin(round());el('retry').onclick=()=>begin(missed);

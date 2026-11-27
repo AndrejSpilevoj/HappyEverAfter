@@ -10,7 +10,7 @@ function round() {
   const variants = bank.filter((_, position) => position % 10 === skill);
   return shuffle(variants)[0];
  });
- return shuffle(selected);
+ return selected;
 }
 const el=id=>document.getElementById(id);
 let questions=[],index=0,missed=[];
@@ -48,21 +48,31 @@ function begin(items){
  el('exercise').hidden=false;el('again').hidden=true;el('retry').hidden=true;show();
 }
 function finishQuestion(){el('answer').disabled=true;el('check').hidden=true;el('solution').hidden=true;el('next').hidden=false;el('next').focus();}
-function celebrateAnswer(){
- if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){advance();return;}
- const layer=el('confetti'),colors=['#518aba','#60a986','#e7ad51','#b47ca5'];
- el('answer').readOnly=true;el('check').disabled=true;el('solution').hidden=true;
- for(let i=0;i<12;i++){
-  const piece=document.createElement('i'),angle=i*Math.PI/6;
-  piece.style.backgroundColor=colors[i%colors.length];
-  piece.style.setProperty('--x',Math.cos(angle)*30+'px');
-  piece.style.setProperty('--y',(Math.sin(angle)*15-8)+'px');
-  piece.style.setProperty('--spin',i*41+'deg');
+function celebrateAnswer() {
+ if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  advance();
+  return;
+ }
+ const layer = el('confetti');
+ const colors = ['#ff427c', '#00adbe', '#ffbc00', '#8653e8', '#17aa68', '#ff6740'];
+ el('answer').readOnly = true;
+ el('check').disabled = true;
+ el('solution').hidden = true;
+ for (let index = 0; index < 32; index++) {
+  const piece = document.createElement('i');
+  piece.className = ['confetti-star', 'confetti-dot', 'confetti-ribbon'][index % 3];
+  piece.style.backgroundColor = colors[index % colors.length];
+  piece.style.setProperty('--x', ((index % 8 - 3.5) * layer.clientWidth / 8) + 'px');
+  piece.style.setProperty('--y', ((Math.floor(index / 8) - 1.5) * layer.clientHeight / 4) + 'px');
+  piece.style.setProperty('--spin', (index * 41) + 'deg');
   layer.append(piece);
  }
- window.setTimeout(()=>{
-  layer.replaceChildren();el('answer').readOnly=false;el('check').disabled=false;advance();
- },480);
+ window.setTimeout(() => {
+  layer.replaceChildren();
+  el('answer').readOnly = false;
+  el('check').disabled = false;
+  advance();
+ }, 950);
 }
 function normalize(value) {
  return value.trim().toLowerCase().replaceAll('−', '-').replaceAll(',', '.').replace(/\s*\/\s*/g, '/');
@@ -115,4 +125,4 @@ function advance(){
  el('again').hidden=false;el('retry').hidden=!missed.length;el('heading').focus();
 }
 el('next').onclick=advance;
-el('start').onclick=el('again').onclick=()=>begin(round());el('retry').onclick=()=>begin(shuffle(missed));
+el('start').onclick=el('again').onclick=()=>begin(round());el('retry').onclick=()=>begin(missed);
