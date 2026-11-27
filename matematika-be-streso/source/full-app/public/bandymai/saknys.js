@@ -59,15 +59,16 @@ el('form').onsubmit=event=>{
  event.preventDefault();const q=questions[index],value=el('answer').value.trim().replace('−','-');
  if(!/^[+-]?\d+$/.test(value)){el('feedback').textContent='Įrašyk sveikąjį skaičių.';return;}
  recordAnswer(value,Number(value)===q.answer);
- if(Number(value)===q.answer){el('feedback').textContent='Teisingai! '+q.solution;finishQuestion();}
+ if(Number(value)===q.answer){el('feedback').textContent='Teisingai! '+q.solution;advance();}
  else{if(!missed.includes(q)){missed.push(q);el('attempts').append(line('p','Patarimas: '+q.hint));}el('feedback').textContent='Dar kartą pagalvok. '+q.hint;el('solution').hidden=false;el('answer').select();}
 };
 el('solution').onclick=()=>{el('feedback').textContent='Peržiūrėtas sprendimas. '+questions[index].solution;finishQuestion();};
-el('next').onclick=()=>{
+function advance(){
  keepQuestion();
  if(++index<questions.length){show();return;}
- el('heading').textContent='Testas baigtas';el('exercise').hidden=true;el('next').hidden=true;
+ el('solution').hidden=true;el('heading').textContent='Testas baigtas';el('exercise').hidden=true;el('next').hidden=true;
  el('feedback').textContent='Iš pirmo karto teisingai atlikta užduočių: '+(questions.length-missed.length)+' iš '+questions.length+'.';
  el('again').hidden=false;el('retry').hidden=!missed.length;el('heading').focus();
-};
+}
+el('next').onclick=advance;
 el('start').onclick=el('again').onclick=()=>begin(round());el('retry').onclick=()=>begin(shuffle(missed));
