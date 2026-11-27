@@ -1,0 +1,14 @@
+/* Match the homepage header logo at its three responsive sizes. */
+:is(.brand,.lesson-brand) img {
+  display: block;
+  width: 280px;
+  height: 84px;
+  object-fit: contain;
+  object-position: left center;
+}
+@media (max-width: 1000px) {
+  :is(.brand,.lesson-brand) img { width: 225px; height: 76px; }
+}
+@media (max-width: 760px) {
+  :is(.brand,.lesson-brand) img { height: 67px; }
+}

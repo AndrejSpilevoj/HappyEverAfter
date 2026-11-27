@@ -1,3 +1,4 @@
-.lesson-site-header{margin:0;background:#ffffffed;border-bottom:1px solid #d8e5ef}.lesson-site-header nav{max-width:1160px;margin:auto;padding:16px;display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px}.lesson-brand{margin-right:auto}.lesson-brand img{display:block;width:138px;max-height:58px;object-fit:contain}.lesson-site-header a:focus-visible{outline:3px solid #5285a7;outline-offset:4px}
+@import url("/site-logo.css");
+.lesson-site-header{margin:0;background:#ffffffed;border-bottom:1px solid #d8e5ef}.lesson-site-header nav{max-width:1160px;margin:auto;padding:16px;display:flex;align-items:center;flex-wrap:wrap;gap:12px 20px}.lesson-brand{margin-right:auto}.lesson-site-header a:focus-visible{outline:3px solid #5285a7;outline-offset:4px}
 
 .lesson-edit-controls{margin:.2rem 0 .7rem}.lesson-edit-controls button{font-size:1rem;padding:.25em .65em;margin-right:.45rem}.lesson-edit-controls textarea{box-sizing:border-box;width:100%;display:block;margin:.4rem 0;font:inherit;padding:.65rem;border:1px solid #9cb8cc;border-radius:8px}[data-lesson-text]{white-space:pre-wrap}[data-lesson-text][hidden]{display:none}
