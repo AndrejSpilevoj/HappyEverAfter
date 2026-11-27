@@ -5,11 +5,16 @@ function shuffle(items){
  for(let i=result.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[result[i],result[j]]=[result[j],result[i]];}
  return result;
 }
+const rotationKey = 'quiz-rotation:' + location.pathname;
+let pools;
+try { pools = JSON.parse(sessionStorage.getItem(rotationKey)); } catch {}
+if (!Array.isArray(pools) || pools.length !== 10) pools = Array.from({length:10}, () => []);
 function round() {
- const selected = Array.from({length: 10}, (_, skill) => {
-  const variants = bank.filter((_, position) => position % 10 === skill);
-  return shuffle(variants)[0];
+ const selected = pools.map((pool,skill) => {
+  if (!pool.length) pools[skill] = shuffle(bank.map((_,i)=>i).filter(i=>i%10===skill));
+  return bank[pools[skill].pop()];
  });
+ try { sessionStorage.setItem(rotationKey,JSON.stringify(pools)); } catch {}
  return selected;
 }
 const el=id=>document.getElementById(id);

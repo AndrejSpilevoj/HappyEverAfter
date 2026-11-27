@@ -1,3 +1,4 @@
+import numberSetLessons from './aibiu-pamokos.json';
 import {visitorAnalytics} from './visitor-analytics';
 import { env } from 'cloudflare:workers';
 import { googleRoute, googleTeacher, googleLogout, drivePut, driveStart, driveChunk, driveTaskFolder, driveGet, driveTrash, gmailReady, gmailSend, digest } from './google';
@@ -140,6 +141,10 @@ async function listTasks(a:Actor){
 }
 // Editable blocks are explicitly numbered in the lesson HTML.
 const lessonTextBlocks: Record<string, number> = {
+  "skaiciu-aibes": 10,
+  "skaiciu-aibes-poaibis": 10,
+  "realieji-skaiciai": 10,
+  "veiksmai-su-realiaisiais-skaiciais": 10,
   "saknys": 14,
   "kvadratine-saknis": 12,
   "kubine-saknis": 12,
@@ -218,6 +223,12 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   fail('Neteisinga užklausa.',405);
  }
  const a=await actor(req);
+ if(path[0]==='aibiu-pamoka' && method==='GET' && path.length===2){
+  if(a?.role!=='teacher')return Response.redirect(new URL('/?area=teacher',req.url),302);
+  const slug=path[1];
+  if(!Object.hasOwn(numberSetLessons,slug))fail('Pamoka nerasta.',404);
+  return new Response(numberSetLessons[slug as keyof typeof numberSetLessons],{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store'}});
+ }
  if(key==='visitor-stats'&&['GET','POST'].includes(method))return await visitorAnalytics(req,e,a?.role);
  if(key==='me')return json({user:a,emailReady:a?.role==='teacher'?await emailReady():undefined,teacherPasswordReady:a?.role==='teacher'?Boolean(await db().prepare("SELECT 1 FROM app_settings WHERE key='teacher_password'").first()):undefined});
  if(!a)fail('Prisijunk, kad atidarytum savo erdvę.',401);
