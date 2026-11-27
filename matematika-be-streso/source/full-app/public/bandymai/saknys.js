@@ -8,10 +8,10 @@ for(let i=0;i<10;i++){
   bank.push({expression,answer,hint,solution:calculation+' Taigi □ = '+answer+'.',root});
  }
  add(term(a,square)+' + '+term(b,square)+' = □'+square,a+b,square,a+' + '+b+' = '+(a+b)+'.','Pošakniai vienodi. Sudėk skaičius prieš šaknies ženklą.');
- add(term(b,cube)+' − '+term(a+1,cube)+' = □'+cube,b-a-1,cube,b+' − '+(a+1)+' = '+(b-a-1)+'.','Atkreipk dėmesį į skaičių eilę: iš pirmojo skaičiaus prieš šaknies ženklą atimk antrąjį.');
- add(term(-a,square)+' − ('+term(-b,square)+') = □'+square,b-a,square,'−'+a+' − (−'+b+') = −'+a+' + '+b+' = '+(b-a)+'.','Atimti neigiamą skaičių – tas pats, kas pridėti jam priešingą skaičių.');
+ add(term(b,cube)+' − '+term(a+1,cube)+' = □'+cube,b-a-1,cube,b+' − '+(a+1)+' = '+(b-a-1)+'.','Pradėk nuo pirmojo skaičiaus. Jei atimi didesnį skaičių, atsakymas bus neigiamas.');
+ add(term(-a,square)+' − ('+term(-b,square)+') = □'+square,b-a,square,'−'+a+' − (−'+b+') = −'+a+' + '+b+' = '+(b-a)+'.','Pažiūrėk į minusą prieš skliaustus ir minusą jų viduje. Pavyzdžiui, 6 − (−2) = 6 + 2.');
  add(term(c,cube)+' − ('+term(a,cube)+' − '+term(b,cube)+') = □'+cube,c-a+b,cube,c+' − ('+a+' − '+b+') = '+(c-a+b)+'.','Pirmiausia rask skliaustuose užrašytų skaičių skirtumą.');
- add('□'+square+' + '+term(b,square)+' = '+term(a+c,square),a+c-b,square,'Ieškome skaičiaus, kurį reikia įrašyti į langelį: '+(a+c)+' − '+b+' = '+(a+c-b)+'.','Kaip rasti nežinomą dėmenį, kai žinai sumą ir kitą dėmenį?');
+ add('□'+square+' + '+term(b,square)+' = '+term(a+c,square),a+c-b,square,'Ieškome skaičiaus, kurį reikia įrašyti į langelį: '+(a+c)+' − '+b+' = '+(a+c-b)+'.','Žinai sumą. Iš skaičiaus prieš šaknį dešinėje atimk skaičių prieš šaknį kairėje.');
 }
 function shuffle(items){
  const result=[...items];
