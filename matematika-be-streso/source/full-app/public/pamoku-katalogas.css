@@ -38,3 +38,11 @@ label{display:block}input{max-width:100%;padding:8px;border:1px solid #a9bdcf;bo
 @media(max-width:650px){.topic-grid,.plan-grid{grid-template-columns:1fr}.purchase-row{justify-content:flex-start}}
 
 .lesson-actions{display:flex;gap:12px;flex-wrap:wrap}.lessons li{padding-block:18px}.offer .action{margin-top:8px}
+
+.topic-summary{width:100%;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px 20px}
+.topic-summary>div{flex:1 1 195px}
+.topic-price{border-left:2px solid #bed8e8;padding-left:14px}
+.topic-price span,.topic-price strong{display:block}
+.topic-price strong,.catalogue-purchase strong{color:#18324c;white-space:nowrap}
+.catalogue-purchase{align-items:center;flex-wrap:wrap;gap:12px 24px}
+.catalogue-purchase p{margin:0}.catalogue-purchase strong{margin-left:6px}
