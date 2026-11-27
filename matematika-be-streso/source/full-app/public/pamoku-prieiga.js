@@ -51,7 +51,7 @@ function showPlan(plan) {
     item.add(new Option('8 klasė','8'));
   }
   function showTerms() {
-    terms.textContent = plan === 0 ? '1 € · 72 val.' : plan === 1 ? '5 € · 7 dienos' : 'Kaina dar nepaskelbta.';
+    terms.textContent = plan === 0 ? '1 € · 72 val.' : plan === 1 ? '5 € · 7 dienos' : '20 € / 3 mėn.';
   }
   item.onchange = showTerms;
   showTerms();

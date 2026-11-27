@@ -46,3 +46,7 @@ label{display:block}input{max-width:100%;padding:8px;border:1px solid #a9bdcf;bo
 .topic-price strong,.catalogue-purchase strong{color:#18324c;white-space:nowrap}
 .catalogue-purchase{align-items:center;flex-wrap:wrap;gap:12px 24px}
 .catalogue-purchase p{margin:0}.catalogue-purchase strong{margin-left:6px}
+
+.grades .card{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px 16px}
+.grade-price{padding-left:12px;border-left:2px solid #bed8e8}.grade-price b{white-space:nowrap}
+@media (min-width:401px) and (max-width:650px){.grades{grid-template-columns:1fr}}
