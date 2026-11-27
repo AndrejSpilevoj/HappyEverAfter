@@ -72,7 +72,7 @@ function celebrateAnswer() {
   el('answer').readOnly = false;
   el('check').disabled = false;
   advance();
- }, 950);
+ }, 1550);
 }
 function normalize(value) {
  return value.trim().toLowerCase().replaceAll('−', '-').replaceAll(',', '.').replace(/\s*\/\s*/g, '/');

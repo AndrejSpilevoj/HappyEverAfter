@@ -84,7 +84,7 @@ function celebrateAnswer() {
   el('answer').readOnly = false;
   el('check').disabled = false;
   advance();
- }, 950);
+ }, 1550);
 }
 el('form').onsubmit=event=>{
  event.preventDefault();if(el('check').disabled)return;const q=questions[index],value=el('answer').value.trim().replace('−','-');
