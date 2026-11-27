@@ -65,25 +65,18 @@ function celebrateAnswer() {
   return;
  }
  const layer = el('confetti');
- const colors = ['#ff427c', '#00adbe', '#ffbc00', '#8653e8', '#17aa68', '#ff6740'];
+ const sweep = document.createElement('span');
+ sweep.className = 'answer-sweep';
  el('answer').readOnly = true;
  el('check').disabled = true;
  el('solution').hidden = true;
- for (let index = 0; index < 32; index++) {
-  const piece = document.createElement('i');
-  piece.className = ['confetti-star', 'confetti-dot', 'confetti-ribbon'][index % 3];
-  piece.style.backgroundColor = colors[index % colors.length];
-  piece.style.setProperty('--x', ((index % 8 - 3.5) * layer.clientWidth / 8) + 'px');
-  piece.style.setProperty('--y', ((Math.floor(index / 8) - 1.5) * layer.clientHeight / 4) + 'px');
-  piece.style.setProperty('--spin', (index * 41) + 'deg');
-  layer.append(piece);
- }
+ layer.append(sweep);
  window.setTimeout(() => {
-  layer.replaceChildren();
+  sweep.remove();
   el('answer').readOnly = false;
   el('check').disabled = false;
   advance();
- }, 1550);
+ }, 650);
 }
 function normalize(value) {
  return value.trim().toLowerCase().replaceAll('−', '-').replaceAll(',', '.').replace(/\s*\/\s*/g, '/');
