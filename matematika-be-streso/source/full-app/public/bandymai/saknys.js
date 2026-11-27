@@ -55,11 +55,27 @@ function begin(items){
  el('exercise').hidden=false;el('again').hidden=true;el('retry').hidden=true;show();
 }
 function finishQuestion(){el('answer').disabled=true;el('check').hidden=true;el('solution').hidden=true;el('next').hidden=false;el('next').focus();}
+function celebrateAnswer(){
+ if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){advance();return;}
+ const layer=el('confetti'),colors=['#518aba','#60a986','#e7ad51','#b47ca5'];
+ el('answer').readOnly=true;el('check').disabled=true;el('solution').hidden=true;
+ for(let i=0;i<12;i++){
+  const piece=document.createElement('i'),angle=i*Math.PI/6;
+  piece.style.backgroundColor=colors[i%colors.length];
+  piece.style.setProperty('--x',Math.cos(angle)*30+'px');
+  piece.style.setProperty('--y',(Math.sin(angle)*15-8)+'px');
+  piece.style.setProperty('--spin',i*41+'deg');
+  layer.append(piece);
+ }
+ window.setTimeout(()=>{
+  layer.replaceChildren();el('answer').readOnly=false;el('check').disabled=false;advance();
+ },480);
+}
 el('form').onsubmit=event=>{
- event.preventDefault();const q=questions[index],value=el('answer').value.trim().replace('−','-');
+ event.preventDefault();if(el('check').disabled)return;const q=questions[index],value=el('answer').value.trim().replace('−','-');
  if(!/^[+-]?\d+$/.test(value)){el('feedback').textContent='Įrašyk sveikąjį skaičių.';return;}
  recordAnswer(value,Number(value)===q.answer);
- if(Number(value)===q.answer){el('feedback').textContent='Teisingai! '+q.solution;advance();}
+ if(Number(value)===q.answer){el('feedback').textContent='Teisingai! '+q.solution;celebrateAnswer();}
  else{if(!missed.includes(q)){missed.push(q);el('attempts').append(line('p','Patarimas: '+q.hint));}el('feedback').textContent='Dar kartą pagalvok. '+q.hint;el('solution').hidden=false;el('answer').select();}
 };
 el('solution').onclick=()=>{el('feedback').textContent='Peržiūrėtas sprendimas. '+questions[index].solution;finishQuestion();};
