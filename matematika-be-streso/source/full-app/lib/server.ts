@@ -138,6 +138,20 @@ async function listTasks(a:Actor){
  const q=a.role==='teacher'?db().prepare(`SELECT t.*,MIN(a.student_id) AS student_id,MIN(s.name) AS student_name,MIN(s.student_group) AS student_group,COUNT(DISTINCT a.student_id) AS recipients,(SELECT COUNT(DISTINCT student_id) FROM messages m WHERE m.task_id=t.id AND m.author='student') AS replies,(SELECT author FROM messages m WHERE m.task_id=t.id ORDER BY m.created DESC LIMIT 1) AS last_author FROM tasks t JOIN assignments a ON a.task_id=t.id JOIN students s ON s.id=a.student_id WHERE NOT EXISTS (SELECT 1 FROM app_settings hidden WHERE hidden.key='teacher_hidden_task:'||t.id) GROUP BY t.id ORDER BY t.created DESC`):db().prepare(`SELECT t.*,a.seen,(SELECT COUNT(*) FROM messages m WHERE m.task_id=t.id AND m.student_id=? AND m.author='student') AS replies,(SELECT author FROM messages m WHERE m.task_id=t.id AND m.student_id=? ORDER BY m.created DESC LIMIT 1) AS last_author FROM tasks t JOIN assignments a ON a.task_id=t.id WHERE a.student_id=? ORDER BY t.created DESC`).bind(a.id,a.id,a.id);
  return (await q.all()).results;
 }
+// Editable blocks are explicitly numbered in the lesson HTML.
+const lessonTextBlocks: Record<string, number> = {
+  "saknys": 14,
+  "kvadratine-saknis": 12,
+  "kubine-saknis": 12,
+  "iracionalieji-skaiciai": 14,
+  "saknu-palyginimas": 12,
+  "saknis-is-sandaugos": 12,
+  "saknis-is-trupmenos": 12,
+  "dauginamasis-ir-posaknis": 12,
+  "skaitiniai-reiskiniai-su-saknimis": 12,
+  "raidiniai-reiskiniai-su-saknimis": 12
+};
+
 export async function api(req:Request,path:string[]):Promise<Response>{
  try{
  const url=new URL(req.url); const method=req.method; const key=path.join('/');
@@ -178,6 +192,30 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   const result=json({ok:true},200,{'Set-Cookie':'math_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0'});
   if(teacherCookie)result.headers.append('Set-Cookie',teacherCookie);
   return result;
+ }
+ if(path[0]==='lesson-text' && (method==='GET'||method==='PUT')){
+  const [,lesson,block]=path;
+  const count=lessonTextBlocks[lesson];
+  if(!Object.hasOwn(lessonTextBlocks,lesson))fail('Pamoka nerasta.',404);
+  const setting='lesson_text:'+lesson;
+  if(method==='GET' && path.length===2){
+   const {results}=await db().prepare("SELECT key,value FROM app_settings WHERE key LIKE ?").bind(setting+':%').all<{key:string;value:string}>();
+   return json({blocks:Object.fromEntries(results.map(row=>[row.key.slice(setting.length+1),row.value]))});
+  }
+  if(method==='PUT' && path.length===3){
+   const editor=await actor(req);
+   if(editor?.role!=='teacher')fail('Redaguoti gali tik mokytojas.',403);
+   if(!/^[1-9][0-9]*$/.test(block)||Number(block)>count)fail('Teksto blokas nerastas.',404);
+   const payload=await req.text();
+   if(payload.length>16000)fail('Tekstas per ilgas.',413);
+   let data: {text?:unknown}|null;
+   try{data=JSON.parse(payload);}catch{fail('Neteisingas teksto formatas.');}
+   if(typeof data?.text!=='string'||data.text.length>4000)fail('Įrašykite iki 4000 simbolių.');
+   const value=data.text.trim();
+   await db().prepare("INSERT INTO app_settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(setting+':'+block,value).run();
+   return json({text:value});
+  }
+  fail('Neteisinga užklausa.',405);
  }
  const a=await actor(req);
  if(key==='visitor-stats'&&['GET','POST'].includes(method))return await visitorAnalytics(req,e,a?.role);
