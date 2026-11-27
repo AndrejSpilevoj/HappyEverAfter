@@ -42,7 +42,8 @@ function show(){
  el('expression').textContent=q.expression;
  el('answer').value='';el('answer').disabled=false;el('check').hidden=false;
  el('next').hidden=true;el('solution').hidden=true;el('feedback').textContent='';
- el('answer').focus();
+ el('answer').focus({preventScroll:true});
+ el('quiz').scrollIntoView({block:'start',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
 }
 function begin(items){
  if(questions.length){
@@ -52,7 +53,6 @@ function begin(items){
  }
  questions=items;index=0;missed=[];el('quiz').hidden=false;el('start').hidden=true;
  el('exercise').hidden=false;el('again').hidden=true;el('retry').hidden=true;show();
- el('quiz').scrollIntoView({block:'start'});
 }
 function finishQuestion(){el('answer').disabled=true;el('check').hidden=true;el('solution').hidden=true;el('next').hidden=false;el('next').focus();}
 el('form').onsubmit=event=>{
