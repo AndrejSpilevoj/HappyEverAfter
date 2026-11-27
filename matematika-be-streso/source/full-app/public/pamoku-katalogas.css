@@ -36,3 +36,5 @@ label{display:block}input{max-width:100%;padding:8px;border:1px solid #a9bdcf;bo
 #selection{margin-top:24px;border-top:1px solid #d5e5f1;padding-top:20px}
 #item{font:inherit;max-width:100%;width:28em;margin:8px 0 16px;padding:9px;border-radius:8px}
 @media(max-width:650px){.topic-grid,.plan-grid{grid-template-columns:1fr}.purchase-row{justify-content:flex-start}}
+
+.lesson-actions{display:flex;gap:12px;flex-wrap:wrap}.lessons li{padding-block:18px}.offer .action{margin-top:8px}

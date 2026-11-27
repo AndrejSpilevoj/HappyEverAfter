@@ -51,7 +51,7 @@ function showPlan(plan) {
     item.add(new Option('8 klasė','8'));
   }
   function showTerms() {
-    terms.textContent = plan === 0 ? '1 € · 72 val.' : plan === 1 && item.value === 'saknu' ? '5 € · 7 dienos' : 'Kaina dar nepaskelbta.';
+    terms.textContent = plan === 0 ? '1 € · 72 val.' : plan === 1 ? '5 € · 7 dienos' : 'Kaina dar nepaskelbta.';
   }
   item.onchange = showTerms;
   showTerms();
@@ -59,8 +59,13 @@ function showPlan(plan) {
 const plans = [...document.querySelectorAll('[name="plan"]')];
 plans.forEach((radio,index) => radio.addEventListener('change', () => showPlan(index)));
 const legacy = Number(params.get('pamoka'));
-if (Number.isInteger(legacy) && legacy >= 1 && legacy <= 10 && legacy !== 5) {
+if (Number.isInteger(legacy) && legacy >= 1 && legacy <= selectedTopic.lessons.length && (selectedTopic.id !== 'saknu' || legacy !== 5)) {
   plans[0].checked = true;
   showPlan(0);
-  item.value = 'saknu-' + legacy;
+  item.value = selectedTopic.id + '-' + legacy;
+}
+
+if (params.get('planas') === 'tema') {
+  plans[1].checked = true;
+  showPlan(1);
 }
