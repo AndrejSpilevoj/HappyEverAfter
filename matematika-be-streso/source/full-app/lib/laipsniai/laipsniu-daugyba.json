@@ -1,0 +1,313 @@
+{
+  "title": "Laipsnių su vienodais pagrindais daugyba",
+  "blocks": [
+    "Dvi dėžės slepia dauginamųjų grandinę. Kiek joje trejetų?",
+    "Vienoje grandinės dalyje yra 3 · 3, kitoje – 3 · 3 · 3. Jas sudūrę gauname penkis trejetus. Todėl 3² · 3³ = 3⁵.",
+    "Ką daryti su rodikliais?",
+    "Pagrindą palik, rodiklius sudėk. Jie skaičiuoja vienodus dauginamuosius. 5⁴ · 5 = 5⁴ · 5¹ = 5⁵.",
+    "Kaip rasti trūkstamą rodiklį?",
+    "Jei 7² · 7ˣ = 7⁶, pirmieji du septynetai jau yra. Iki šešių trūksta keturių, todėl x = 4. Šią taisyklę taikome, kai pagrindai vienodi."
+  ],
+  "questions": [
+    {
+      "expression": "4⁴ · 4¹ = 4^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "4 + (1) = 5."
+    },
+    {
+      "expression": "5⁵ · 5² = 5^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "5 + (2) = 7."
+    },
+    {
+      "expression": "6⁶ · 6³ = 6^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "6 + (3) = 9."
+    },
+    {
+      "expression": "4⁷ · 4^□ = 4⁸. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 7 + (1) = 8."
+    },
+    {
+      "expression": "5⁴ · 5² = 5^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "4 + (2) = 6."
+    },
+    {
+      "expression": "Ar 6⁵ · 6³ = 6⁸? (Taip arba ne)",
+      "answer": "taip",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Kairės pusės rodiklis yra 5 + (3) = 8. Palygink jį su 8."
+    },
+    {
+      "expression": "4⁶ · 4¹ = 4^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "6 + (1) = 7."
+    },
+    {
+      "expression": "5⁷ · 5^□ = 5⁹. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 7 + (2) = 9."
+    },
+    {
+      "expression": "(6⁴ · 6³) · 6² = 6^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 7. Tada 7 + 2 = 9."
+    },
+    {
+      "expression": "(4⁵ · 4¹) : 4³ = 4^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 6. Tada 6 − 3 = 3."
+    },
+    {
+      "expression": "5⁵ · 5¹ = 5^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "5 + (1) = 6."
+    },
+    {
+      "expression": "6⁶ · 6² = 6^□. Įrašyk rodiklį.",
+      "answer": "8",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "6 + (2) = 8."
+    },
+    {
+      "expression": "7⁷ · 7³ = 7^□. Įrašyk rodiklį.",
+      "answer": "10",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "7 + (3) = 10."
+    },
+    {
+      "expression": "5⁸ · 5^□ = 5⁹. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 8 + (1) = 9."
+    },
+    {
+      "expression": "6⁵ · 6² = 6^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "5 + (2) = 7."
+    },
+    {
+      "expression": "Ar 7⁶ · 7³ = 7¹⁰? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Kairės pusės rodiklis yra 6 + (3) = 9. Palygink jį su 10."
+    },
+    {
+      "expression": "5⁷ · 5¹ = 5^□. Įrašyk rodiklį.",
+      "answer": "8",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "7 + (1) = 8."
+    },
+    {
+      "expression": "6⁸ · 6^□ = 6¹⁰. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 8 + (2) = 10."
+    },
+    {
+      "expression": "(7⁵ · 7³) · 7² = 7^□. Įrašyk rodiklį.",
+      "answer": "10",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 8. Tada 8 + 2 = 10."
+    },
+    {
+      "expression": "(5⁶ · 5¹) : 5³ = 5^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 7. Tada 7 − 3 = 4."
+    },
+    {
+      "expression": "6⁶ · 6¹ = 6^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "6 + (1) = 7."
+    },
+    {
+      "expression": "7⁷ · 7² = 7^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "7 + (2) = 9."
+    },
+    {
+      "expression": "8⁸ · 8³ = 8^□. Įrašyk rodiklį.",
+      "answer": "11",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "8 + (3) = 11."
+    },
+    {
+      "expression": "6⁹ · 6^□ = 6¹⁰. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 9 + (1) = 10."
+    },
+    {
+      "expression": "7⁶ · 7² = 7^□. Įrašyk rodiklį.",
+      "answer": "8",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "6 + (2) = 8."
+    },
+    {
+      "expression": "Ar 8⁷ · 8³ = 8¹⁰? (Taip arba ne)",
+      "answer": "taip",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Kairės pusės rodiklis yra 7 + (3) = 10. Palygink jį su 10."
+    },
+    {
+      "expression": "6⁸ · 6¹ = 6^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "8 + (1) = 9."
+    },
+    {
+      "expression": "7⁹ · 7^□ = 7¹¹. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 9 + (2) = 11."
+    },
+    {
+      "expression": "(8⁶ · 8³) · 8² = 8^□. Įrašyk rodiklį.",
+      "answer": "11",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 9. Tada 9 + 2 = 11."
+    },
+    {
+      "expression": "(6⁷ · 6¹) : 6³ = 6^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 8. Tada 8 − 3 = 5."
+    },
+    {
+      "expression": "7⁷ · 7¹ = 7^□. Įrašyk rodiklį.",
+      "answer": "8",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "7 + (1) = 8."
+    },
+    {
+      "expression": "8⁸ · 8² = 8^□. Įrašyk rodiklį.",
+      "answer": "10",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "8 + (2) = 10."
+    },
+    {
+      "expression": "9⁹ · 9³ = 9^□. Įrašyk rodiklį.",
+      "answer": "12",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "9 + (3) = 12."
+    },
+    {
+      "expression": "7¹⁰ · 7^□ = 7¹¹. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 10 + (1) = 11."
+    },
+    {
+      "expression": "8⁷ · 8² = 8^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "7 + (2) = 9."
+    },
+    {
+      "expression": "Ar 9⁸ · 9³ = 9¹²? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Kairės pusės rodiklis yra 8 + (3) = 11. Palygink jį su 12."
+    },
+    {
+      "expression": "7⁹ · 7¹ = 7^□. Įrašyk rodiklį.",
+      "answer": "10",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "9 + (1) = 10."
+    },
+    {
+      "expression": "8¹⁰ · 8^□ = 8¹². Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 10 + (2) = 12."
+    },
+    {
+      "expression": "(9⁷ · 9³) · 9² = 9^□. Įrašyk rodiklį.",
+      "answer": "12",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 10. Tada 10 + 2 = 12."
+    },
+    {
+      "expression": "(7⁸ · 7¹) : 7³ = 7^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 9. Tada 9 − 3 = 6."
+    },
+    {
+      "expression": "8⁸ · 8¹ = 8^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "8 + (1) = 9."
+    },
+    {
+      "expression": "9⁹ · 9² = 9^□. Įrašyk rodiklį.",
+      "answer": "11",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "9 + (2) = 11."
+    },
+    {
+      "expression": "10¹⁰ · 10³ = 10^□. Įrašyk rodiklį.",
+      "answer": "13",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "10 + (3) = 13."
+    },
+    {
+      "expression": "8¹¹ · 8^□ = 8¹². Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 11 + (1) = 12."
+    },
+    {
+      "expression": "9⁸ · 9² = 9^□. Įrašyk rodiklį.",
+      "answer": "10",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "8 + (2) = 10."
+    },
+    {
+      "expression": "Ar 10⁹ · 10³ = 10¹²? (Taip arba ne)",
+      "answer": "taip",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Kairės pusės rodiklis yra 9 + (3) = 12. Palygink jį su 12."
+    },
+    {
+      "expression": "8¹⁰ · 8¹ = 8^□. Įrašyk rodiklį.",
+      "answer": "11",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "10 + (1) = 11."
+    },
+    {
+      "expression": "9¹¹ · 9^□ = 9¹³. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Reikia, kad 11 + (2) = 13."
+    },
+    {
+      "expression": "(10⁸ · 10³) · 10² = 10^□. Įrašyk rodiklį.",
+      "answer": "13",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 11. Tada 11 + 2 = 13."
+    },
+    {
+      "expression": "(8⁹ · 8¹) : 8³ = 8^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Daugindamas vienodus pagrindus sudėk rodiklius.",
+      "solution": "Skliaustuose rodiklis 10. Tada 10 − 3 = 7."
+    }
+  ]
+}

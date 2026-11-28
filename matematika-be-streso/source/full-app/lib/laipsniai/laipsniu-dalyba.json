@@ -1,0 +1,313 @@
+{
+  "title": "Laipsnių su vienodais pagrindais dalyba",
+  "blocks": [
+    "Kiek dvejetų liks sutrumpinus trupmeną?",
+    "Užrašyk 2⁵ : 2² trupmena. Viršuje yra penki dvejetai, apačioje du. Sutrumpink dvi poras. Viršuje liks trys dvejetai, taigi rezultatas 2³ = 8.",
+    "Kodėl atimame rodiklius?",
+    "Kiekvienas vardiklio dauginamasis panaikina vieną tokį pat skaitiklio dauginamąjį. 6⁷ : 6³ = 6⁴. Daliklis turi būti nelygus nuliui.",
+    "Jeigu daliklis neužrašytas laipsniu",
+    "9⁴ : 9 = 9⁴ : 9¹ = 9³. Jei ieškai daliklio užraše 4⁷ : 4ˣ = 4², turi pašalinti penkis ketvertus. Vadinasi, x = 5."
+  ],
+  "questions": [
+    {
+      "expression": "4⁴ : 4¹ = 4^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "4 − (1) = 3."
+    },
+    {
+      "expression": "5⁵ : 5² = 5^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "5 − (2) = 3."
+    },
+    {
+      "expression": "6⁶ : 6³ = 6^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "6 − (3) = 3."
+    },
+    {
+      "expression": "4⁷ : 4^□ = 4⁶. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 7 − (1) = 6."
+    },
+    {
+      "expression": "5⁴ : 5² = 5^□. Įrašyk rodiklį.",
+      "answer": "2",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "4 − (2) = 2."
+    },
+    {
+      "expression": "Ar 6⁵ : 6³ = 6²? (Taip arba ne)",
+      "answer": "taip",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Kairės pusės rodiklis yra 5 − (3) = 2. Palygink jį su 2."
+    },
+    {
+      "expression": "4⁶ : 4¹ = 4^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "6 − (1) = 5."
+    },
+    {
+      "expression": "5⁷ : 5^□ = 5⁵. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 7 − (2) = 5."
+    },
+    {
+      "expression": "(6⁴ : 6³) · 6² = 6^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 1. Tada 1 + 2 = 3."
+    },
+    {
+      "expression": "(4⁵ : 4¹) : 4³ = 4^□. Įrašyk rodiklį.",
+      "answer": "1",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 4. Tada 4 − 3 = 1."
+    },
+    {
+      "expression": "5⁵ : 5¹ = 5^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "5 − (1) = 4."
+    },
+    {
+      "expression": "6⁶ : 6² = 6^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "6 − (2) = 4."
+    },
+    {
+      "expression": "7⁷ : 7³ = 7^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "7 − (3) = 4."
+    },
+    {
+      "expression": "5⁸ : 5^□ = 5⁷. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 8 − (1) = 7."
+    },
+    {
+      "expression": "6⁵ : 6² = 6^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "5 − (2) = 3."
+    },
+    {
+      "expression": "Ar 7⁶ : 7³ = 7⁴? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Kairės pusės rodiklis yra 6 − (3) = 3. Palygink jį su 4."
+    },
+    {
+      "expression": "5⁷ : 5¹ = 5^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "7 − (1) = 6."
+    },
+    {
+      "expression": "6⁸ : 6^□ = 6⁶. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 8 − (2) = 6."
+    },
+    {
+      "expression": "(7⁵ : 7³) · 7² = 7^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 2. Tada 2 + 2 = 4."
+    },
+    {
+      "expression": "(5⁶ : 5¹) : 5³ = 5^□. Įrašyk rodiklį.",
+      "answer": "2",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 5. Tada 5 − 3 = 2."
+    },
+    {
+      "expression": "6⁶ : 6¹ = 6^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "6 − (1) = 5."
+    },
+    {
+      "expression": "7⁷ : 7² = 7^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "7 − (2) = 5."
+    },
+    {
+      "expression": "8⁸ : 8³ = 8^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "8 − (3) = 5."
+    },
+    {
+      "expression": "6⁹ : 6^□ = 6⁸. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 9 − (1) = 8."
+    },
+    {
+      "expression": "7⁶ : 7² = 7^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "6 − (2) = 4."
+    },
+    {
+      "expression": "Ar 8⁷ : 8³ = 8⁴? (Taip arba ne)",
+      "answer": "taip",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Kairės pusės rodiklis yra 7 − (3) = 4. Palygink jį su 4."
+    },
+    {
+      "expression": "6⁸ : 6¹ = 6^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "8 − (1) = 7."
+    },
+    {
+      "expression": "7⁹ : 7^□ = 7⁷. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 9 − (2) = 7."
+    },
+    {
+      "expression": "(8⁶ : 8³) · 8² = 8^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 3. Tada 3 + 2 = 5."
+    },
+    {
+      "expression": "(6⁷ : 6¹) : 6³ = 6^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 6. Tada 6 − 3 = 3."
+    },
+    {
+      "expression": "7⁷ : 7¹ = 7^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "7 − (1) = 6."
+    },
+    {
+      "expression": "8⁸ : 8² = 8^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "8 − (2) = 6."
+    },
+    {
+      "expression": "9⁹ : 9³ = 9^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "9 − (3) = 6."
+    },
+    {
+      "expression": "7¹⁰ : 7^□ = 7⁹. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 10 − (1) = 9."
+    },
+    {
+      "expression": "8⁷ : 8² = 8^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "7 − (2) = 5."
+    },
+    {
+      "expression": "Ar 9⁸ : 9³ = 9⁶? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Kairės pusės rodiklis yra 8 − (3) = 5. Palygink jį su 6."
+    },
+    {
+      "expression": "7⁹ : 7¹ = 7^□. Įrašyk rodiklį.",
+      "answer": "8",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "9 − (1) = 8."
+    },
+    {
+      "expression": "8¹⁰ : 8^□ = 8⁸. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 10 − (2) = 8."
+    },
+    {
+      "expression": "(9⁷ : 9³) · 9² = 9^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 4. Tada 4 + 2 = 6."
+    },
+    {
+      "expression": "(7⁸ : 7¹) : 7³ = 7^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 7. Tada 7 − 3 = 4."
+    },
+    {
+      "expression": "8⁸ : 8¹ = 8^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "8 − (1) = 7."
+    },
+    {
+      "expression": "9⁹ : 9² = 9^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "9 − (2) = 7."
+    },
+    {
+      "expression": "10¹⁰ : 10³ = 10^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "10 − (3) = 7."
+    },
+    {
+      "expression": "8¹¹ : 8^□ = 8¹⁰. Koks trūkstamas rodiklis?",
+      "answer": "1",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 11 − (1) = 10."
+    },
+    {
+      "expression": "9⁸ : 9² = 9^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "8 − (2) = 6."
+    },
+    {
+      "expression": "Ar 10⁹ : 10³ = 10⁶? (Taip arba ne)",
+      "answer": "taip",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Kairės pusės rodiklis yra 9 − (3) = 6. Palygink jį su 6."
+    },
+    {
+      "expression": "8¹⁰ : 8¹ = 8^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "10 − (1) = 9."
+    },
+    {
+      "expression": "9¹¹ : 9^□ = 9⁹. Koks trūkstamas rodiklis?",
+      "answer": "2",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Reikia, kad 11 − (2) = 9."
+    },
+    {
+      "expression": "(10⁸ : 10³) · 10² = 10^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 5. Tada 5 + 2 = 7."
+    },
+    {
+      "expression": "(8⁹ : 8¹) : 8³ = 8^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Dalydamas vienodus pagrindus atimk antrojo laipsnio rodiklį.",
+      "solution": "Skliaustuose rodiklis 8. Tada 8 − 3 = 5."
+    }
+  ]
+}

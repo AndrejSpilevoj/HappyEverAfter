@@ -1,0 +1,313 @@
+{
+  "title": "Nulinis ir neigiamas laipsnio rodiklis",
+  "blocks": [
+    "Kokį skaičių gautum žengęs dar vieną žingsnį atgal?",
+    "Eik nuo 2³ iki 2², tada iki 2¹. Reikšmės yra 8, 4, 2. Kiekviename žingsnyje daliji iš dviejų. Dar žingsnis – ir gauni 2⁰ = 1.",
+    "O kas yra už nulio?",
+    "Tęsk dalybą. 2⁻¹ = 1/2, o 2⁻² = 1/4. Neigiamas rodiklis reiškia atvirkštinį skaičių: 3⁻² = 1/3² = 1/9. Pagrindas turi būti nelygus nuliui.",
+    "Kaip apversti trupmeną?",
+    "(2/5)⁻² = (5/2)² = 25/4. Pirmiausia sukeisk skaitiklį su vardikliu, tada kelk teigiamu laipsniu. Bet kuris nenulinis skaičius su rodikliu 0 lygus 1."
+  ],
+  "questions": [
+    {
+      "expression": "2⁰ = □",
+      "answer": "1",
+      "hint": "Nenulinis skaičius nuliniu laipsniu lygus vienetui.",
+      "solution": "2 : 2 = 1."
+    },
+    {
+      "expression": "2⁻¹ = □",
+      "answer": "1/2",
+      "hint": "Apversk skaičių.",
+      "solution": "1/2¹ = 1/2."
+    },
+    {
+      "expression": "3⁻² = □",
+      "answer": "1/9",
+      "hint": "Pirmiausia apskaičiuok kvadratą.",
+      "solution": "1/(3 · 3) = 1/9."
+    },
+    {
+      "expression": "(−2)⁰ = □",
+      "answer": "1",
+      "hint": "Pagrindas nenulinis.",
+      "solution": "(−2) : (−2) = 1."
+    },
+    {
+      "expression": "(1/2)⁻¹ = □",
+      "answer": "2",
+      "hint": "Sukeisk skaitiklį ir vardiklį.",
+      "solution": "2/1 = 2."
+    },
+    {
+      "expression": "(−3)⁻¹ = □",
+      "answer": "-1/3",
+      "hint": "Atvirkštinis neigiamas skaičius lieka neigiamas.",
+      "solution": "1/(−3) = -1/3."
+    },
+    {
+      "expression": "(1/3)⁻³ = □",
+      "answer": "27",
+      "hint": "Apversk trupmeną ir kelk kubu.",
+      "solution": "3 · 3 · 3 = 27."
+    },
+    {
+      "expression": "2⁻² · 4 = □",
+      "answer": "1",
+      "hint": "Užrašyk neigiamą laipsnį trupmena.",
+      "solution": "4/4 = 1."
+    },
+    {
+      "expression": "(2/6)⁻² = □",
+      "answer": "9",
+      "hint": "Suprastink iki vienetinės trupmenos, tada apversk.",
+      "solution": "3² = 9."
+    },
+    {
+      "expression": "2⁰ + 2⁻¹ = □",
+      "answer": "3/2",
+      "hint": "Vienetą užrašyk trupmena tuo pačiu vardikliu.",
+      "solution": "(2 + 1)/2 = 3/2."
+    },
+    {
+      "expression": "3⁰ = □",
+      "answer": "1",
+      "hint": "Nenulinis skaičius nuliniu laipsniu lygus vienetui.",
+      "solution": "3 : 3 = 1."
+    },
+    {
+      "expression": "3⁻¹ = □",
+      "answer": "1/3",
+      "hint": "Apversk skaičių.",
+      "solution": "1/3¹ = 1/3."
+    },
+    {
+      "expression": "4⁻² = □",
+      "answer": "1/16",
+      "hint": "Pirmiausia apskaičiuok kvadratą.",
+      "solution": "1/(4 · 4) = 1/16."
+    },
+    {
+      "expression": "(−3)⁰ = □",
+      "answer": "1",
+      "hint": "Pagrindas nenulinis.",
+      "solution": "(−3) : (−3) = 1."
+    },
+    {
+      "expression": "(1/3)⁻¹ = □",
+      "answer": "3",
+      "hint": "Sukeisk skaitiklį ir vardiklį.",
+      "solution": "3/1 = 3."
+    },
+    {
+      "expression": "(−4)⁻¹ = □",
+      "answer": "-1/4",
+      "hint": "Atvirkštinis neigiamas skaičius lieka neigiamas.",
+      "solution": "1/(−4) = -1/4."
+    },
+    {
+      "expression": "(1/4)⁻³ = □",
+      "answer": "64",
+      "hint": "Apversk trupmeną ir kelk kubu.",
+      "solution": "4 · 4 · 4 = 64."
+    },
+    {
+      "expression": "3⁻² · 9 = □",
+      "answer": "1",
+      "hint": "Užrašyk neigiamą laipsnį trupmena.",
+      "solution": "9/9 = 1."
+    },
+    {
+      "expression": "(2/8)⁻² = □",
+      "answer": "16",
+      "hint": "Suprastink iki vienetinės trupmenos, tada apversk.",
+      "solution": "4² = 16."
+    },
+    {
+      "expression": "3⁰ + 3⁻¹ = □",
+      "answer": "4/3",
+      "hint": "Vienetą užrašyk trupmena tuo pačiu vardikliu.",
+      "solution": "(3 + 1)/3 = 4/3."
+    },
+    {
+      "expression": "4⁰ = □",
+      "answer": "1",
+      "hint": "Nenulinis skaičius nuliniu laipsniu lygus vienetui.",
+      "solution": "4 : 4 = 1."
+    },
+    {
+      "expression": "4⁻¹ = □",
+      "answer": "1/4",
+      "hint": "Apversk skaičių.",
+      "solution": "1/4¹ = 1/4."
+    },
+    {
+      "expression": "5⁻² = □",
+      "answer": "1/25",
+      "hint": "Pirmiausia apskaičiuok kvadratą.",
+      "solution": "1/(5 · 5) = 1/25."
+    },
+    {
+      "expression": "(−4)⁰ = □",
+      "answer": "1",
+      "hint": "Pagrindas nenulinis.",
+      "solution": "(−4) : (−4) = 1."
+    },
+    {
+      "expression": "(1/4)⁻¹ = □",
+      "answer": "4",
+      "hint": "Sukeisk skaitiklį ir vardiklį.",
+      "solution": "4/1 = 4."
+    },
+    {
+      "expression": "(−5)⁻¹ = □",
+      "answer": "-1/5",
+      "hint": "Atvirkštinis neigiamas skaičius lieka neigiamas.",
+      "solution": "1/(−5) = -1/5."
+    },
+    {
+      "expression": "(1/5)⁻³ = □",
+      "answer": "125",
+      "hint": "Apversk trupmeną ir kelk kubu.",
+      "solution": "5 · 5 · 5 = 125."
+    },
+    {
+      "expression": "4⁻² · 16 = □",
+      "answer": "1",
+      "hint": "Užrašyk neigiamą laipsnį trupmena.",
+      "solution": "16/16 = 1."
+    },
+    {
+      "expression": "(2/10)⁻² = □",
+      "answer": "25",
+      "hint": "Suprastink iki vienetinės trupmenos, tada apversk.",
+      "solution": "5² = 25."
+    },
+    {
+      "expression": "4⁰ + 4⁻¹ = □",
+      "answer": "5/4",
+      "hint": "Vienetą užrašyk trupmena tuo pačiu vardikliu.",
+      "solution": "(4 + 1)/4 = 5/4."
+    },
+    {
+      "expression": "5⁰ = □",
+      "answer": "1",
+      "hint": "Nenulinis skaičius nuliniu laipsniu lygus vienetui.",
+      "solution": "5 : 5 = 1."
+    },
+    {
+      "expression": "5⁻¹ = □",
+      "answer": "1/5",
+      "hint": "Apversk skaičių.",
+      "solution": "1/5¹ = 1/5."
+    },
+    {
+      "expression": "6⁻² = □",
+      "answer": "1/36",
+      "hint": "Pirmiausia apskaičiuok kvadratą.",
+      "solution": "1/(6 · 6) = 1/36."
+    },
+    {
+      "expression": "(−5)⁰ = □",
+      "answer": "1",
+      "hint": "Pagrindas nenulinis.",
+      "solution": "(−5) : (−5) = 1."
+    },
+    {
+      "expression": "(1/5)⁻¹ = □",
+      "answer": "5",
+      "hint": "Sukeisk skaitiklį ir vardiklį.",
+      "solution": "5/1 = 5."
+    },
+    {
+      "expression": "(−6)⁻¹ = □",
+      "answer": "-1/6",
+      "hint": "Atvirkštinis neigiamas skaičius lieka neigiamas.",
+      "solution": "1/(−6) = -1/6."
+    },
+    {
+      "expression": "(1/6)⁻³ = □",
+      "answer": "216",
+      "hint": "Apversk trupmeną ir kelk kubu.",
+      "solution": "6 · 6 · 6 = 216."
+    },
+    {
+      "expression": "5⁻² · 25 = □",
+      "answer": "1",
+      "hint": "Užrašyk neigiamą laipsnį trupmena.",
+      "solution": "25/25 = 1."
+    },
+    {
+      "expression": "(2/12)⁻² = □",
+      "answer": "36",
+      "hint": "Suprastink iki vienetinės trupmenos, tada apversk.",
+      "solution": "6² = 36."
+    },
+    {
+      "expression": "5⁰ + 5⁻¹ = □",
+      "answer": "6/5",
+      "hint": "Vienetą užrašyk trupmena tuo pačiu vardikliu.",
+      "solution": "(5 + 1)/5 = 6/5."
+    },
+    {
+      "expression": "6⁰ = □",
+      "answer": "1",
+      "hint": "Nenulinis skaičius nuliniu laipsniu lygus vienetui.",
+      "solution": "6 : 6 = 1."
+    },
+    {
+      "expression": "6⁻¹ = □",
+      "answer": "1/6",
+      "hint": "Apversk skaičių.",
+      "solution": "1/6¹ = 1/6."
+    },
+    {
+      "expression": "7⁻² = □",
+      "answer": "1/49",
+      "hint": "Pirmiausia apskaičiuok kvadratą.",
+      "solution": "1/(7 · 7) = 1/49."
+    },
+    {
+      "expression": "(−6)⁰ = □",
+      "answer": "1",
+      "hint": "Pagrindas nenulinis.",
+      "solution": "(−6) : (−6) = 1."
+    },
+    {
+      "expression": "(1/6)⁻¹ = □",
+      "answer": "6",
+      "hint": "Sukeisk skaitiklį ir vardiklį.",
+      "solution": "6/1 = 6."
+    },
+    {
+      "expression": "(−7)⁻¹ = □",
+      "answer": "-1/7",
+      "hint": "Atvirkštinis neigiamas skaičius lieka neigiamas.",
+      "solution": "1/(−7) = -1/7."
+    },
+    {
+      "expression": "(1/7)⁻³ = □",
+      "answer": "343",
+      "hint": "Apversk trupmeną ir kelk kubu.",
+      "solution": "7 · 7 · 7 = 343."
+    },
+    {
+      "expression": "6⁻² · 36 = □",
+      "answer": "1",
+      "hint": "Užrašyk neigiamą laipsnį trupmena.",
+      "solution": "36/36 = 1."
+    },
+    {
+      "expression": "(2/14)⁻² = □",
+      "answer": "49",
+      "hint": "Suprastink iki vienetinės trupmenos, tada apversk.",
+      "solution": "7² = 49."
+    },
+    {
+      "expression": "6⁰ + 6⁻¹ = □",
+      "answer": "7/6",
+      "hint": "Vienetą užrašyk trupmena tuo pačiu vardikliu.",
+      "solution": "(6 + 1)/6 = 7/6."
+    }
+  ]
+}

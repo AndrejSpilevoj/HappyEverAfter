@@ -1,3 +1,4 @@
+import {powersLessons, renderPowersLesson} from './laipsniu-pamokos';
 import numberSetLessons from './aibiu-pamokos.json';
 import {visitorAnalytics} from './visitor-analytics';
 import { env } from 'cloudflare:workers';
@@ -145,6 +146,7 @@ const lessonTextBlocks: Record<string, number> = {
   "skaiciu-aibes-poaibis": 10,
   "realieji-skaiciai": 10,
   "veiksmai-su-realiaisiais-skaiciais": 10,
+  ...Object.fromEntries(Object.entries(powersLessons).map(([slug, lesson]) => [slug, lesson.blocks.length])),
   "saknys": 14,
   "kvadratine-saknis": 12,
   "kubine-saknis": 12,
@@ -223,6 +225,12 @@ export async function api(req:Request,path:string[]):Promise<Response>{
   fail('Neteisinga užklausa.',405);
  }
  const a=await actor(req);
+ if(path[0]==='laipsniu-pamoka' && method==='GET' && path.length===2){
+  if(a?.role!=='teacher')return Response.redirect(new URL('/?area=teacher',req.url),302);
+  const slug=path[1];
+  if(!Object.hasOwn(powersLessons,slug))fail('Pamoka nerasta.',404);
+  return new Response(renderPowersLesson(slug as keyof typeof powersLessons),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'private, no-store'}});
+ }
  if(path[0]==='aibiu-pamoka' && method==='GET' && path.length===2){
   if(a?.role!=='teacher')return Response.redirect(new URL('/?area=teacher',req.url),302);
   const slug=path[1];

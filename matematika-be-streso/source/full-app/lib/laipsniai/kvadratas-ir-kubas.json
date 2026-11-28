@@ -1,0 +1,313 @@
+{
+  "title": "Skaičiaus kvadratas ir kubas",
+  "blocks": [
+    "Kiek mažų plytelių telpa kvadrate?",
+    "Sudėk 3 eiles po 3 plyteles. Iš viso turėsi 9. Trumpai rašome 3² = 3 · 3 = 9. Skaičių 9 vadiname trejeto kvadratu.",
+    "O jei sudėtum tris tokius sluoksnius?",
+    "Viename sluoksnyje yra 9 kubeliai. Trijuose sluoksniuose jų bus 27. Rašome 3³ = 3 · 3 · 3 = 27. Tai trejeto kubas.",
+    "Kas nutinka minusui?",
+    "(−2)² = (−2) · (−2) = 4. Keliant kubu dar kartą dauginame iš −2, todėl (−2)³ = −8. Užraše −2² minusas yra prieš visą laipsnį, todėl gauname −4."
+  ],
+  "questions": [
+    {
+      "expression": "2² = □",
+      "answer": "4",
+      "hint": "Padaugink skaičių iš jo paties.",
+      "solution": "2 · 2 = 4."
+    },
+    {
+      "expression": "3³ = □",
+      "answer": "27",
+      "hint": "Paimk tris vienodus dauginamuosius.",
+      "solution": "3 · 3 · 3 = 27."
+    },
+    {
+      "expression": "(−4)² = □",
+      "answer": "16",
+      "hint": "Du neigiami dauginamieji duoda teigiamą sandaugą.",
+      "solution": "(−4) · (−4) = 16."
+    },
+    {
+      "expression": "(−2)³ = □",
+      "answer": "-8",
+      "hint": "Pirmiausia rask kvadratą, tada dar kartą daugink iš neigiamo pagrindo.",
+      "solution": "4 · (−2) = -8."
+    },
+    {
+      "expression": "−3² = □",
+      "answer": "-9",
+      "hint": "Pirma kelk kvadratu, tada rašyk minusą.",
+      "solution": "−(3 · 3) = -9."
+    },
+    {
+      "expression": "(0,2)² = □",
+      "answer": "0,04",
+      "hint": "Dešimtąsias daugink kaip trupmenas.",
+      "solution": "4/100 = 0,04."
+    },
+    {
+      "expression": "3² − 2² = □",
+      "answer": "5",
+      "hint": "Pirma apskaičiuok abu kvadratus.",
+      "solution": "9 − 4 = 5."
+    },
+    {
+      "expression": "2³ + (−3)² = □",
+      "answer": "17",
+      "hint": "Atskirai rask kubą ir kvadratą.",
+      "solution": "8 + 9 = 17."
+    },
+    {
+      "expression": "Kvadratinės lentos plotas 16 dm². Koks jos kraštinės ilgis decimetrais?",
+      "answer": "4",
+      "hint": "Ieškok dviejų vienodų dauginamųjų.",
+      "solution": "4 · 4 = 16, todėl kraštinė 4 dm."
+    },
+    {
+      "expression": "Iš kubo, kurio kiekvienoje briaunoje telpa po 3 kubelius, nuimtas visas viršutinis sluoksnis. Kiek kubelių liko?",
+      "answer": "18",
+      "hint": "Kiek kubelių sluoksnyje ir kiek liko sluoksnių?",
+      "solution": "Liko 2 sluoksniai po 9. Iš viso 18."
+    },
+    {
+      "expression": "3² = □",
+      "answer": "9",
+      "hint": "Padaugink skaičių iš jo paties.",
+      "solution": "3 · 3 = 9."
+    },
+    {
+      "expression": "4³ = □",
+      "answer": "64",
+      "hint": "Paimk tris vienodus dauginamuosius.",
+      "solution": "4 · 4 · 4 = 64."
+    },
+    {
+      "expression": "(−5)² = □",
+      "answer": "25",
+      "hint": "Du neigiami dauginamieji duoda teigiamą sandaugą.",
+      "solution": "(−5) · (−5) = 25."
+    },
+    {
+      "expression": "(−3)³ = □",
+      "answer": "-27",
+      "hint": "Pirmiausia rask kvadratą, tada dar kartą daugink iš neigiamo pagrindo.",
+      "solution": "9 · (−3) = -27."
+    },
+    {
+      "expression": "−4² = □",
+      "answer": "-16",
+      "hint": "Pirma kelk kvadratu, tada rašyk minusą.",
+      "solution": "−(4 · 4) = -16."
+    },
+    {
+      "expression": "(0,3)² = □",
+      "answer": "0,09",
+      "hint": "Dešimtąsias daugink kaip trupmenas.",
+      "solution": "9/100 = 0,09."
+    },
+    {
+      "expression": "4² − 3² = □",
+      "answer": "7",
+      "hint": "Pirma apskaičiuok abu kvadratus.",
+      "solution": "16 − 9 = 7."
+    },
+    {
+      "expression": "3³ + (−4)² = □",
+      "answer": "43",
+      "hint": "Atskirai rask kubą ir kvadratą.",
+      "solution": "27 + 16 = 43."
+    },
+    {
+      "expression": "Kvadratinės lentos plotas 25 dm². Koks jos kraštinės ilgis decimetrais?",
+      "answer": "5",
+      "hint": "Ieškok dviejų vienodų dauginamųjų.",
+      "solution": "5 · 5 = 25, todėl kraštinė 5 dm."
+    },
+    {
+      "expression": "Iš kubo, kurio kiekvienoje briaunoje telpa po 4 kubelius, nuimtas visas viršutinis sluoksnis. Kiek kubelių liko?",
+      "answer": "48",
+      "hint": "Kiek kubelių sluoksnyje ir kiek liko sluoksnių?",
+      "solution": "Liko 3 sluoksniai po 16. Iš viso 48."
+    },
+    {
+      "expression": "4² = □",
+      "answer": "16",
+      "hint": "Padaugink skaičių iš jo paties.",
+      "solution": "4 · 4 = 16."
+    },
+    {
+      "expression": "5³ = □",
+      "answer": "125",
+      "hint": "Paimk tris vienodus dauginamuosius.",
+      "solution": "5 · 5 · 5 = 125."
+    },
+    {
+      "expression": "(−6)² = □",
+      "answer": "36",
+      "hint": "Du neigiami dauginamieji duoda teigiamą sandaugą.",
+      "solution": "(−6) · (−6) = 36."
+    },
+    {
+      "expression": "(−4)³ = □",
+      "answer": "-64",
+      "hint": "Pirmiausia rask kvadratą, tada dar kartą daugink iš neigiamo pagrindo.",
+      "solution": "16 · (−4) = -64."
+    },
+    {
+      "expression": "−5² = □",
+      "answer": "-25",
+      "hint": "Pirma kelk kvadratu, tada rašyk minusą.",
+      "solution": "−(5 · 5) = -25."
+    },
+    {
+      "expression": "(0,4)² = □",
+      "answer": "0,16",
+      "hint": "Dešimtąsias daugink kaip trupmenas.",
+      "solution": "16/100 = 0,16."
+    },
+    {
+      "expression": "5² − 4² = □",
+      "answer": "9",
+      "hint": "Pirma apskaičiuok abu kvadratus.",
+      "solution": "25 − 16 = 9."
+    },
+    {
+      "expression": "4³ + (−5)² = □",
+      "answer": "89",
+      "hint": "Atskirai rask kubą ir kvadratą.",
+      "solution": "64 + 25 = 89."
+    },
+    {
+      "expression": "Kvadratinės lentos plotas 36 dm². Koks jos kraštinės ilgis decimetrais?",
+      "answer": "6",
+      "hint": "Ieškok dviejų vienodų dauginamųjų.",
+      "solution": "6 · 6 = 36, todėl kraštinė 6 dm."
+    },
+    {
+      "expression": "Iš kubo, kurio kiekvienoje briaunoje telpa po 5 kubelius, nuimtas visas viršutinis sluoksnis. Kiek kubelių liko?",
+      "answer": "100",
+      "hint": "Kiek kubelių sluoksnyje ir kiek liko sluoksnių?",
+      "solution": "Liko 4 sluoksniai po 25. Iš viso 100."
+    },
+    {
+      "expression": "5² = □",
+      "answer": "25",
+      "hint": "Padaugink skaičių iš jo paties.",
+      "solution": "5 · 5 = 25."
+    },
+    {
+      "expression": "6³ = □",
+      "answer": "216",
+      "hint": "Paimk tris vienodus dauginamuosius.",
+      "solution": "6 · 6 · 6 = 216."
+    },
+    {
+      "expression": "(−7)² = □",
+      "answer": "49",
+      "hint": "Du neigiami dauginamieji duoda teigiamą sandaugą.",
+      "solution": "(−7) · (−7) = 49."
+    },
+    {
+      "expression": "(−5)³ = □",
+      "answer": "-125",
+      "hint": "Pirmiausia rask kvadratą, tada dar kartą daugink iš neigiamo pagrindo.",
+      "solution": "25 · (−5) = -125."
+    },
+    {
+      "expression": "−6² = □",
+      "answer": "-36",
+      "hint": "Pirma kelk kvadratu, tada rašyk minusą.",
+      "solution": "−(6 · 6) = -36."
+    },
+    {
+      "expression": "(0,5)² = □",
+      "answer": "0,25",
+      "hint": "Dešimtąsias daugink kaip trupmenas.",
+      "solution": "25/100 = 0,25."
+    },
+    {
+      "expression": "6² − 5² = □",
+      "answer": "11",
+      "hint": "Pirma apskaičiuok abu kvadratus.",
+      "solution": "36 − 25 = 11."
+    },
+    {
+      "expression": "5³ + (−6)² = □",
+      "answer": "161",
+      "hint": "Atskirai rask kubą ir kvadratą.",
+      "solution": "125 + 36 = 161."
+    },
+    {
+      "expression": "Kvadratinės lentos plotas 49 dm². Koks jos kraštinės ilgis decimetrais?",
+      "answer": "7",
+      "hint": "Ieškok dviejų vienodų dauginamųjų.",
+      "solution": "7 · 7 = 49, todėl kraštinė 7 dm."
+    },
+    {
+      "expression": "Iš kubo, kurio kiekvienoje briaunoje telpa po 6 kubelius, nuimtas visas viršutinis sluoksnis. Kiek kubelių liko?",
+      "answer": "180",
+      "hint": "Kiek kubelių sluoksnyje ir kiek liko sluoksnių?",
+      "solution": "Liko 5 sluoksniai po 36. Iš viso 180."
+    },
+    {
+      "expression": "6² = □",
+      "answer": "36",
+      "hint": "Padaugink skaičių iš jo paties.",
+      "solution": "6 · 6 = 36."
+    },
+    {
+      "expression": "7³ = □",
+      "answer": "343",
+      "hint": "Paimk tris vienodus dauginamuosius.",
+      "solution": "7 · 7 · 7 = 343."
+    },
+    {
+      "expression": "(−8)² = □",
+      "answer": "64",
+      "hint": "Du neigiami dauginamieji duoda teigiamą sandaugą.",
+      "solution": "(−8) · (−8) = 64."
+    },
+    {
+      "expression": "(−6)³ = □",
+      "answer": "-216",
+      "hint": "Pirmiausia rask kvadratą, tada dar kartą daugink iš neigiamo pagrindo.",
+      "solution": "36 · (−6) = -216."
+    },
+    {
+      "expression": "−7² = □",
+      "answer": "-49",
+      "hint": "Pirma kelk kvadratu, tada rašyk minusą.",
+      "solution": "−(7 · 7) = -49."
+    },
+    {
+      "expression": "(0,6)² = □",
+      "answer": "0,36",
+      "hint": "Dešimtąsias daugink kaip trupmenas.",
+      "solution": "36/100 = 0,36."
+    },
+    {
+      "expression": "7² − 6² = □",
+      "answer": "13",
+      "hint": "Pirma apskaičiuok abu kvadratus.",
+      "solution": "49 − 36 = 13."
+    },
+    {
+      "expression": "6³ + (−7)² = □",
+      "answer": "265",
+      "hint": "Atskirai rask kubą ir kvadratą.",
+      "solution": "216 + 49 = 265."
+    },
+    {
+      "expression": "Kvadratinės lentos plotas 64 dm². Koks jos kraštinės ilgis decimetrais?",
+      "answer": "8",
+      "hint": "Ieškok dviejų vienodų dauginamųjų.",
+      "solution": "8 · 8 = 64, todėl kraštinė 8 dm."
+    },
+    {
+      "expression": "Iš kubo, kurio kiekvienoje briaunoje telpa po 7 kubelius, nuimtas visas viršutinis sluoksnis. Kiek kubelių liko?",
+      "answer": "294",
+      "hint": "Kiek kubelių sluoksnyje ir kiek liko sluoksnių?",
+      "solution": "Liko 6 sluoksniai po 49. Iš viso 294."
+    }
+  ]
+}

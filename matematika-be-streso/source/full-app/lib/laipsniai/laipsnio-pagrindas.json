@@ -1,0 +1,313 @@
+{
+  "title": "Laipsnis su natūraliuoju rodikliu",
+  "blocks": [
+    "Kas nutiktų, jei popieriaus lapą keturis kartus perlenktum pusiau?",
+    "Po vieno lenkimo turi 2 sluoksnius. Po antro – 4, po trečio – 8, po ketvirto – 16. Kaskart daugini iš 2.",
+    "Kaip perskaityti 2⁴?",
+    "Pagrindas 2 pasako, kokį skaičių kartojame. Rodiklis 4 pasako, kiek dvejetų yra sandaugoje. 2⁴ = 2 · 2 · 2 · 2 = 16. Užrašas 7¹ reiškia vieną septynetą.",
+    "Kaip sužinoti ženklą?",
+    "Neigiamus dauginamuosius poruok. Kiekvienos poros sandauga teigiama. (−2)⁴ = 16. Pridėjus dar vieną neigiamą dauginamąjį ženklas pasikeičia, todėl (−2)⁵ = −32."
+  ],
+  "questions": [
+    {
+      "expression": "Koks laipsnio 4³ pagrindas?",
+      "answer": "4",
+      "hint": "Kuris skaičius būtų kartojamas sandaugoje?",
+      "solution": "Didysis skaičius 4 yra pagrindas."
+    },
+    {
+      "expression": "Koks laipsnio 2⁴ rodiklis?",
+      "answer": "4",
+      "hint": "Pažiūrėk į mažą skaičių viršuje.",
+      "solution": "Rodiklis 4 nurodo dauginamųjų skaičių."
+    },
+    {
+      "expression": "2 · 2 · 2 = 2^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Suskaičiuok dauginamuosius.",
+      "solution": "2 + 1 = 3."
+    },
+    {
+      "expression": "4¹ = □",
+      "answer": "4",
+      "hint": "Rodiklis 1 reiškia vieną dauginamąjį.",
+      "solution": "1 · 4 = 4."
+    },
+    {
+      "expression": "2³ = □",
+      "answer": "8",
+      "hint": "Pradėk nuo 1 ir kiekviename žingsnyje dvigubink.",
+      "solution": "4 · 2 = 8."
+    },
+    {
+      "expression": "(−2)² = □",
+      "answer": "4",
+      "hint": "Suskaičiuok minusų poras.",
+      "solution": "-2 · (−2) = 4."
+    },
+    {
+      "expression": "(1/2)³ = □",
+      "answer": "1/8",
+      "hint": "Kubą apskaičiuok skaitiklyje ir vardiklyje.",
+      "solution": "1/(2 · 2 · 2) = 1/8."
+    },
+    {
+      "expression": "27 = 3^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Pradėk nuo 1 ir daugink iš 3, kol pasieksi duotą skaičių.",
+      "solution": "27 = 3 · 3 · 3; iš viso 3 dauginamieji."
+    },
+    {
+      "expression": "Žaidime pradedi su 2 taškais. Keturis kartus iš eilės taškai padvigubėja. Kiek jų turi?",
+      "answer": "32",
+      "hint": "Dvigubėjimas reiškia daugybą iš 2.",
+      "solution": "2 · 2⁴ = 2 · 16 = 32."
+    },
+    {
+      "expression": "−2³ + 2 = □",
+      "answer": "-6",
+      "hint": "Pirma kelk laipsniu, tada pritaikyk minusą.",
+      "solution": "−8 + 2 = -6."
+    },
+    {
+      "expression": "Koks laipsnio 5⁴ pagrindas?",
+      "answer": "5",
+      "hint": "Kuris skaičius būtų kartojamas sandaugoje?",
+      "solution": "Didysis skaičius 5 yra pagrindas."
+    },
+    {
+      "expression": "Koks laipsnio 3⁵ rodiklis?",
+      "answer": "5",
+      "hint": "Pažiūrėk į mažą skaičių viršuje.",
+      "solution": "Rodiklis 5 nurodo dauginamųjų skaičių."
+    },
+    {
+      "expression": "3 · 3 · 3 · 3 = 3^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Suskaičiuok dauginamuosius.",
+      "solution": "3 + 1 = 4."
+    },
+    {
+      "expression": "5¹ = □",
+      "answer": "5",
+      "hint": "Rodiklis 1 reiškia vieną dauginamąjį.",
+      "solution": "1 · 5 = 5."
+    },
+    {
+      "expression": "2⁴ = □",
+      "answer": "16",
+      "hint": "Pradėk nuo 1 ir kiekviename žingsnyje dvigubink.",
+      "solution": "8 · 2 = 16."
+    },
+    {
+      "expression": "(−2)³ = □",
+      "answer": "-8",
+      "hint": "Suskaičiuok minusų poras.",
+      "solution": "4 · (−2) = -8."
+    },
+    {
+      "expression": "(1/3)³ = □",
+      "answer": "1/27",
+      "hint": "Kubą apskaičiuok skaitiklyje ir vardiklyje.",
+      "solution": "1/(3 · 3 · 3) = 1/27."
+    },
+    {
+      "expression": "81 = 3^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Pradėk nuo 1 ir daugink iš 3, kol pasieksi duotą skaičių.",
+      "solution": "81 = 3 · 3 · 3 · 3; iš viso 4 dauginamieji."
+    },
+    {
+      "expression": "Žaidime pradedi su 3 taškais. Keturis kartus iš eilės taškai padvigubėja. Kiek jų turi?",
+      "answer": "48",
+      "hint": "Dvigubėjimas reiškia daugybą iš 2.",
+      "solution": "3 · 2⁴ = 3 · 16 = 48."
+    },
+    {
+      "expression": "−2⁴ + 3 = □",
+      "answer": "-13",
+      "hint": "Pirma kelk laipsniu, tada pritaikyk minusą.",
+      "solution": "−16 + 3 = -13."
+    },
+    {
+      "expression": "Koks laipsnio 6⁵ pagrindas?",
+      "answer": "6",
+      "hint": "Kuris skaičius būtų kartojamas sandaugoje?",
+      "solution": "Didysis skaičius 6 yra pagrindas."
+    },
+    {
+      "expression": "Koks laipsnio 4⁶ rodiklis?",
+      "answer": "6",
+      "hint": "Pažiūrėk į mažą skaičių viršuje.",
+      "solution": "Rodiklis 6 nurodo dauginamųjų skaičių."
+    },
+    {
+      "expression": "4 · 4 · 4 · 4 · 4 = 4^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Suskaičiuok dauginamuosius.",
+      "solution": "4 + 1 = 5."
+    },
+    {
+      "expression": "6¹ = □",
+      "answer": "6",
+      "hint": "Rodiklis 1 reiškia vieną dauginamąjį.",
+      "solution": "1 · 6 = 6."
+    },
+    {
+      "expression": "2⁵ = □",
+      "answer": "32",
+      "hint": "Pradėk nuo 1 ir kiekviename žingsnyje dvigubink.",
+      "solution": "16 · 2 = 32."
+    },
+    {
+      "expression": "(−2)⁴ = □",
+      "answer": "16",
+      "hint": "Suskaičiuok minusų poras.",
+      "solution": "-8 · (−2) = 16."
+    },
+    {
+      "expression": "(1/4)³ = □",
+      "answer": "1/64",
+      "hint": "Kubą apskaičiuok skaitiklyje ir vardiklyje.",
+      "solution": "1/(4 · 4 · 4) = 1/64."
+    },
+    {
+      "expression": "243 = 3^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Pradėk nuo 1 ir daugink iš 3, kol pasieksi duotą skaičių.",
+      "solution": "243 = 3 · 3 · 3 · 3 · 3; iš viso 5 dauginamieji."
+    },
+    {
+      "expression": "Žaidime pradedi su 4 taškais. Keturis kartus iš eilės taškai padvigubėja. Kiek jų turi?",
+      "answer": "64",
+      "hint": "Dvigubėjimas reiškia daugybą iš 2.",
+      "solution": "4 · 2⁴ = 4 · 16 = 64."
+    },
+    {
+      "expression": "−2⁵ + 4 = □",
+      "answer": "-28",
+      "hint": "Pirma kelk laipsniu, tada pritaikyk minusą.",
+      "solution": "−32 + 4 = -28."
+    },
+    {
+      "expression": "Koks laipsnio 7⁶ pagrindas?",
+      "answer": "7",
+      "hint": "Kuris skaičius būtų kartojamas sandaugoje?",
+      "solution": "Didysis skaičius 7 yra pagrindas."
+    },
+    {
+      "expression": "Koks laipsnio 5⁷ rodiklis?",
+      "answer": "7",
+      "hint": "Pažiūrėk į mažą skaičių viršuje.",
+      "solution": "Rodiklis 7 nurodo dauginamųjų skaičių."
+    },
+    {
+      "expression": "5 · 5 · 5 · 5 · 5 · 5 = 5^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Suskaičiuok dauginamuosius.",
+      "solution": "5 + 1 = 6."
+    },
+    {
+      "expression": "7¹ = □",
+      "answer": "7",
+      "hint": "Rodiklis 1 reiškia vieną dauginamąjį.",
+      "solution": "1 · 7 = 7."
+    },
+    {
+      "expression": "2⁶ = □",
+      "answer": "64",
+      "hint": "Pradėk nuo 1 ir kiekviename žingsnyje dvigubink.",
+      "solution": "32 · 2 = 64."
+    },
+    {
+      "expression": "(−2)⁵ = □",
+      "answer": "-32",
+      "hint": "Suskaičiuok minusų poras.",
+      "solution": "16 · (−2) = -32."
+    },
+    {
+      "expression": "(1/5)³ = □",
+      "answer": "1/125",
+      "hint": "Kubą apskaičiuok skaitiklyje ir vardiklyje.",
+      "solution": "1/(5 · 5 · 5) = 1/125."
+    },
+    {
+      "expression": "729 = 3^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Pradėk nuo 1 ir daugink iš 3, kol pasieksi duotą skaičių.",
+      "solution": "729 = 3 · 3 · 3 · 3 · 3 · 3; iš viso 6 dauginamieji."
+    },
+    {
+      "expression": "Žaidime pradedi su 5 taškais. Keturis kartus iš eilės taškai padvigubėja. Kiek jų turi?",
+      "answer": "80",
+      "hint": "Dvigubėjimas reiškia daugybą iš 2.",
+      "solution": "5 · 2⁴ = 5 · 16 = 80."
+    },
+    {
+      "expression": "−2⁶ + 5 = □",
+      "answer": "-59",
+      "hint": "Pirma kelk laipsniu, tada pritaikyk minusą.",
+      "solution": "−64 + 5 = -59."
+    },
+    {
+      "expression": "Koks laipsnio 8⁷ pagrindas?",
+      "answer": "8",
+      "hint": "Kuris skaičius būtų kartojamas sandaugoje?",
+      "solution": "Didysis skaičius 8 yra pagrindas."
+    },
+    {
+      "expression": "Koks laipsnio 6⁸ rodiklis?",
+      "answer": "8",
+      "hint": "Pažiūrėk į mažą skaičių viršuje.",
+      "solution": "Rodiklis 8 nurodo dauginamųjų skaičių."
+    },
+    {
+      "expression": "6 · 6 · 6 · 6 · 6 · 6 · 6 = 6^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Suskaičiuok dauginamuosius.",
+      "solution": "6 + 1 = 7."
+    },
+    {
+      "expression": "8¹ = □",
+      "answer": "8",
+      "hint": "Rodiklis 1 reiškia vieną dauginamąjį.",
+      "solution": "1 · 8 = 8."
+    },
+    {
+      "expression": "2⁷ = □",
+      "answer": "128",
+      "hint": "Pradėk nuo 1 ir kiekviename žingsnyje dvigubink.",
+      "solution": "64 · 2 = 128."
+    },
+    {
+      "expression": "(−2)⁶ = □",
+      "answer": "64",
+      "hint": "Suskaičiuok minusų poras.",
+      "solution": "-32 · (−2) = 64."
+    },
+    {
+      "expression": "(1/6)³ = □",
+      "answer": "1/216",
+      "hint": "Kubą apskaičiuok skaitiklyje ir vardiklyje.",
+      "solution": "1/(6 · 6 · 6) = 1/216."
+    },
+    {
+      "expression": "2187 = 3^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Pradėk nuo 1 ir daugink iš 3, kol pasieksi duotą skaičių.",
+      "solution": "2187 = 3 · 3 · 3 · 3 · 3 · 3 · 3; iš viso 7 dauginamieji."
+    },
+    {
+      "expression": "Žaidime pradedi su 6 taškais. Keturis kartus iš eilės taškai padvigubėja. Kiek jų turi?",
+      "answer": "96",
+      "hint": "Dvigubėjimas reiškia daugybą iš 2.",
+      "solution": "6 · 2⁴ = 6 · 16 = 96."
+    },
+    {
+      "expression": "−2⁷ + 6 = □",
+      "answer": "-122",
+      "hint": "Pirma kelk laipsniu, tada pritaikyk minusą.",
+      "solution": "−128 + 6 = -122."
+    }
+  ]
+}

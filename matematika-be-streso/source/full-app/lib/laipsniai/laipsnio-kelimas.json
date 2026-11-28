@@ -1,0 +1,313 @@
+{
+  "title": "Laipsnio, sandaugos ir trupmenos kėlimas laipsniu",
+  "blocks": [
+    "Kiek dvejetų yra užraše (2³)²?",
+    "Išorinis dvejetas liepia du kartus paimti visą skliaustų turinį. Gauni 2³ · 2³, taigi šešis dvejetus. (2³)² = 2⁶.",
+    "Kodėl laipsnis tenka abiem dauginamiesiems?",
+    "(2 · 5)³ reiškia tris poras 2 · 5. Sugrupavęs vienodus skaičius gausi 2³ · 5³. Taip galima išskaidyti sandaugą.",
+    "Kaip kelti trupmeną?",
+    "(2/3)² = (2 · 2)/(3 · 3) = 4/9. Daugindamas trupmenas daugini ir skaitiklius, ir vardiklius. Sumoje elgiamės kitaip: (2 + 3)² = 5² = 25."
+  ],
+  "questions": [
+    {
+      "expression": "(2²)² = 2^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "2 · 2 = 4."
+    },
+    {
+      "expression": "(3³)³ = 3^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "3 · 3 = 9."
+    },
+    {
+      "expression": "(2⁴)⁴ = 2^□. Įrašyk rodiklį.",
+      "answer": "16",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "4 · 4 = 16."
+    },
+    {
+      "expression": "(2 · 2)² = □",
+      "answer": "16",
+      "hint": "Pirma apskaičiuok sandaugą.",
+      "solution": "4 · 4 = 16."
+    },
+    {
+      "expression": "(1/2)³ = □",
+      "answer": "1/8",
+      "hint": "Kelk kubu skaitiklį ir vardiklį.",
+      "solution": "1/(2 · 2 · 2) = 1/8."
+    },
+    {
+      "expression": "(−3 · 2)² = □",
+      "answer": "36",
+      "hint": "Du neigiami dauginamieji duoda teigiamą rezultatą.",
+      "solution": "6 · 6 = 36."
+    },
+    {
+      "expression": "(2³)^□ = 2⁹. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Vidinį ir išorinį rodiklius daugini.",
+      "solution": "9 : 3 = 3."
+    },
+    {
+      "expression": "2² · (1/2)² = □",
+      "answer": "1",
+      "hint": "Sujunk abu pagrindus po vienu kvadratu.",
+      "solution": "(2 · 1/2)² = 1² = 1."
+    },
+    {
+      "expression": "(2²)³ · 2³ = 2^□. Įrašyk rodiklį.",
+      "answer": "9",
+      "hint": "Pirma sudaugink skliaustų rodiklius.",
+      "solution": "2 · 3 + 3 = 9."
+    },
+    {
+      "expression": "((3 + 1)/2)² = □",
+      "answer": "16/4",
+      "hint": "Pirma sudėk skaitiklyje. Tuomet kelk kvadratu abi trupmenos dalis.",
+      "solution": "4²/2² = 16/4."
+    },
+    {
+      "expression": "(2³)² = 2^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "3 · 2 = 6."
+    },
+    {
+      "expression": "(3⁴)³ = 3^□. Įrašyk rodiklį.",
+      "answer": "12",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "4 · 3 = 12."
+    },
+    {
+      "expression": "(2⁵)⁴ = 2^□. Įrašyk rodiklį.",
+      "answer": "20",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "5 · 4 = 20."
+    },
+    {
+      "expression": "(3 · 2)² = □",
+      "answer": "36",
+      "hint": "Pirma apskaičiuok sandaugą.",
+      "solution": "6 · 6 = 36."
+    },
+    {
+      "expression": "(1/3)³ = □",
+      "answer": "1/27",
+      "hint": "Kelk kubu skaitiklį ir vardiklį.",
+      "solution": "1/(3 · 3 · 3) = 1/27."
+    },
+    {
+      "expression": "(−4 · 2)² = □",
+      "answer": "64",
+      "hint": "Du neigiami dauginamieji duoda teigiamą rezultatą.",
+      "solution": "8 · 8 = 64."
+    },
+    {
+      "expression": "(3³)^□ = 3¹². Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Vidinį ir išorinį rodiklius daugini.",
+      "solution": "12 : 3 = 4."
+    },
+    {
+      "expression": "3² · (1/3)² = □",
+      "answer": "1",
+      "hint": "Sujunk abu pagrindus po vienu kvadratu.",
+      "solution": "(3 · 1/3)² = 1² = 1."
+    },
+    {
+      "expression": "(3²)³ · 3⁴ = 3^□. Įrašyk rodiklį.",
+      "answer": "10",
+      "hint": "Pirma sudaugink skliaustų rodiklius.",
+      "solution": "2 · 3 + 4 = 10."
+    },
+    {
+      "expression": "((4 + 1)/2)² = □",
+      "answer": "25/4",
+      "hint": "Pirma sudėk skaitiklyje. Tuomet kelk kvadratu abi trupmenos dalis.",
+      "solution": "5²/2² = 25/4."
+    },
+    {
+      "expression": "(2⁴)² = 2^□. Įrašyk rodiklį.",
+      "answer": "8",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "4 · 2 = 8."
+    },
+    {
+      "expression": "(3⁵)³ = 3^□. Įrašyk rodiklį.",
+      "answer": "15",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "5 · 3 = 15."
+    },
+    {
+      "expression": "(2⁶)⁴ = 2^□. Įrašyk rodiklį.",
+      "answer": "24",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "6 · 4 = 24."
+    },
+    {
+      "expression": "(4 · 2)² = □",
+      "answer": "64",
+      "hint": "Pirma apskaičiuok sandaugą.",
+      "solution": "8 · 8 = 64."
+    },
+    {
+      "expression": "(1/4)³ = □",
+      "answer": "1/64",
+      "hint": "Kelk kubu skaitiklį ir vardiklį.",
+      "solution": "1/(4 · 4 · 4) = 1/64."
+    },
+    {
+      "expression": "(−5 · 2)² = □",
+      "answer": "100",
+      "hint": "Du neigiami dauginamieji duoda teigiamą rezultatą.",
+      "solution": "10 · 10 = 100."
+    },
+    {
+      "expression": "(4³)^□ = 4¹⁵. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Vidinį ir išorinį rodiklius daugini.",
+      "solution": "15 : 3 = 5."
+    },
+    {
+      "expression": "4² · (1/4)² = □",
+      "answer": "1",
+      "hint": "Sujunk abu pagrindus po vienu kvadratu.",
+      "solution": "(4 · 1/4)² = 1² = 1."
+    },
+    {
+      "expression": "(4²)³ · 4⁵ = 4^□. Įrašyk rodiklį.",
+      "answer": "11",
+      "hint": "Pirma sudaugink skliaustų rodiklius.",
+      "solution": "2 · 3 + 5 = 11."
+    },
+    {
+      "expression": "((5 + 1)/2)² = □",
+      "answer": "36/4",
+      "hint": "Pirma sudėk skaitiklyje. Tuomet kelk kvadratu abi trupmenos dalis.",
+      "solution": "6²/2² = 36/4."
+    },
+    {
+      "expression": "(2⁵)² = 2^□. Įrašyk rodiklį.",
+      "answer": "10",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "5 · 2 = 10."
+    },
+    {
+      "expression": "(3⁶)³ = 3^□. Įrašyk rodiklį.",
+      "answer": "18",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "6 · 3 = 18."
+    },
+    {
+      "expression": "(2⁷)⁴ = 2^□. Įrašyk rodiklį.",
+      "answer": "28",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "7 · 4 = 28."
+    },
+    {
+      "expression": "(5 · 2)² = □",
+      "answer": "100",
+      "hint": "Pirma apskaičiuok sandaugą.",
+      "solution": "10 · 10 = 100."
+    },
+    {
+      "expression": "(1/5)³ = □",
+      "answer": "1/125",
+      "hint": "Kelk kubu skaitiklį ir vardiklį.",
+      "solution": "1/(5 · 5 · 5) = 1/125."
+    },
+    {
+      "expression": "(−6 · 2)² = □",
+      "answer": "144",
+      "hint": "Du neigiami dauginamieji duoda teigiamą rezultatą.",
+      "solution": "12 · 12 = 144."
+    },
+    {
+      "expression": "(5³)^□ = 5¹⁸. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Vidinį ir išorinį rodiklius daugini.",
+      "solution": "18 : 3 = 6."
+    },
+    {
+      "expression": "5² · (1/5)² = □",
+      "answer": "1",
+      "hint": "Sujunk abu pagrindus po vienu kvadratu.",
+      "solution": "(5 · 1/5)² = 1² = 1."
+    },
+    {
+      "expression": "(5²)³ · 5⁶ = 5^□. Įrašyk rodiklį.",
+      "answer": "12",
+      "hint": "Pirma sudaugink skliaustų rodiklius.",
+      "solution": "2 · 3 + 6 = 12."
+    },
+    {
+      "expression": "((6 + 1)/2)² = □",
+      "answer": "49/4",
+      "hint": "Pirma sudėk skaitiklyje. Tuomet kelk kvadratu abi trupmenos dalis.",
+      "solution": "7²/2² = 49/4."
+    },
+    {
+      "expression": "(2⁶)² = 2^□. Įrašyk rodiklį.",
+      "answer": "12",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "6 · 2 = 12."
+    },
+    {
+      "expression": "(3⁷)³ = 3^□. Įrašyk rodiklį.",
+      "answer": "21",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "7 · 3 = 21."
+    },
+    {
+      "expression": "(2⁸)⁴ = 2^□. Įrašyk rodiklį.",
+      "answer": "32",
+      "hint": "Kiek kartų kartojasi vidinis laipsnis?",
+      "solution": "8 · 4 = 32."
+    },
+    {
+      "expression": "(6 · 2)² = □",
+      "answer": "144",
+      "hint": "Pirma apskaičiuok sandaugą.",
+      "solution": "12 · 12 = 144."
+    },
+    {
+      "expression": "(1/6)³ = □",
+      "answer": "1/216",
+      "hint": "Kelk kubu skaitiklį ir vardiklį.",
+      "solution": "1/(6 · 6 · 6) = 1/216."
+    },
+    {
+      "expression": "(−7 · 2)² = □",
+      "answer": "196",
+      "hint": "Du neigiami dauginamieji duoda teigiamą rezultatą.",
+      "solution": "14 · 14 = 196."
+    },
+    {
+      "expression": "(6³)^□ = 6²¹. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Vidinį ir išorinį rodiklius daugini.",
+      "solution": "21 : 3 = 7."
+    },
+    {
+      "expression": "6² · (1/6)² = □",
+      "answer": "1",
+      "hint": "Sujunk abu pagrindus po vienu kvadratu.",
+      "solution": "(6 · 1/6)² = 1² = 1."
+    },
+    {
+      "expression": "(6²)³ · 6⁷ = 6^□. Įrašyk rodiklį.",
+      "answer": "13",
+      "hint": "Pirma sudaugink skliaustų rodiklius.",
+      "solution": "2 · 3 + 7 = 13."
+    },
+    {
+      "expression": "((7 + 1)/2)² = □",
+      "answer": "64/4",
+      "hint": "Pirma sudėk skaitiklyje. Tuomet kelk kvadratu abi trupmenos dalis.",
+      "solution": "8²/2² = 64/4."
+    }
+  ]
+}

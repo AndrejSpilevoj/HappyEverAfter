@@ -1,0 +1,313 @@
+{
+  "title": "Standartinė skaičiaus išraiška",
+  "blocks": [
+    "Kaip užrašyti atstumą nesuklystant dėl nulių?",
+    "Pavyzdžiui, 320 000 m yra 3,2 · 100 000 m. Kadangi 100 000 = 10⁵, trumpiau rašome 3,2 · 10⁵ m.",
+    "Kur turi būti kablelis?",
+    "Prieš kablelį palik vieną nenulinį skaitmenį. Pirmasis daugiklis turi būti bent 1 ir mažesnis už 10. Skaičiuje 320 000 kablelį perkėlėme penkias vietas į kairę, todėl grąžiname jo vertę daugindami iš 10⁵.",
+    "Kaip užrašyti mažą skaičių?",
+    "0,0047 m = 4,7 · 10⁻³ m. Kablelį perkėlei tris vietas į dešinę, todėl dabar daliji iš tūkstančio. Patikrink: 4,7 : 1000 = 0,0047."
+  ],
+  "questions": [
+    {
+      "expression": "10³ = □",
+      "answer": "1000",
+      "hint": "Po vieneto rašyk tiek nulių, kiek rodo rodiklis.",
+      "solution": "10 · 100 = 1000."
+    },
+    {
+      "expression": "2 · 10³ = □",
+      "answer": "2000",
+      "hint": "Padaugink iš tūkstančio.",
+      "solution": "2 · 1000 = 2000."
+    },
+    {
+      "expression": "2,5 · 10² = □",
+      "answer": "250",
+      "hint": "Kablelį perkelk dvi vietas dešinėn.",
+      "solution": "2,5 · 100 = 250."
+    },
+    {
+      "expression": "2 · 10⁻² = □",
+      "answer": "0,02",
+      "hint": "Neigiamas rodiklis reiškia dalybą.",
+      "solution": "2 : 100 = 0,02."
+    },
+    {
+      "expression": "20000 = □ · 10⁴. Įrašyk daugiklį.",
+      "answer": "2",
+      "hint": "Padalyk iš 10 000.",
+      "solution": "20000 : 10 000 = 2."
+    },
+    {
+      "expression": "2000 : 2 = 10^□. Įrašyk rodiklį.",
+      "answer": "3",
+      "hint": "Padalyk ir suskaičiuok nulius.",
+      "solution": "1000 = 10³; rodiklis yra 3."
+    },
+    {
+      "expression": "0,002 = 2 · 10^□. Įrašyk rodiklį.",
+      "answer": "-3",
+      "hint": "Nuo vienetų iki tūkstantųjų yra trys vietos.",
+      "solution": "2 : 1000 = 0,002, todėl rodiklis −3."
+    },
+    {
+      "expression": "Ar 20 · 10² yra standartinė skaičiaus išraiška? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Patikrink, ar pirmas daugiklis mažesnis už 10.",
+      "solution": "20 ≥ 10. Standartinė išraiška būtų 2 · 10³."
+    },
+    {
+      "expression": "Dalelės ilgis 2 · 10⁻⁴ m. Kiek tai milimetrų?",
+      "answer": "0,2",
+      "hint": "Vienas metras yra 1000 mm.",
+      "solution": "2 · 10⁻⁴ · 10³ = 2 · 10⁻¹ = 0,2 mm."
+    },
+    {
+      "expression": "(2 · 10⁵) · (5 · 10²) = □ · 10⁸. Rask daugiklį.",
+      "answer": "1",
+      "hint": "Sudaugink daugiklius, sudėk rodiklius ir sutvarkyk pirmą daugiklį.",
+      "solution": "10 · 10⁷ = 1 · 10⁸."
+    },
+    {
+      "expression": "10⁴ = □",
+      "answer": "10000",
+      "hint": "Po vieneto rašyk tiek nulių, kiek rodo rodiklis.",
+      "solution": "10 · 1000 = 10000."
+    },
+    {
+      "expression": "3 · 10³ = □",
+      "answer": "3000",
+      "hint": "Padaugink iš tūkstančio.",
+      "solution": "3 · 1000 = 3000."
+    },
+    {
+      "expression": "3,5 · 10² = □",
+      "answer": "350",
+      "hint": "Kablelį perkelk dvi vietas dešinėn.",
+      "solution": "3,5 · 100 = 350."
+    },
+    {
+      "expression": "3 · 10⁻² = □",
+      "answer": "0,03",
+      "hint": "Neigiamas rodiklis reiškia dalybą.",
+      "solution": "3 : 100 = 0,03."
+    },
+    {
+      "expression": "30000 = □ · 10⁴. Įrašyk daugiklį.",
+      "answer": "3",
+      "hint": "Padalyk iš 10 000.",
+      "solution": "30000 : 10 000 = 3."
+    },
+    {
+      "expression": "30000 : 3 = 10^□. Įrašyk rodiklį.",
+      "answer": "4",
+      "hint": "Padalyk ir suskaičiuok nulius.",
+      "solution": "10000 = 10⁴; rodiklis yra 4."
+    },
+    {
+      "expression": "0,003 = 3 · 10^□. Įrašyk rodiklį.",
+      "answer": "-3",
+      "hint": "Nuo vienetų iki tūkstantųjų yra trys vietos.",
+      "solution": "3 : 1000 = 0,003, todėl rodiklis −3."
+    },
+    {
+      "expression": "Ar 30 · 10² yra standartinė skaičiaus išraiška? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Patikrink, ar pirmas daugiklis mažesnis už 10.",
+      "solution": "30 ≥ 10. Standartinė išraiška būtų 3 · 10³."
+    },
+    {
+      "expression": "Dalelės ilgis 3 · 10⁻⁴ m. Kiek tai milimetrų?",
+      "answer": "0,3",
+      "hint": "Vienas metras yra 1000 mm.",
+      "solution": "3 · 10⁻⁴ · 10³ = 3 · 10⁻¹ = 0,3 mm."
+    },
+    {
+      "expression": "(3 · 10⁵) · (5 · 10²) = □ · 10⁸. Rask daugiklį.",
+      "answer": "1,5",
+      "hint": "Sudaugink daugiklius, sudėk rodiklius ir sutvarkyk pirmą daugiklį.",
+      "solution": "15 · 10⁷ = 1,5 · 10⁸."
+    },
+    {
+      "expression": "10⁵ = □",
+      "answer": "100000",
+      "hint": "Po vieneto rašyk tiek nulių, kiek rodo rodiklis.",
+      "solution": "10 · 10000 = 100000."
+    },
+    {
+      "expression": "4 · 10³ = □",
+      "answer": "4000",
+      "hint": "Padaugink iš tūkstančio.",
+      "solution": "4 · 1000 = 4000."
+    },
+    {
+      "expression": "4,5 · 10² = □",
+      "answer": "450",
+      "hint": "Kablelį perkelk dvi vietas dešinėn.",
+      "solution": "4,5 · 100 = 450."
+    },
+    {
+      "expression": "4 · 10⁻² = □",
+      "answer": "0,04",
+      "hint": "Neigiamas rodiklis reiškia dalybą.",
+      "solution": "4 : 100 = 0,04."
+    },
+    {
+      "expression": "40000 = □ · 10⁴. Įrašyk daugiklį.",
+      "answer": "4",
+      "hint": "Padalyk iš 10 000.",
+      "solution": "40000 : 10 000 = 4."
+    },
+    {
+      "expression": "400000 : 4 = 10^□. Įrašyk rodiklį.",
+      "answer": "5",
+      "hint": "Padalyk ir suskaičiuok nulius.",
+      "solution": "100000 = 10⁵; rodiklis yra 5."
+    },
+    {
+      "expression": "0,004 = 4 · 10^□. Įrašyk rodiklį.",
+      "answer": "-3",
+      "hint": "Nuo vienetų iki tūkstantųjų yra trys vietos.",
+      "solution": "4 : 1000 = 0,004, todėl rodiklis −3."
+    },
+    {
+      "expression": "Ar 40 · 10² yra standartinė skaičiaus išraiška? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Patikrink, ar pirmas daugiklis mažesnis už 10.",
+      "solution": "40 ≥ 10. Standartinė išraiška būtų 4 · 10³."
+    },
+    {
+      "expression": "Dalelės ilgis 4 · 10⁻⁴ m. Kiek tai milimetrų?",
+      "answer": "0,4",
+      "hint": "Vienas metras yra 1000 mm.",
+      "solution": "4 · 10⁻⁴ · 10³ = 4 · 10⁻¹ = 0,4 mm."
+    },
+    {
+      "expression": "(4 · 10⁵) · (5 · 10²) = □ · 10⁸. Rask daugiklį.",
+      "answer": "2",
+      "hint": "Sudaugink daugiklius, sudėk rodiklius ir sutvarkyk pirmą daugiklį.",
+      "solution": "20 · 10⁷ = 2 · 10⁸."
+    },
+    {
+      "expression": "10⁶ = □",
+      "answer": "1000000",
+      "hint": "Po vieneto rašyk tiek nulių, kiek rodo rodiklis.",
+      "solution": "10 · 100000 = 1000000."
+    },
+    {
+      "expression": "5 · 10³ = □",
+      "answer": "5000",
+      "hint": "Padaugink iš tūkstančio.",
+      "solution": "5 · 1000 = 5000."
+    },
+    {
+      "expression": "5,5 · 10² = □",
+      "answer": "550",
+      "hint": "Kablelį perkelk dvi vietas dešinėn.",
+      "solution": "5,5 · 100 = 550."
+    },
+    {
+      "expression": "5 · 10⁻² = □",
+      "answer": "0,05",
+      "hint": "Neigiamas rodiklis reiškia dalybą.",
+      "solution": "5 : 100 = 0,05."
+    },
+    {
+      "expression": "50000 = □ · 10⁴. Įrašyk daugiklį.",
+      "answer": "5",
+      "hint": "Padalyk iš 10 000.",
+      "solution": "50000 : 10 000 = 5."
+    },
+    {
+      "expression": "5000000 : 5 = 10^□. Įrašyk rodiklį.",
+      "answer": "6",
+      "hint": "Padalyk ir suskaičiuok nulius.",
+      "solution": "1000000 = 10⁶; rodiklis yra 6."
+    },
+    {
+      "expression": "0,005 = 5 · 10^□. Įrašyk rodiklį.",
+      "answer": "-3",
+      "hint": "Nuo vienetų iki tūkstantųjų yra trys vietos.",
+      "solution": "5 : 1000 = 0,005, todėl rodiklis −3."
+    },
+    {
+      "expression": "Ar 50 · 10² yra standartinė skaičiaus išraiška? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Patikrink, ar pirmas daugiklis mažesnis už 10.",
+      "solution": "50 ≥ 10. Standartinė išraiška būtų 5 · 10³."
+    },
+    {
+      "expression": "Dalelės ilgis 5 · 10⁻⁴ m. Kiek tai milimetrų?",
+      "answer": "0,5",
+      "hint": "Vienas metras yra 1000 mm.",
+      "solution": "5 · 10⁻⁴ · 10³ = 5 · 10⁻¹ = 0,5 mm."
+    },
+    {
+      "expression": "(5 · 10⁵) · (5 · 10²) = □ · 10⁸. Rask daugiklį.",
+      "answer": "2,5",
+      "hint": "Sudaugink daugiklius, sudėk rodiklius ir sutvarkyk pirmą daugiklį.",
+      "solution": "25 · 10⁷ = 2,5 · 10⁸."
+    },
+    {
+      "expression": "10⁷ = □",
+      "answer": "10000000",
+      "hint": "Po vieneto rašyk tiek nulių, kiek rodo rodiklis.",
+      "solution": "10 · 1000000 = 10000000."
+    },
+    {
+      "expression": "6 · 10³ = □",
+      "answer": "6000",
+      "hint": "Padaugink iš tūkstančio.",
+      "solution": "6 · 1000 = 6000."
+    },
+    {
+      "expression": "6,5 · 10² = □",
+      "answer": "650",
+      "hint": "Kablelį perkelk dvi vietas dešinėn.",
+      "solution": "6,5 · 100 = 650."
+    },
+    {
+      "expression": "6 · 10⁻² = □",
+      "answer": "0,06",
+      "hint": "Neigiamas rodiklis reiškia dalybą.",
+      "solution": "6 : 100 = 0,06."
+    },
+    {
+      "expression": "60000 = □ · 10⁴. Įrašyk daugiklį.",
+      "answer": "6",
+      "hint": "Padalyk iš 10 000.",
+      "solution": "60000 : 10 000 = 6."
+    },
+    {
+      "expression": "60000000 : 6 = 10^□. Įrašyk rodiklį.",
+      "answer": "7",
+      "hint": "Padalyk ir suskaičiuok nulius.",
+      "solution": "10000000 = 10⁷; rodiklis yra 7."
+    },
+    {
+      "expression": "0,006 = 6 · 10^□. Įrašyk rodiklį.",
+      "answer": "-3",
+      "hint": "Nuo vienetų iki tūkstantųjų yra trys vietos.",
+      "solution": "6 : 1000 = 0,006, todėl rodiklis −3."
+    },
+    {
+      "expression": "Ar 60 · 10² yra standartinė skaičiaus išraiška? (Taip arba ne)",
+      "answer": "ne",
+      "hint": "Patikrink, ar pirmas daugiklis mažesnis už 10.",
+      "solution": "60 ≥ 10. Standartinė išraiška būtų 6 · 10³."
+    },
+    {
+      "expression": "Dalelės ilgis 6 · 10⁻⁴ m. Kiek tai milimetrų?",
+      "answer": "0,6",
+      "hint": "Vienas metras yra 1000 mm.",
+      "solution": "6 · 10⁻⁴ · 10³ = 6 · 10⁻¹ = 0,6 mm."
+    },
+    {
+      "expression": "(6 · 10⁵) · (5 · 10²) = □ · 10⁸. Rask daugiklį.",
+      "answer": "3",
+      "hint": "Sudaugink daugiklius, sudėk rodiklius ir sutvarkyk pirmą daugiklį.",
+      "solution": "30 · 10⁷ = 3 · 10⁸."
+    }
+  ]
+}

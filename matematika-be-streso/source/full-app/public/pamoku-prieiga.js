@@ -24,7 +24,21 @@ const topics = [
       "Realieji skaičiai",
       "Veiksmai su realiaisiais skaičiais"
     ]
-  }
+  },
+{
+  "id": "laipsniu",
+  "name": "Laipsniai (7 klasė)",
+  "lessons": [
+    "Skaičiaus kvadratas ir kubas",
+    "Laipsnis su natūraliuoju rodikliu",
+    "Laipsnių su vienodais pagrindais daugyba",
+    "Laipsnių su vienodais pagrindais dalyba",
+    "Laipsnio, sandaugos ir trupmenos kėlimas laipsniu",
+    "Nulinis ir neigiamas laipsnio rodiklis",
+    "Veiksmai su laipsniais, kurių rodikliai sveikieji",
+    "Standartinė skaičiaus išraiška"
+  ]
+}
 ];
 const params = new URLSearchParams(location.search);
 const selectedTopic = topics.find(topic => topic.id === params.get('tema')) || topics[0];
@@ -48,7 +62,9 @@ function showPlan(plan) {
     for (const topic of topics) item.add(new Option(topic.name,topic.id));
     item.value = selectedTopic.id;
   } else {
+    item.add(new Option('7 klasė','7'));
     item.add(new Option('8 klasė','8'));
+    item.value = selectedTopic.id === 'laipsniu' ? '7' : '8';
   }
   function showTerms() {
     terms.textContent = plan === 0 ? '1 € · 72 val.' : plan === 1 ? '5 € · 7 dienos' : '20 € / 3 mėn.';
