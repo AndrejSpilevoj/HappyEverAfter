@@ -51,3 +51,9 @@ label{display:block}input{max-width:100%;padding:8px;border:1px solid #a9bdcf;bo
 .grades .card{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px 16px}
 .grade-price{padding-left:12px;border-left:2px solid #bed8e8}.grade-price b{white-space:nowrap}
 @media (min-width:401px) and (max-width:650px){.grades{grid-template-columns:1fr}}
+
+.grade-topics { display: none; }
+.grades:has([href="#7-klase"]:target) ~ #grade-7-topics,
+.grades:has([href="#8-klase"]:target) ~ #grade-8-topics { display: block; }
+.grade-choice:target { background: #e3f4e9; color: #185d38; border-color: #89bb9a; }
+.grade-choice:hover { border-color: #89bb9a; }
