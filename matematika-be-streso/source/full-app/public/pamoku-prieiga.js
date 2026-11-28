@@ -25,139 +25,139 @@ const topics = [
       "Veiksmai su realiaisiais skaičiais"
     ]
   },
-{
-  "id": "laipsniu",
-  "name": "Laipsniai (7 klasė)",
-  "lessons": [
-    "Skaičiaus kvadratas ir kubas",
-    "Laipsnis su natūraliuoju rodikliu",
-    "Laipsnių su vienodais pagrindais daugyba",
-    "Laipsnių su vienodais pagrindais dalyba",
-    "Laipsnio, sandaugos ir trupmenos kėlimas laipsniu",
-    "Nulinis ir neigiamas laipsnio rodiklis",
-    "Veiksmai su laipsniais, kurių rodikliai sveikieji",
-    "Standartinė skaičiaus išraiška"
-  ]
-},
-{
-  "id": "procentai",
-  "name": "Procentai ir palūkanos (7 klasė)",
-  "lessons": [
-    "Procentinis pokytis",
-    "Vertė po procentinio pokyčio",
-    "Paprastosios palūkanos",
-    "Sudėtinės palūkanos",
-    "Keli procentiniai pokyčiai"
-  ]
-},
-{
-  "id": "nelygybes",
-  "name": "Nelygybės (7 klasė)",
-  "lessons": [
-    "Skaičių palyginimas",
-    "Skaičių intervalai",
-    "Vienodo skaičiaus pridėjimas ir atėmimas",
-    "Daugyba ir dalyba nelygybėje",
-    "Nelygybės sprendinys",
-    "Vieno žingsnio nelygybės",
-    "Dviejų žingsnių nelygybės",
-    "Nelygybės su skliaustais ir x abiejose pusėse",
-    "Dviejų nelygybių sistema",
-    "Dvigubosios nelygybės",
-    "Tekstiniai uždaviniai su nelygybėmis"
-  ]
-},
-{
-  "id": "priklausomybes",
-  "name": "Atvirkštinis proporcingumas (7 klasė)",
-  "lessons": [
-    "Tarpusavyje susiję dydžiai",
-    "Atvirkščiai proporcingi dydžiai",
-    "Atvirkštinio proporcingumo grafikas",
-    "Uždaviniai apie darbą, laiką ir greitį"
-  ]
-},
-{
-  "id": "tieses",
-  "name": "Tiesės ir kampai (7 klasė)",
-  "lessons": [
-    "Taškas, tiesė ir atkarpa",
-    "Susikertančios tiesės",
-    "Lygiagrečios tiesės",
-    "Dviejų tiesių lygiagretumo požymiai",
-    "Kampai prie lygiagrečių tiesių ir kirstinės"
-  ]
-},
-{
-  "id": "daugiakampiai",
-  "name": "Trikampiai ir keturkampiai (7 klasė)",
-  "lessons": [
-    "Trikampių rūšys",
-    "Trikampio aukštinės",
-    "Trikampio pusiaukraštinės",
-    "Trikampio pusiaukampinės",
-    "Lygiagretainis",
-    "Stačiakampis",
-    "Rombas",
-    "Kvadratas",
-    "Trapecija",
-    "Lygiašonė ir stačioji trapecijos",
-    "Daugiakampių postūmis koordinačių plokštumoje"
-  ]
-},
-{
-  "id": "plotai",
-  "name": "Daugiakampių plotai (7 klasė)",
-  "lessons": [
-    "Stačiakampio, kvadrato ir stačiojo trikampio plotas",
-    "Trikampio ploto formulė",
-    "Lygiagretainio plotas",
-    "Rombo plotas",
-    "Trapecijos plotas"
-  ]
-},
-{
-  "id": "apskritimai",
-  "name": "Apskritimas ir skritulys (7 klasė)",
-  "lessons": [
-    "Apskritimas, spindulys, styga ir skersmuo",
-    "Apskritimo ilgis",
-    "Apskritimo lankas ir jo ilgis",
-    "Skritulys ir jo dalių plotas"
-  ]
-},
-{
-  "id": "briaunainiai",
-  "name": "Prizmės ir piramidės (7 klasė)",
-  "lessons": [
-    "Tiesės ir plokštumos erdvėje",
-    "Stačioji prizmė ir jos paviršius",
-    "Stačiosios prizmės tūris",
-    "Piramidė ir jos sandara",
-    "Taisyklingoji piramidė"
-  ]
-},
-{
-  "id": "sukiniai",
-  "name": "Ritinys ir kūgis (7 klasė)",
-  "lessons": [
-    "Ritinys",
-    "Ritinio paviršiaus plotas ir tūris",
-    "Kūgis",
-    "Kūgio paviršiaus plotas ir tūris"
-  ]
-},
-{
-  "id": "statistika",
-  "name": "Statistinis tyrimas (7 klasė)",
-  "lessons": [
-    "Populiacija ir tyrimo klausimas",
-    "Imtis ir paprastoji atsitiktinė atranka",
-    "Sisteminė ir sluoksninė atranka",
-    "Statistinis kintamasis",
-    "Skritulinė diagrama"
-  ]
-}
+  {
+    "id": "laipsniu",
+    "name": "2. Laipsniai (7 klasė)",
+    "lessons": [
+      "2.1. Keliame kvadratu ir kubu",
+      "2.2. Laipsnis su natūraliuoju rodikliu",
+      "2.3. Dauginame ir dalijame laipsnius su vienodais pagrindais",
+      "2.4. Dauginame ir dalijame laipsnius su vienodais rodikliais",
+      "2.5. Laipsnį keliame laipsniu",
+      "2.6. Laipsnis su sveikuoju neigiamuoju rodikliu",
+      "2.7. Laipsnio su sveikuoju neigiamuoju rodikliu savybės",
+      "2.8. Standartinė skaičiaus išraiška"
+    ]
+  },
+  {
+    "id": "procentai",
+    "name": "3. Procentai (7 klasė)",
+    "lessons": [
+      "3.1. Ieškome, kiek procentų pakito dydis",
+      "3.2. Ieškome dydžio, kai žinoma jo pradinė vertė ir pokytis procentais",
+      "3.3. Paprastosios palūkanos",
+      "3.4. Sudėtinės palūkanos",
+      "3.5. Sudėtiniai procentai"
+    ]
+  },
+  {
+    "id": "nelygybes",
+    "name": "4. Nelygybės (7 klasė)",
+    "lessons": [
+      "4.1. Skaičių palyginimas",
+      "4.2. Skaičių intervalai",
+      "4.3. Prie abiejų nelygybės pusių pridedame arba iš jų atimame tą patį skaičių",
+      "4.4. Abi nelygybės puses dauginame arba dalijame iš to paties skaičiaus",
+      "4.5. Nelygybės sprendinys",
+      "4.6. Sprendžiame vieno žingsnio nelygybes",
+      "4.7. Sprendžiame paprastas nelygybes",
+      "4.8. Sprendžiame sudėtingesnes nelygybes",
+      "4.9. Dviejų nelygybių su vienu nežinomuoju sistema",
+      "4.10. Dvigubųjų nelygybių sprendimas",
+      "4.11. Sprendžiame tekstinius uždavinius"
+    ]
+  },
+  {
+    "id": "priklausomybes",
+    "name": "5. Atvirkštinis proporcingumas (7 klasė)",
+    "lessons": [
+      "5.1. Tarpusavyje susiję dydžiai",
+      "5.2. Atvirkščiai proporcingi dydžiai",
+      "5.3. Atvirkščiai proporcingų dydžių priklausomybės grafikas",
+      "5.4. Tekstinių uždavinių sprendimas"
+    ]
+  },
+  {
+    "id": "tieses",
+    "name": "6. Tiesės (7 klasė)",
+    "lessons": [
+      "6.1. Taškas ir tiesė",
+      "6.2. Susikertančiosios tiesės",
+      "6.3. Lygiagrečiosios tiesės",
+      "6.4. Dviejų tiesių lygiagretumo požymiai",
+      "6.5. Kampų, susidariusių dvi lygiagrečiąsias tieses perkirtus kirstine, savybės"
+    ]
+  },
+  {
+    "id": "daugiakampiai",
+    "name": "Trikampiai ir keturkampiai (7 klasė)",
+    "lessons": [
+      "Trikampių rūšys",
+      "Trikampio aukštinės",
+      "Trikampio pusiaukraštinės",
+      "Trikampio pusiaukampinės",
+      "Lygiagretainis",
+      "Stačiakampis",
+      "Rombas",
+      "Kvadratas",
+      "Trapecija",
+      "Lygiašonė ir stačioji trapecijos",
+      "Daugiakampių postūmis koordinačių plokštumoje"
+    ]
+  },
+  {
+    "id": "plotai",
+    "name": "Daugiakampių plotai (7 klasė)",
+    "lessons": [
+      "Stačiakampio, kvadrato ir stačiojo trikampio plotas",
+      "Trikampio ploto formulė",
+      "Lygiagretainio plotas",
+      "Rombo plotas",
+      "Trapecijos plotas"
+    ]
+  },
+  {
+    "id": "apskritimai",
+    "name": "Apskritimas ir skritulys (7 klasė)",
+    "lessons": [
+      "Apskritimas, spindulys, styga ir skersmuo",
+      "Apskritimo ilgis",
+      "Apskritimo lankas ir jo ilgis",
+      "Skritulys ir jo dalių plotas"
+    ]
+  },
+  {
+    "id": "briaunainiai",
+    "name": "Prizmės ir piramidės (7 klasė)",
+    "lessons": [
+      "Tiesės ir plokštumos erdvėje",
+      "Stačioji prizmė ir jos paviršius",
+      "Stačiosios prizmės tūris",
+      "Piramidė ir jos sandara",
+      "Taisyklingoji piramidė"
+    ]
+  },
+  {
+    "id": "sukiniai",
+    "name": "Ritinys ir kūgis (7 klasė)",
+    "lessons": [
+      "Ritinys",
+      "Ritinio paviršiaus plotas ir tūris",
+      "Kūgis",
+      "Kūgio paviršiaus plotas ir tūris"
+    ]
+  },
+  {
+    "id": "statistika",
+    "name": "Statistinis tyrimas (7 klasė)",
+    "lessons": [
+      "Populiacija ir tyrimo klausimas",
+      "Imtis ir paprastoji atsitiktinė atranka",
+      "Sisteminė ir sluoksninė atranka",
+      "Statistinis kintamasis",
+      "Skritulinė diagrama"
+    ]
+  }
 ];
 const params = new URLSearchParams(location.search);
 const selectedTopic = topics.find(topic => topic.id === params.get('tema')) || topics[0];

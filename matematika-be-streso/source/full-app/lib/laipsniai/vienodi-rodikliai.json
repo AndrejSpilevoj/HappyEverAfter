@@ -1,0 +1,313 @@
+{
+  "title": "2.4. Dauginame ir dalijame laipsnius su vienodais rodikliais",
+  "blocks": [
+    "Ar gali keturis dauginamuosius sugrupuoti poromis?",
+    "2² · 3² = (2 · 2) · (3 · 3). Perstatyk dauginamuosius: (2 · 3) · (2 · 3) = 6². Rodiklis rodo, kiek tokių porų turi.",
+    "Kas keičiasi dalijant?",
+    "8³ : 2³ = (8 : 2) · (8 : 2) · (8 : 2) = 4³ = 64. Kai rodikliai vienodi, padalyk pagrindus ir palik tą patį rodiklį. Daliklis turi būti nelygus nuliui.",
+    "Kaip rasti paslėptą pagrindą?",
+    "3² · □² = 15². Ieškome teigiamo skaičiaus. Vienoje poroje turi būti 3 · □ = 15, todėl įrašome 5."
+  ],
+  "questions": [
+    {
+      "expression": "2² · 2² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "4",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "2 · 2 = 4."
+    },
+    {
+      "expression": "6³ : 3³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "2",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "6 : 3 = 2."
+    },
+    {
+      "expression": "2² · 4² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "8",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "2 · 4 = 8."
+    },
+    {
+      "expression": "10³ : 5³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "2",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "10 : 5 = 2."
+    },
+    {
+      "expression": "Apskaičiuok: 2² · 6².",
+      "answer": "144",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "2² · 6² = 12² = 144."
+    },
+    {
+      "expression": "Apskaičiuok: 14³ : 7³.",
+      "answer": "8",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "14³ : 7³ = 2³ = 8."
+    },
+    {
+      "expression": "Apskaičiuok: 2² · 8².",
+      "answer": "256",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "2² · 8² = 16² = 256."
+    },
+    {
+      "expression": "18³ : □³ = 9³. Įrašyk teigiamą daliklį.",
+      "answer": "2",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 18 : □ = 9. Daliklis 18 : 9 = 2."
+    },
+    {
+      "expression": "□² · 10² = 20². Įrašyk teigiamą pagrindą.",
+      "answer": "2",
+      "hint": "Rask trūkstamą sandaugos daugiklį.",
+      "solution": "□ · 10 = 20. Trūkstamas pagrindas 20 : 10 = 2."
+    },
+    {
+      "expression": "22³ : □³ = 11³. Įrašyk teigiamą daliklį.",
+      "answer": "2",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 22 : □ = 11. Daliklis 22 : 11 = 2."
+    },
+    {
+      "expression": "3² · 2² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "6",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "3 · 2 = 6."
+    },
+    {
+      "expression": "9³ : 3³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "3",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "9 : 3 = 3."
+    },
+    {
+      "expression": "3² · 4² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "12",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "3 · 4 = 12."
+    },
+    {
+      "expression": "15³ : 5³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "3",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "15 : 5 = 3."
+    },
+    {
+      "expression": "Apskaičiuok: 3² · 6².",
+      "answer": "324",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "3² · 6² = 18² = 324."
+    },
+    {
+      "expression": "Apskaičiuok: 21³ : 7³.",
+      "answer": "27",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "21³ : 7³ = 3³ = 27."
+    },
+    {
+      "expression": "Apskaičiuok: 3² · 8².",
+      "answer": "576",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "3² · 8² = 24² = 576."
+    },
+    {
+      "expression": "27³ : □³ = 9³. Įrašyk teigiamą daliklį.",
+      "answer": "3",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 27 : □ = 9. Daliklis 27 : 9 = 3."
+    },
+    {
+      "expression": "□² · 10² = 30². Įrašyk teigiamą pagrindą.",
+      "answer": "3",
+      "hint": "Rask trūkstamą sandaugos daugiklį.",
+      "solution": "□ · 10 = 30. Trūkstamas pagrindas 30 : 10 = 3."
+    },
+    {
+      "expression": "33³ : □³ = 11³. Įrašyk teigiamą daliklį.",
+      "answer": "3",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 33 : □ = 11. Daliklis 33 : 11 = 3."
+    },
+    {
+      "expression": "4² · 2² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "8",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "4 · 2 = 8."
+    },
+    {
+      "expression": "12³ : 3³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "4",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "12 : 3 = 4."
+    },
+    {
+      "expression": "4² · 4² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "16",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "4 · 4 = 16."
+    },
+    {
+      "expression": "20³ : 5³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "4",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "20 : 5 = 4."
+    },
+    {
+      "expression": "Apskaičiuok: 4² · 6².",
+      "answer": "576",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "4² · 6² = 24² = 576."
+    },
+    {
+      "expression": "Apskaičiuok: 28³ : 7³.",
+      "answer": "64",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "28³ : 7³ = 4³ = 64."
+    },
+    {
+      "expression": "Apskaičiuok: 4² · 8².",
+      "answer": "1024",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "4² · 8² = 32² = 1024."
+    },
+    {
+      "expression": "36³ : □³ = 9³. Įrašyk teigiamą daliklį.",
+      "answer": "4",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 36 : □ = 9. Daliklis 36 : 9 = 4."
+    },
+    {
+      "expression": "□² · 10² = 40². Įrašyk teigiamą pagrindą.",
+      "answer": "4",
+      "hint": "Rask trūkstamą sandaugos daugiklį.",
+      "solution": "□ · 10 = 40. Trūkstamas pagrindas 40 : 10 = 4."
+    },
+    {
+      "expression": "44³ : □³ = 11³. Įrašyk teigiamą daliklį.",
+      "answer": "4",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 44 : □ = 11. Daliklis 44 : 11 = 4."
+    },
+    {
+      "expression": "5² · 2² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "10",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "5 · 2 = 10."
+    },
+    {
+      "expression": "15³ : 3³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "5",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "15 : 3 = 5."
+    },
+    {
+      "expression": "5² · 4² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "20",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "5 · 4 = 20."
+    },
+    {
+      "expression": "25³ : 5³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "5",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "25 : 5 = 5."
+    },
+    {
+      "expression": "Apskaičiuok: 5² · 6².",
+      "answer": "900",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "5² · 6² = 30² = 900."
+    },
+    {
+      "expression": "Apskaičiuok: 35³ : 7³.",
+      "answer": "125",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "35³ : 7³ = 5³ = 125."
+    },
+    {
+      "expression": "Apskaičiuok: 5² · 8².",
+      "answer": "1600",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "5² · 8² = 40² = 1600."
+    },
+    {
+      "expression": "45³ : □³ = 9³. Įrašyk teigiamą daliklį.",
+      "answer": "5",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 45 : □ = 9. Daliklis 45 : 9 = 5."
+    },
+    {
+      "expression": "□² · 10² = 50². Įrašyk teigiamą pagrindą.",
+      "answer": "5",
+      "hint": "Rask trūkstamą sandaugos daugiklį.",
+      "solution": "□ · 10 = 50. Trūkstamas pagrindas 50 : 10 = 5."
+    },
+    {
+      "expression": "55³ : □³ = 11³. Įrašyk teigiamą daliklį.",
+      "answer": "5",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 55 : □ = 11. Daliklis 55 : 11 = 5."
+    },
+    {
+      "expression": "6² · 2² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "12",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "6 · 2 = 12."
+    },
+    {
+      "expression": "18³ : 3³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "6",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "18 : 3 = 6."
+    },
+    {
+      "expression": "6² · 4² = □². Įrašyk teigiamą pagrindą.",
+      "answer": "24",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "6 · 4 = 24."
+    },
+    {
+      "expression": "30³ : 5³ = □³. Įrašyk teigiamą pagrindą.",
+      "answer": "6",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "30 : 5 = 6."
+    },
+    {
+      "expression": "Apskaičiuok: 6² · 6².",
+      "answer": "1296",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "6² · 6² = 36² = 1296."
+    },
+    {
+      "expression": "Apskaičiuok: 42³ : 7³.",
+      "answer": "216",
+      "hint": "Padalyk pagrindus ir palik tą patį rodiklį.",
+      "solution": "42³ : 7³ = 6³ = 216."
+    },
+    {
+      "expression": "Apskaičiuok: 6² · 8².",
+      "answer": "2304",
+      "hint": "Sudaugink pagrindus ir palik tą patį rodiklį.",
+      "solution": "6² · 8² = 48² = 2304."
+    },
+    {
+      "expression": "54³ : □³ = 9³. Įrašyk teigiamą daliklį.",
+      "answer": "6",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 54 : □ = 9. Daliklis 54 : 9 = 6."
+    },
+    {
+      "expression": "□² · 10² = 60². Įrašyk teigiamą pagrindą.",
+      "answer": "6",
+      "hint": "Rask trūkstamą sandaugos daugiklį.",
+      "solution": "□ · 10 = 60. Trūkstamas pagrindas 60 : 10 = 6."
+    },
+    {
+      "expression": "66³ : □³ = 11³. Įrašyk teigiamą daliklį.",
+      "answer": "6",
+      "hint": "Koks skaičius turi dalyti pirmąjį pagrindą?",
+      "solution": "Ieškome skaičiaus, kuriam 66 : □ = 11. Daliklis 66 : 11 = 6."
+    }
+  ]
+}

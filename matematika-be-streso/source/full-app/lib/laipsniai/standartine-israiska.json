@@ -1,5 +1,5 @@
 {
-  "title": "Standartinė skaičiaus išraiška",
+  "title": "2.8. Standartinė skaičiaus išraiška",
   "blocks": [
     "Kaip užrašyti atstumą nesuklystant dėl nulių?",
     "Pavyzdžiui, 320 000 m yra 3,2 · 100 000 m. Kadangi 100 000 = 10⁵, trumpiau rašome 3,2 · 10⁵ m.",

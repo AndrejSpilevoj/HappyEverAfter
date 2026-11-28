@@ -1,3 +1,4 @@
+import equalExponents from './laipsniai/vienodi-rodikliai.json';
 import { diagrams } from './septinta/diagrams';
 import procentai from './septinta/procentai';
 import nelygybes from './septinta/nelygybes';
@@ -19,10 +20,10 @@ import lesson7 from './laipsniai/sveikieji-rodikliai.json';
 import lesson8 from './laipsniai/standartine-israiska.json';
 
 const topicTitles: Record<string, string> = {
-  "procentai": "Procentai ir palūkanos",
-  "nelygybes": "Nelygybės",
-  "priklausomybes": "Atvirkštinis proporcingumas",
-  "tieses": "Tiesės ir kampai",
+  "procentai": "3. Procentai",
+  "nelygybes": "4. Nelygybės",
+  "priklausomybes": "5. Atvirkštinis proporcingumas",
+  "tieses": "6. Tiesės",
   "daugiakampiai": "Trikampiai ir keturkampiai",
   "plotai": "Daugiakampių plotai",
   "apskritimai": "Apskritimas ir skritulys",
@@ -46,6 +47,7 @@ export const powersLessons = {
   'laipsnio-pagrindas': lesson2,
   'laipsniu-daugyba': lesson3,
   'laipsniu-dalyba': lesson4,
+  'vienodi-rodikliai': equalExponents,
   'laipsnio-kelimas': lesson5,
   'nulinis-neigiamas-rodiklis': lesson6,
   'sveikieji-rodikliai': lesson7,
@@ -56,7 +58,7 @@ export function renderPowersLesson(slug: keyof typeof powersLessons) {
   const lesson = powersLessons[slug];
   const prefix = slug.split("-")[0];
   const topicId = Object.hasOwn(topicTitles, prefix) ? prefix : "laipsniu";
-  const topicTitle = topicTitles[topicId] || "Laipsniai";
+  const topicTitle = topicTitles[topicId] || "2. Laipsniai";
   const grid = '<div class="diagram" role="img" aria-label="Trys eilės po tris plyteles"><span class="grid" style="--n:3;--size:108px">' + '<i></i>'.repeat(9) + '</span></div>';
   const sections = lesson.blocks.map((text, index) => {
     const heading = index % 2 === 0;
