@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flip Cards</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f172a;
+    --front: #1e293b;
+    --front-border: #334155;
+    --back: #4f46e5;
+    --text: #f8fafc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .card {
+    perspective: 900px;
+    aspect-ratio: 5 / 7;
+    container-type: size;
+    cursor: pointer;
+    outline: none;
+  }
+  .inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(.4, .2, .2, 1);
+  }
+  .card.flipped .inner { transform: rotateY(180deg); }
+  .card:focus-visible .inner { box-shadow: 0 0 0 3px #818cf8; border-radius: 14px; }
+  .face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    text-align: center;
+    padding: 8px;
+    overflow: hidden;
+  }
+  .face { line-height: 1; padding: 0; }
+  .front {
+    background: var(--front);
+    border: 2px solid var(--front-border);
+    font-size: 62cqw;
+    font-weight: 800;
+  }
+  .back {
+    background: #ffffff;
+    color: #1e2a4a;
+    transform: rotateY(180deg);
+    font-size: 95cqw;
+    font-weight: 800;
+    word-break: break-word;
+  }
+  .face.one { font-size: 55cqw; }
+  .face.two { font-size: 55cqw; white-space: nowrap; }
+  .face.med { font-size: 38cqw; white-space: nowrap; }
+  .face img { width: 100%; height: 100%; object-fit: contain; padding: 6px; pointer-events: none; }
+  .face.pic { background: transparent; border: 0; }
+  .face.long { font-size: 20cqw; padding: 6cqw; line-height: 1.15; }
+  .toolbar { text-align: center; margin: 20px auto 0; }
+  .toolbar button {
+    background: var(--front); color: var(--text);
+    border: 2px solid var(--front-border); border-radius: 14px;
+    padding: 12px 18px; font-size: 1rem; cursor: pointer; margin: 0 4px;
+  }
+  .toolbar button:hover { border-color: #818cf8; }
+  .card:hover .front { border-color: #818cf8; }
+  #status {
+    text-align: center;
+    margin: 0 auto 20px;
+    max-width: 600px;
+    color: #cbd5e1;
+  }
+  #status:empty { display: none; }
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .toolbar button { display: block; width: 100%; margin: 0 0 8px; }
+  }
+  #picker { margin-left: 8px; }
+</style>
+</head>
+<body>
+
+<div id="status"></div>
+<div class="grid" id="grid"></div>
+<div class="toolbar">
+  <button id="swapBtn">Showing: Numbers first (click to show Info first)</button>
+  <button id="resetBtn">Reset all cards</button>
+</div>
+
+<script>
+// ===== Vector playing cards drawn in code (no image files needed) =====
+const RED = "#c8102e", BLK = "#1b1b1b", BLUE = "#1f4e9c", GOLD = "#e3b23c", SKIN = "#f4d4b2";
+const SERIF = "'Playfair Display', 'Bodoni 72', Didot, Georgia, 'Times New Roman', serif";
+document.body.insertAdjacentHTML("afterbegin",
+ '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' +
+ '<symbol id="s-H" viewBox="0 0 100 100"><path d="M50 94 C14 66 2 46 2 28 C2 12 14 3 28 3 C39 3 47 9 50 18 C53 9 61 3 72 3 C86 3 98 12 98 28 C98 46 86 66 50 94Z"/></symbol>' +
+ '<symbol id="s-D" viewBox="0 0 100 100"><path d="M50 2 C60 25 76 40 92 50 C76 60 60 75 50 98 C40 75 24 60 8 50 C24 40 40 25 50 2Z"/></symbol>' +
+ '<symbol id="s-S" viewBox="0 0 100 100"><path d="M50 2 C58 24 96 42 96 64 C96 80 82 88 68 84 C62 82 58 79 55 75 C56 87 60 94 70 98 L30 98 C40 94 44 87 45 75 C42 79 38 82 32 84 C18 88 4 80 4 64 C4 42 42 24 50 2Z"/></symbol>' +
+ '<symbol id="s-C" viewBox="0 0 100 100"><circle cx="50" cy="27" r="23"/><circle cx="25" cy="63" r="23"/><circle cx="75" cy="63" r="23"/><path d="M50 50 C49 78 45 92 33 98 L67 98 C55 92 51 78 50 50Z"/></symbol>' +
+ '</defs></svg>');
+
+function pip(s, cx, cy, size, col, flip) {
+  const t = flip ? ' transform="rotate(180 ' + cx + ' ' + cy + ')"' : "";
+  return '<use href="#s-' + s + '" x="' + (cx - size / 2) + '" y="' + (cy - size / 2) +
+         '" width="' + size + '" height="' + size + '" fill="' + col + '"' + t + '/>';
+}
+
+const PIPS = (() => {
+  const L = 82, C = 125, R = 168;
+  const six = [[L,80],[R,80],[L,175],[R,175],[L,270],[R,270]];
+  const four = [[L,78],[R,78],[L,142],[R,142],[L,208],[R,208],[L,272],[R,272]];
+  return {
+    "2": [[C,80],[C,270]],
+    "3": [[C,80],[C,175],[C,270]],
+    "4": [[L,80],[R,80],[L,270],[R,270]],
+    "5": [[L,80],[R,80],[C,175],[L,270],[R,270]],
+    "6": six,
+    "7": six.concat([[C,127]]),
+    "8": six.concat([[C,127],[C,223]]),
+    "9": four.concat([[C,175]]),
+    "10": four.concat([[C,110],[C,240]])
+  };
+})();
+
+function courtHalf(r, s, col) {
+  const robe = (s === "H" || s === "D") ? RED : BLUE;
+  const trim = (s === "H" || s === "D") ? BLUE : RED;
+  let g = "";
+  // item in hand
+  if (r === "K") g += '<line x1="76" y1="176" x2="76" y2="92" stroke="#444" stroke-width="4"/><line x1="66" y1="126" x2="86" y2="126" stroke="' + GOLD + '" stroke-width="5"/><path d="M76 84 L72 94 L80 94Z" fill="#999"/>';
+  if (r === "Q") g += '<line x1="76" y1="176" x2="76" y2="118" stroke="#2f7d32" stroke-width="3"/><circle cx="76" cy="112" r="9" fill="' + col + '" stroke="#222" stroke-width="1"/><circle cx="76" cy="112" r="3.5" fill="' + GOLD + '"/>';
+  if (r === "J") g += '<line x1="176" y1="176" x2="176" y2="88" stroke="#444" stroke-width="3.5"/><path d="M176 88 L166 104 L176 100 L186 104Z" fill="#b9b9b9" stroke="#555" stroke-width="1"/>';
+  // robe
+  g += '<path d="M62 175 L68 150 Q82 134 108 130 L142 130 Q168 134 182 150 L188 175Z" fill="' + robe + '" stroke="#222" stroke-width="1.3"/>';
+  g += '<path d="M125 134 L125 175" stroke="' + GOLD + '" stroke-width="12"/><path d="M80 175 Q86 150 100 142" fill="none" stroke="' + trim + '" stroke-width="5"/><path d="M170 175 Q164 150 150 142" fill="none" stroke="' + trim + '" stroke-width="5"/>';
+  // hair behind face
+  if (r === "Q") g += '<path d="M104 88 Q90 120 98 152 L114 142 L111 100Z" fill="#a9651f" stroke="#4a2a0c" stroke-width="1"/><path d="M146 88 Q160 120 152 152 L136 142 L139 100Z" fill="#a9651f" stroke="#4a2a0c" stroke-width="1"/>';
+  if (r === "J") g += '<path d="M104 90 Q96 112 102 128 L114 112Z" fill="#6b3f1d" stroke="#3a210e" stroke-width="1"/><path d="M146 90 Q154 112 148 128 L136 112Z" fill="#6b3f1d" stroke="#3a210e" stroke-width="1"/>';
+  // neck + face
+  g += '<rect x="117" y="120" width="16" height="14" fill="' + SKIN + '"/>';
+  g += '<ellipse cx="125" cy="102" rx="18" ry="22" fill="' + SKIN + '" stroke="#5a3a1a" stroke-width="1.2"/>';
+  // collar
+  g += '<path d="M104 136 Q125 150 146 136 L150 146 Q125 160 100 146Z" fill="#fbf7ea" stroke="#222" stroke-width="1"/>';
+  // beard / moustache for king
+  if (r === "K") g += '<path d="M107 104 Q108 138 125 144 Q142 138 143 104 Q135 124 125 124 Q115 124 107 104Z" fill="#dcdcdc" stroke="#777" stroke-width="1"/><path d="M114 114 Q125 108 136 114 Q125 118 114 114Z" fill="#cfcfcf" stroke="#777" stroke-width=".8"/>';
+  // features
+  g += '<circle cx="118" cy="97" r="1.9" fill="#111"/><circle cx="132" cy="97" r="1.9" fill="#111"/>' +
+       '<path d="M113 92 Q118 89 122 92 M128 92 Q132 89 137 92" fill="none" stroke="#4a2a0c" stroke-width="1.2"/>' +
+       '<path d="M125 99 L122.5 109 L127.5 109" fill="none" stroke="#8a5a30" stroke-width="1.1"/>';
+  if (r !== "K") g += '<path d="M119 116 Q125 120 131 116" fill="none" stroke="#b03030" stroke-width="1.4"/>';
+  // headwear
+  if (r === "K") g += '<path d="M104 84 L101 58 L113 70 L125 54 L137 70 L149 58 L146 84Z" fill="' + GOLD + '" stroke="#7a5a10" stroke-width="1.3"/><circle cx="125" cy="72" r="3.4" fill="' + RED + '"/><circle cx="110" cy="78" r="2.4" fill="' + BLUE + '"/><circle cx="140" cy="78" r="2.4" fill="' + BLUE + '"/>';
+  if (r === "Q") g += '<path d="M106 84 L104 64 L115 74 L125 60 L135 74 L146 64 L144 84Z" fill="' + GOLD + '" stroke="#7a5a10" stroke-width="1.3"/><circle cx="125" cy="74" r="3" fill="' + RED + '"/><circle cx="115" cy="80" r="2" fill="#fff"/><circle cx="135" cy="80" r="2" fill="#fff"/>';
+  if (r === "J") g += '<path d="M103 86 Q106 60 128 62 Q148 64 147 86 Q125 78 103 86Z" fill="' + robe + '" stroke="#222" stroke-width="1.2"/><path d="M138 66 Q166 48 174 80 Q156 68 140 74Z" fill="' + GOLD + '" stroke="#7a5a10" stroke-width="1"/>';
+  // suit mark
+  g += pip(s, r === "J" ? 78 : 172, 150, 22, col, false);
+  return g;
+}
+
+function cardSVG(code) {
+  const m = String(code).toUpperCase().match(/^(10|[2-9JQKA])([CDHS])$/);
+  if (!m) return "";
+  const r = m[1], s = m[2];
+  const col = (s === "H" || s === "D") ? RED : BLK;
+  const ten = r === "10";
+  const corner =
+    '<text x="30" y="54" text-anchor="middle" font-family="' + SERIF + '" font-weight="700" font-size="' + (ten ? 36 : 44) + '"' +
+    (ten ? ' letter-spacing="-3"' : "") + ' fill="' + col + '">' + r + "</text>" + pip(s, 30, 82, 26, col, false);
+  let body = "";
+  if (r === "A") {
+    body = pip(s, 125, 175, s === "S" ? 120 : 92, col, false);
+  } else if ("JQK".includes(r)) {
+    body = '<rect x="58" y="55" width="134" height="240" rx="4" fill="#fffdf5" stroke="' + col + '" stroke-width="1.6"/>' +
+           '<g>' + courtHalf(r, s, col) + '</g>' +
+           '<g transform="rotate(180 125 175)">' + courtHalf(r, s, col) + '</g>' +
+           '<line x1="58" y1="175" x2="192" y2="175" stroke="' + col + '" stroke-width="1"/>';
+  } else {
+    const size = ten ? 42 : 46;
+    body = PIPS[r].map(p => pip(s, p[0], p[1], size, col, p[1] > 175)).join("");
+  }
+  return '<svg viewBox="0 0 250 350" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">' +
+    '<rect x="2" y="2" width="246" height="346" rx="16" fill="#fbf7ea" stroke="#b9b095" stroke-width="2"/>' +
+    corner + '<g transform="rotate(180 125 175)">' + corner + "</g>" + body + "</svg>";
+}
+
+const CSV_FILE = "Flip_Code.csv";
+const TOTAL = 52;
+
+const grid = document.getElementById("grid");
+const status = document.getElementById("status");
+
+// Build cards (front = number); backs are filled in once CSV is loaded
+const backs = {}, fronts = {}, cards = {};
+const info = {};
+let infoFirst = false;
+
+function fit(el, text) {
+  el.classList.remove("one", "two", "med", "long", "pic");
+  if (/^(10|[2-9JQKA])[CDHS]$/i.test(text)) {
+    el.classList.add("pic");
+    el.innerHTML = cardSVG(text);
+    return;
+  }
+  el.textContent = text;
+  if (text.length > 6) el.classList.add("long");
+  else if (text.length > 2) el.classList.add("med");
+  else if (text.length === 2) el.classList.add("two");
+  else el.classList.add("one");
+}
+
+function render() {
+  for (let i = 1; i <= TOTAL; i++) {
+    const num = String(i);
+    const inf = info[i] !== undefined ? info[i] : "?";
+    fit(fronts[i], infoFirst ? inf : num);
+    fit(backs[i], infoFirst ? num : inf);
+  }
+  document.getElementById("swapBtn").textContent = infoFirst
+    ? "Showing: Info first (click to show Numbers first)"
+    : "Showing: Numbers first (click to show Info first)";
+}
+
+for (let i = 1; i <= TOTAL; i++) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.tabIndex = 0;
+  card.innerHTML =
+    '<div class="inner">' +
+      '<div class="face front">' + i + '</div>' +
+      '<div class="face back">?</div>' +
+    '</div>';
+  backs[i] = card.querySelector(".back");
+  fronts[i] = card.querySelector(".front");
+  cards[i] = card;
+  const toggle = () => card.classList.toggle("flipped");
+  card.addEventListener("click", toggle);
+  card.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+  });
+  grid.appendChild(card);
+}
+
+// Simple CSV parser (handles quotes and BOM)
+function parseCSV(text) {
+  text = text.replace(/^\uFEFF/, "");
+  const rows = [];
+  let row = [], cell = "", inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      else if (c === '"') inQ = false;
+      else cell += c;
+    } else if (c === '"') inQ = true;
+    else if (c === ",") { row.push(cell); cell = ""; }
+    else if (c === "\n" || c === "\r") {
+      if (c === "\r" && text[i + 1] === "\n") i++;
+      row.push(cell); cell = "";
+      if (row.some(v => v !== "")) rows.push(row);
+      row = [];
+    } else cell += c;
+  }
+  row.push(cell);
+  if (row.some(v => v !== "")) rows.push(row);
+  return rows;
+}
+
+function applyCSV(text) {
+  const rows = parseCSV(text).slice(1); // skip header
+  let count = 0;
+  for (const [num, reveal] of rows) {
+    const n = parseInt(num, 10);
+    if (backs[n]) { info[n] = reveal; count++; }
+  }
+  render();
+  status.textContent = "";
+  console.log("Loaded " + count + " cards from CSV");
+}
+
+function showPicker() {
+  status.innerHTML =
+    "Could not load <b>" + CSV_FILE + "</b> automatically (browsers block this when opening a file directly). " +
+    'Select it here: <input type="file" id="picker" accept=".csv">';
+  document.getElementById("picker").addEventListener("change", e => {
+    const f = e.target.files[0];
+    if (f) f.text().then(applyCSV);
+  });
+}
+
+document.getElementById("swapBtn").addEventListener("click", () => {
+  infoFirst = !infoFirst;
+  for (let i = 1; i <= TOTAL; i++) cards[i].classList.remove("flipped");
+  render();
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  for (let i = 1; i <= TOTAL; i++) cards[i].classList.remove("flipped");
+});
+
+render();
+
+// Built-in copy of Flip_Code.csv so it works by double-click.
+const EMBEDDED = "Number,Reveal\n1,4C\n2,2H\n3,7D\n4,3C\n5,4H\n6,6D\n7,AS\n8,5H\n9,9S\n10,2S\n11,QH\n12,3D\n13,QC\n14,8H\n15,6S\n16,5S\n17,9H\n18,KC\n19,2D\n20,JH\n21,3S\n22,8S\n23,6H\n24,10C\n25,5D\n26,KD\n27,2C\n28,3H\n29,8D\n30,5C\n31,KS\n32,JD\n33,8C\n34,10S\n35,KH\n36,JC\n37,7S\n38,10H\n39,AD\n40,4S\n41,7H\n42,4D\n43,AC\n44,9C\n45,JS\n46,QD\n47,7C\n48,QS\n49,10D\n50,6C\n51,AH\n52,9D";
+applyCSV(EMBEDDED);
+
+// If the page is served (e.g. python -m http.server), the local CSV overrides the built-in copy.
+fetch(CSV_FILE)
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.text(); })
+  .then(t => { if (!t.trim().startsWith("<")) applyCSV(t); })
+  .catch(() => {});
+</script>
+</body>
+</html>
