@@ -20,10 +20,10 @@ import lesson7 from './laipsniai/sveikieji-rodikliai.json';
 import lesson8 from './laipsniai/standartine-israiska.json';
 
 const topicTitles: Record<string, string> = {
-  "procentai": "3. Procentai",
-  "nelygybes": "4. Nelygybės",
-  "priklausomybes": "5. Atvirkštinis proporcingumas",
-  "tieses": "6. Tiesės",
+  "procentai": "Procentai",
+  "nelygybes": "Nelygybės",
+  "priklausomybes": "Atvirkštinis proporcingumas",
+  "tieses": "Tiesės",
   "daugiakampiai": "Trikampiai ir keturkampiai",
   "plotai": "Daugiakampių plotai",
   "apskritimai": "Apskritimas ir skritulys",
@@ -58,7 +58,7 @@ export function renderPowersLesson(slug: keyof typeof powersLessons) {
   const lesson = powersLessons[slug];
   const prefix = slug.split("-")[0];
   const topicId = Object.hasOwn(topicTitles, prefix) ? prefix : "laipsniu";
-  const topicTitle = topicTitles[topicId] || "2. Laipsniai";
+  const topicTitle = topicTitles[topicId] || "Laipsniai";
   const grid = '<div class="diagram" role="img" aria-label="Trys eilės po tris plyteles"><span class="grid" style="--n:3;--size:108px">' + '<i></i>'.repeat(9) + '</span></div>';
   const sections = lesson.blocks.map((text, index) => {
     const heading = index % 2 === 0;

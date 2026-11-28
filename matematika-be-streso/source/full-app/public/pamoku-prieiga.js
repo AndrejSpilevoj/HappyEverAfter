@@ -27,7 +27,7 @@ const topics = [
   },
   {
     "id": "laipsniu",
-    "name": "2. Laipsniai (7 klasė)",
+    "name": "Laipsniai (7 klasė)",
     "lessons": [
       "2.1. Keliame kvadratu ir kubu",
       "2.2. Laipsnis su natūraliuoju rodikliu",
@@ -41,7 +41,7 @@ const topics = [
   },
   {
     "id": "procentai",
-    "name": "3. Procentai (7 klasė)",
+    "name": "Procentai (7 klasė)",
     "lessons": [
       "3.1. Ieškome, kiek procentų pakito dydis",
       "3.2. Ieškome dydžio, kai žinoma jo pradinė vertė ir pokytis procentais",
@@ -52,7 +52,7 @@ const topics = [
   },
   {
     "id": "nelygybes",
-    "name": "4. Nelygybės (7 klasė)",
+    "name": "Nelygybės (7 klasė)",
     "lessons": [
       "4.1. Skaičių palyginimas",
       "4.2. Skaičių intervalai",
@@ -69,7 +69,7 @@ const topics = [
   },
   {
     "id": "priklausomybes",
-    "name": "5. Atvirkštinis proporcingumas (7 klasė)",
+    "name": "Atvirkštinis proporcingumas (7 klasė)",
     "lessons": [
       "5.1. Tarpusavyje susiję dydžiai",
       "5.2. Atvirkščiai proporcingi dydžiai",
@@ -79,7 +79,7 @@ const topics = [
   },
   {
     "id": "tieses",
-    "name": "6. Tiesės (7 klasė)",
+    "name": "Tiesės (7 klasė)",
     "lessons": [
       "6.1. Taškas ir tiesė",
       "6.2. Susikertančiosios tiesės",
